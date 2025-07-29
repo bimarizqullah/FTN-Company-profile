@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum status_enum {
+  active
+  inactive
+}
+
+enum project_status_enum {
+  ongoing
+  pending
+  terminated
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  imagePath  String?
+  name       String
+  email      String    @unique
+  password   String
+  status     status_enum @default(active)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  roles      UserRole[]
+  sliders    Slider[]
+  galleries  Gallery[]
+  services   Service[]
+  projects   Project[]
+  managements Management[]
+  languages  Language[]
+}
+
+model Slider {
+  id         Int       @id @default(autoincrement())
+  imagePath  String
+  status     status_enum @default(active)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  createdBy  Int
+  user       User      @relation(fields: [createdBy], references: [id])
+}
+
+model Gallery {
+  id         Int       @id @default(autoincrement())
+  imagePath  String
+  description String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  createdBy  Int
+  user       User      @relation(fields: [createdBy], references: [id])
+}
+
+model Service {
+  id         Int       @id @default(autoincrement())
+  imagePath  String
+  name       String
+  description String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  createdBy  Int
+  user       User      @relation(fields: [createdBy], references: [id])
+}
+
+model Project {
+  id         Int       @id @default(autoincrement())
+  imagePath  String
+  name       String
+  location   String
+  description String
+  status     project_status_enum @default(ongoing)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  createdBy  Int
+  user       User      @relation(fields: [createdBy], references: [id])
+}
+
+model Management {
+  id         Int       @id @default(autoincrement())
+  imagePath  String
+  name       String
+  position   String
+  status     status_enum @default(active)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  createdBy  Int
+  user       User      @relation(fields: [createdBy], references: [id])
+}
+
+model Language {
+  id         Int       @id @default(autoincrement())
+  imagePath  String
+  code       String
+  language   String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  createdBy  Int
+  user       User      @relation(fields: [createdBy], references: [id])
+}
+
+model Role {
+  id         Int       @id @default(autoincrement())
+  role       String    @unique
+  description String
+  users      UserRole[]
+  permissions RolePermission[]
+}
+
+model Permission {
+  id          Int       @id @default(autoincrement())
+  permission  String    @unique
+  description String
+  roles       RolePermission[]
+}
+
+
+model UserRole {
+  userId Int
+  roleId Int
+  user   User @relation(fields: [userId], references: [id])
+  role   Role @relation(fields: [roleId], references: [id])
+  @@id([userId, roleId])
+}
+
+model RolePermission {
+  roleId       Int
+  permissionId Int
+  role         Role       @relation(fields: [roleId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id])
+  @@id([roleId, permissionId])
+}
