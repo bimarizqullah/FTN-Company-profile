@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import axios from 'axios'
 import DashboardHeader from '@/app/components/admin-dashboard/DashboardHeader'
 import Sidebar from '@/app/components/admin-dashboard/Sidebar'
+import { Stats } from 'fs'
 import StatsGrid from '@/app/components/admin-dashboard/StatsGrid'
 
 type Role = {
@@ -12,18 +13,27 @@ type Role = {
   role: string
 }
 
+type User = {
+  id: number
+  name: string
+  email: string
+  roles: { role: Role }[]
+  status: string
+}
+
 type AuthUser = {
   email: string
   roles: string[]
 }
 
-export default function CreateUserPage() {
+export default function EditUserPage() {
   const [roles, setRoles] = useState<Role[]>([])
   const [form, setForm] = useState({ name: '', email: '', password: '', roleId: '', status: '' })
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [authUser, setAuthUser] = useState<AuthUser | null>(null)
   const router = useRouter()
+  const { id } = useParams()
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -48,6 +58,7 @@ export default function CreateUserPage() {
       })
 
     fetchRoles()
+    fetchUser()
   }, [])
 
   async function fetchRoles() {
@@ -61,18 +72,34 @@ export default function CreateUserPage() {
     }
   }
 
+  async function fetchUser() {
+    try {
+      const res = await fetch(`/api/user/${id}`)
+      if (!res.ok) throw new Error('Gagal memuat pengguna')
+      const user: User = await res.json()
+      setForm({
+        name: user.name,
+        email: user.email,
+        password: '',
+        roleId: user.roles[0]?.role.id.toString() || '',
+        status: user.status
+      })
+    } catch (err) {
+      setError('Gagal memuat pengguna')
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     try {
-      const response = await axios.post('/api/user', form)
-      setForm({ name: '', email: '', password: '', roleId: '', status: '' })
+      const response = await axios.put(`/api/user/${id}`, form)
       setError('')
-      setSuccess('Pengguna berhasil dibuat!')
+      setSuccess('Pengguna berhasil diperbarui!')
       setTimeout(() => {
         router.push('/dashboard/users')
-      }, 1500) // Redirect setelah 1,5 detik
+      }, 1500)
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Gagal menambahkan pengguna')
+      setError(err.response?.data?.message || 'Gagal memperbarui pengguna')
       setSuccess('')
     }
   }
@@ -104,8 +131,14 @@ export default function CreateUserPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
-            <h1 className="text-2xl font-semibold text-slate-800 mb-2">Buat Pengguna Baru</h1>
-            <p className="text-slate-500 text-sm">Tambahkan pengguna baru ke dashboard admin</p>
+            <h1 className="text-2xl font-semibold text-slate-800 mb-2">Edit Pengguna</h1>
+            <p className="text-slate-500 text-sm">Perbarui data pengguna di dashboard admin</p>
+            <button
+              onClick={() => router.push('/dashboard/users')}
+              className="m-3 bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-2 px-4 rounded-lg hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              kembali
+            </button>
           </div>
 
           {/* Form */}
@@ -137,14 +170,6 @@ export default function CreateUserPage() {
                 className="text-black px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
                 required
               />
-              <input
-                type="password"
-                placeholder="Kata Sandi"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="text-black px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
-                required
-              />
               <select
                 value={form.roleId}
                 onChange={(e) => setForm({ ...form, roleId: e.target.value })}
@@ -156,13 +181,13 @@ export default function CreateUserPage() {
                   <option key={r.id} value={r.id}>{r.role}</option>
                 ))}
               </select>
-              <select
+              <select 
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
                 className="text-black px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
                 required
               >
-                <option value="">Pilih Status</option>
+                <option value="">Pilih Status</option> 
                 <option value="active">Aktif</option>
                 <option value="inactive">Tidak Aktif</option>
               </select>
@@ -170,7 +195,7 @@ export default function CreateUserPage() {
                 type="submit"
                 className="col-span-1 sm:col-span-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
-                Tambah Pengguna
+                Simpan Perubahan
               </button>
             </form>
           </div>

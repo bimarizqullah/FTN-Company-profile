@@ -3,17 +3,13 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import DashboardHeader from '../components/DashboardHeader'
-import WelcomeCard from '../components/WelcomeCard'
-import StatsGrid from '../components/StatsGrid'
-import QuickActions from '../components/QuickActions'
-import LoadingSpinner from '../components/LoadingSpinner'
-import Sidebar from '../components/Sidebar'
+import DashboardHeader from '@/app/components/admin-dashboard/DashboardHeader'
+import Sidebar from '@/app/components/admin-dashboard/Sidebar'
+import WelcomeCard from '@/app/components/admin-dashboard/WelcomeCard'
+import QuickActions from '@/app/components/admin-dashboard/QuickActions'
+import StatsGrid from '@/app/components/admin-dashboard/StatsGrid'
+import LoadingSpinner from '@/app/components/admin-dashboard/LoadingSpinner'
 
-interface User {
-  email: string
-  roles: string[]
-}
 
 export default function Dashboard() {
   const router = useRouter()
