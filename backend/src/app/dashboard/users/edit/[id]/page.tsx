@@ -190,7 +190,7 @@ export default function EditUserPage() {
                 <option value="">Pilih Status</option> 
                 <option value="active">Aktif</option>
                 <option value="inactive">Tidak Aktif</option>
-              </select>
+              </select> 
               <button
                 type="submit"
                 className="col-span-1 sm:col-span-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/jwt';
+import { verifyToken } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 
 export async function authMiddleware(req: NextRequest) {

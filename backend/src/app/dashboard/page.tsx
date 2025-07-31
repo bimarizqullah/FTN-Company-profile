@@ -1,4 +1,3 @@
-// dashboard/page.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -9,7 +8,6 @@ import WelcomeCard from '@/app/components/admin-dashboard/WelcomeCard'
 import QuickActions from '@/app/components/admin-dashboard/QuickActions'
 import StatsGrid from '@/app/components/admin-dashboard/StatsGrid'
 import LoadingSpinner from '@/app/components/admin-dashboard/LoadingSpinner'
-
 
 export default function Dashboard() {
   const router = useRouter()
@@ -38,10 +36,6 @@ export default function Dashboard() {
       })
   }, [])
 
-  if (!user) return <div>Loading...</div>
-
-
-
   const handleLogout = () => {
     localStorage.removeItem('token')
     router.push('/login')
@@ -51,14 +45,23 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <DashboardHeader onLogout={handleLogout} />
-      
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <WelcomeCard user={user} />
+      <div className="flex flex-col lg:flex-row">
+        {/* Sidebar */}
         <Sidebar />
-        <StatsGrid />
-        <QuickActions />
-      </main>
+
+        {/* Main content */}
+        <div className="flex-1 flex flex-col lg:pl-64">
+          <DashboardHeader onLogout={handleLogout} />
+          
+          <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+              <WelcomeCard user={user} />
+              <StatsGrid />
+              <QuickActions />
+            
+          </main>
+        </div>
+      </div>
     </div>
   )
 }

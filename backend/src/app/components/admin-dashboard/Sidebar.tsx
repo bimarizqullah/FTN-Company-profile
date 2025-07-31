@@ -1,4 +1,3 @@
-// components/Sidebar.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -20,7 +19,7 @@ interface ApiResponse<T> {
 }
 
 export default function Sidebar() {
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -117,6 +116,16 @@ export default function Sidebar() {
       href: '/dashboard/users',
     },
     {
+      id: 'role-permmission',
+      label: 'Role Permissions',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      ),
+      href: '/dashboard/role-permission',
+    },
+    {
       id: 'user-role',
       label: 'User Roles',
       icon: (
@@ -161,6 +170,7 @@ export default function Sidebar() {
 
   const handleMenuClick = (href: string) => {
     router.push(href)
+    setIsMobileOpen(false)
   }
 
   const getInitials = (name: string) => {
@@ -173,14 +183,26 @@ export default function Sidebar() {
   }
 
   return (
-    <aside 
-      className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200/60 transition-all duration-300 z-50 ${
-        isCollapsed ? 'w-16' : 'w-64'
-      }`}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200/60">
-        {!isCollapsed && (
+    <>
+      {/* Mobile menu button */}
+      <button
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white shadow-md"
+        onClick={() => setIsMobileOpen(!isMobileOpen)}
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      {/* Sidebar */}
+      <aside 
+        className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200/60 transition-all duration-300 z-50 w-64
+          ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
+          lg:translate-x-0
+        `}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-200/60">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-lg flex items-center justify-center">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -188,61 +210,41 @@ export default function Sidebar() {
               </svg>
             </div>
             <div>
-              <h2 className="font-semibold text-gray-900">Admin Panel</h2>
+              <h2 className="font-semibold text-gray-900 text-base">Admin Panel</h2>
               <p className="text-xs text-gray-500">v2.0.0</p>
             </div>
           </div>
-        )}
-        
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-        >
-          <svg 
-            className={`w-4 h-4 text-gray-500 transition-transform ${isCollapsed ? 'rotate-180' : ''}`} 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-          </svg>
-        </button>
-      </div>
+        </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-4">
-        <ul className="space-y-1">
-          {menuItems.map((item) => {
-            const isActive = pathname === item.href
-            return (
-              <li key={item.id}>
-                <button
-                  onClick={() => handleMenuClick(item.href)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
-                    isActive
-                      ? 'bg-blue-50 text-cyan-700 border border-cyan-200/50'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                  title={isCollapsed ? item.label : ''}
-                >
-                  <div className={`flex-shrink-0 ${isActive ? 'text-cyan-600' : 'text-gray-400'}`}>
-                    {item.icon}
-                  </div>
-                  {!isCollapsed && (
+        {/* Navigation */}
+        <nav className="flex-1 p-4 overflow-y-auto">
+          <ul className="space-y-1">
+            {menuItems.map((item) => {
+              const isActive = pathname === item.href
+              return (
+                <li key={item.id}>
+                  <button
+                    onClick={() => handleMenuClick(item.href)}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                      isActive
+                        ? 'bg-blue-50 text-cyan-700 border border-cyan-200/50'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    }`}
+                  >
+                    <div className={`flex-shrink-0 ${isActive ? 'text-cyan-600' : 'text-gray-400'}`}>
+                      {item.icon}
+                    </div>
                     <span className="font-medium text-sm">{item.label}</span>
-                  )}
-                </button>
-              </li>
-            )
-          })}
-        </ul>
-      </nav>
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        </nav>
 
-      {/* User Profile & Logout */}
-      <div className="border-t border-gray-200/60 p-4">
-        {!isCollapsed ? (
+        {/* User Profile & Logout */}
+        <div className="border-t border-gray-200/60 p-4">
           <div className="space-y-3">
-            {/* User Profile */}
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
               {loading ? (
                 <>
@@ -290,7 +292,6 @@ export default function Sidebar() {
               ) : null}
             </div>
 
-            {/* Logout Button */}
             <button
               onClick={handleLogout}
               disabled={loading}
@@ -302,55 +303,16 @@ export default function Sidebar() {
               <span className="font-medium text-sm">Logout</span>
             </button>
           </div>
-        ) : (
-          <div className="space-y-2">
-            {/* Collapsed User Profile */}
-            {loading ? (
-              <div className="w-8 h-8 bg-gray-300 rounded-full animate-pulse mx-auto"></div>
-            ) : error ? (
-              <button 
-                onClick={fetchUserProfile}
-                className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mx-auto hover:bg-red-200 transition-colors"
-                title="Error - Click to retry"
-              >
-                <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </button>
-            ) : user ? (
-              user.avatar ? (
-                <img 
-                  src={user.avatar} 
-                  alt={user.name}
-                  className="w-8 h-8 rounded-full object-cover mx-auto"
-                  title={`${user.name} (${user.email})`}
-                />
-              ) : (
-                <div 
-                  className="w-8 h-8 bg-gradient-to-br from-amber-400 to-amber-500 rounded-full flex items-center justify-center mx-auto"
-                  title={`${user.name} (${user.email})`}
-                >
-                  <span className="text-white text-xs font-medium">
-                    {getInitials(user.name)}
-                  </span>
-                </div>
-              )
-            ) : null}
+        </div>
+      </aside>
 
-            {/* Collapsed Logout Button */}
-            <button
-              onClick={handleLogout}
-              disabled={loading}
-              className="w-full p-2 text-gray-600 hover:bg-red-50 hover:text-red-700 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Logout"
-            >
-              <svg className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-            </button>
-          </div>
-        )}
-      </div>
-    </aside>
+      {/* Overlay for mobile */}
+      {isMobileOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+    </>
   )
 }
