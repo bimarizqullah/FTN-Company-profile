@@ -28,7 +28,7 @@ type AuthUser = {
 
 export default function EditUserPage() {
   const [roles, setRoles] = useState<Role[]>([])
-  const [form, setForm] = useState({ name: '', email: '', password: '', roleId: '', status: '' })
+  const [form, setForm] = useState({ name: '', email: '', password: '', status: '' })
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [authUser, setAuthUser] = useState<AuthUser | null>(null)
@@ -81,7 +81,6 @@ export default function EditUserPage() {
         name: user.name,
         email: user.email,
         password: '',
-        roleId: user.roles[0]?.role.id.toString() || '',
         status: user.status
       })
     } catch (err) {
@@ -170,17 +169,6 @@ export default function EditUserPage() {
                 className="text-black px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
                 required
               />
-              <select
-                value={form.roleId}
-                onChange={(e) => setForm({ ...form, roleId: e.target.value })}
-                className="text-black px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
-                required
-              >
-                <option value="">Pilih Peran</option>
-                {roles.map((r) => (
-                  <option key={r.id} value={r.id}>{r.role}</option>
-                ))}
-              </select>
               <select 
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value })}

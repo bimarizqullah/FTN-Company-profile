@@ -28,52 +28,31 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
-    const { roleId, permissionId } = body
+    const { roleId, permissionIds } = await req.json()
 
-    if (!roleId || !permissionId) {
-      return NextResponse.json(
-        { error: 'roleId and permissionId are required' },
-        { status: 400 }
-      )
+    if (!roleId || !Array.isArray(permissionIds)) {
+      return NextResponse.json({ success: false, message: 'Invalid input' }, { status: 400 })
     }
 
-    // Cek apakah kombinasi sudah ada
-    const existing = await prisma.rolePermission.findUnique({
-      where: {
-        roleId_permissionId: {
-          roleId: Number(roleId),
-          permissionId: Number(permissionId),
-        },
-      },
+    // Optional: konversi ke integer jika perlu
+    const numericRoleId = Number(roleId)
+    const numericPermissionIds = permissionIds.map((id: any) => Number(id))
+
+    // Simpan ke DB (contoh insert batch)
+    const created = await prisma.rolePermission.createMany({
+      data: numericPermissionIds.map((pid) => ({
+        roleId: numericRoleId,
+        permissionId: pid
+      })),
+      skipDuplicates: true,
     })
 
-    if (existing) {
-      return NextResponse.json(
-        { error: 'Role already has this permission assigned' },
-        { status: 409 }
-      )
-    }
-
-    const created = await prisma.rolePermission.create({
-      data: {
-        roleId: Number(roleId),
-        permissionId: Number(permissionId),
-      },
-    })
-
-    return NextResponse.json({ success: true, data: created }, { status: 201 })
+    return NextResponse.json({ success: true, data: created })
   } catch (error: any) {
-    console.error('[ROLE_PERMISSION_POST]', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Internal Server Error',
-        detail: error?.message || String(error),
-      },
-      { status: 500 }
-    )
+    console.error('Error:', error)
+    return NextResponse.json({ success: false, message: error.message }, { status: 500 })
   }
 }
+

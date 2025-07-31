@@ -47,10 +47,10 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password, roleId, status } = await req.json();
+    const { name, email, password, status } = await req.json();
 
     // Validasi input
-    if (!name || !email || !password || !roleId) {
+    if (!name || !email || !password) {
       return NextResponse.json({ message: 'Semua field wajib diisi' }, { status: 400 });
     }
 
@@ -71,12 +71,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'Email sudah terdaftar' }, { status: 400 });
     }
 
-    // Cek apakah roleId valid
-    const roleExists = await prisma.role.findUnique({ where: { id: parseInt(roleId) } });
-    if (!roleExists) {
-      return NextResponse.json({ message: 'Peran tidak valid' }, { status: 400 });
-    }
-
     // Hash kata sandi
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -87,11 +81,6 @@ export async function POST(req: NextRequest) {
         email,
         password: hashedPassword,
         status,
-        roles: {
-          create: {
-            roleId: parseInt(roleId),
-          },
-        },
       },
       select: {
         id: true,
