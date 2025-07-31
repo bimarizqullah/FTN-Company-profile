@@ -37,13 +37,16 @@ model User {
 }
 
 model Slider {
-  id         Int       @id @default(autoincrement())
+  id         Int         @id @default(autoincrement())
   imagePath  String
+  tagline    String?     
+  title      String?     
+  subtitle   String?     
   status     status_enum @default(active)
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
   createdBy  Int
-  user       User      @relation("SliderCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+  user       User        @relation("SliderCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
 }
 
 model Gallery {

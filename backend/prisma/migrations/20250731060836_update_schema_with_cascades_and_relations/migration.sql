@@ -89,7 +89,8 @@ ALTER TABLE `RolePermission` ADD CONSTRAINT `RolePermission_roleId_fkey` FOREIGN
 ALTER TABLE `RolePermission` ADD CONSTRAINT `RolePermission_permissionId_fkey` FOREIGN KEY (`permissionId`) REFERENCES `Permission`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- RenameIndex
-ALTER TABLE `RolePermission` RENAME INDEX `RolePermission_permissionId_fkey` TO `RolePermission_permissionId_idx`;
+ALTER TABLE `RolePermission` DROP INDEX `RolePermission_permissionId_fkey`, ADD INDEX `RolePermission_permissionId_idx` (`permissionId`);
 
 -- RenameIndex
-ALTER TABLE `UserRole` RENAME INDEX `UserRole_roleId_fkey` TO `UserRole_roleId_idx`;
+ALTER TABLE `UserRole` DROP INDEX `UserRole_roleId_fkey`, ADD INDEX `UserRole_roleId_idx` (`roleId`);
+
