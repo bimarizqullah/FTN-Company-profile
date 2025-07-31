@@ -1,3 +1,4 @@
+// components/Sidebar.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -8,7 +9,7 @@ interface User {
   name: string
   email: string
   roles: string[]
-  avatar?: string // This will be mapped from imagePath
+  avatar?: string
   status?: string
 }
 
@@ -26,7 +27,6 @@ export default function Sidebar() {
   const router = useRouter()
   const pathname = usePathname()
 
-  // Fetch user profile data from API
   const fetchUserProfile = async () => {
     try {
       setLoading(true)
@@ -48,7 +48,6 @@ export default function Sidebar() {
 
       if (!response.ok) {
         if (response.status === 401) {
-          // Token expired or invalid
           localStorage.removeItem('token')
           router.push('/login')
           return
@@ -71,7 +70,6 @@ export default function Sidebar() {
     }
   }
 
-  // Load user profile on component mount
   useEffect(() => {
     fetchUserProfile()
   }, [])
@@ -80,7 +78,6 @@ export default function Sidebar() {
     try {
       const token = localStorage.getItem('token')
       
-      // Optional: Call logout API to invalidate token on server
       if (token) {
         await fetch('/api/auth/logout', {
           method: 'POST',
@@ -88,12 +85,11 @@ export default function Sidebar() {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
-        }).catch(console.error) // Don't block logout if API call fails
+        }).catch(console.error)
       }
     } catch (error) {
       console.error('Logout API error:', error)
     } finally {
-      // Always remove token and redirect
       localStorage.removeItem('token')
       router.push('/login')
     }
@@ -105,7 +101,7 @@ export default function Sidebar() {
       label: 'Dashboard',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
         </svg>
       ),
       href: '/dashboard',
@@ -121,14 +117,14 @@ export default function Sidebar() {
       href: '/dashboard/users',
     },
     {
-      id: 'products',
-      label: 'Products',
+      id: 'user-role',
+      label: 'User Roles',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
         </svg>
       ),
-      href: '/products',
+      href: '/dashboard/user-role',
     },
     {
       id: 'orders',
@@ -167,7 +163,6 @@ export default function Sidebar() {
     router.push(href)
   }
 
-  // Get initials for avatar fallback
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -179,32 +174,32 @@ export default function Sidebar() {
 
   return (
     <aside 
-      className={`fixed left-0 top-0 h-full bg-white border-r border-slate-200 transition-all duration-300 z-50 ${
+      className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200/60 transition-all duration-300 z-50 ${
         isCollapsed ? 'w-16' : 'w-64'
       }`}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-slate-200">
+      <div className="flex items-center justify-between p-4 border-b border-gray-200/60">
         {!isCollapsed && (
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-lg flex items-center justify-center">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z" />
               </svg>
             </div>
             <div>
-              <h2 className="font-semibold text-slate-800">Admin Panel</h2>
-              <p className="text-xs text-slate-500">v1.0.0</p>
+              <h2 className="font-semibold text-gray-900">Admin Panel</h2>
+              <p className="text-xs text-gray-500">v2.0.0</p>
             </div>
           </div>
         )}
         
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
+          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
         >
           <svg 
-            className={`w-4 h-4 text-slate-600 transition-transform ${isCollapsed ? 'rotate-180' : ''}`} 
+            className={`w-4 h-4 text-gray-500 transition-transform ${isCollapsed ? 'rotate-180' : ''}`} 
             fill="none" 
             stroke="currentColor" 
             viewBox="0 0 24 24"
@@ -216,28 +211,25 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 p-4">
-        <ul className="space-y-2">
+        <ul className="space-y-1">
           {menuItems.map((item) => {
             const isActive = pathname === item.href
             return (
               <li key={item.id}>
                 <button
                   onClick={() => handleMenuClick(item.href)}
-                  className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
                     isActive
-                      ? 'bg-blue-50 text-blue-700 shadow-sm'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      ? 'bg-blue-50 text-cyan-700 border border-cyan-200/50'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                   title={isCollapsed ? item.label : ''}
                 >
-                  <div className={`flex-shrink-0 ${isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'}`}>
+                  <div className={`flex-shrink-0 ${isActive ? 'text-cyan-600' : 'text-gray-400'}`}>
                     {item.icon}
                   </div>
                   {!isCollapsed && (
                     <span className="font-medium text-sm">{item.label}</span>
-                  )}
-                  {isActive && !isCollapsed && (
-                    <div className="ml-auto w-2 h-2 bg-blue-600 rounded-full"></div>
                   )}
                 </button>
               </li>
@@ -247,28 +239,26 @@ export default function Sidebar() {
       </nav>
 
       {/* User Profile & Logout */}
-      <div className="border-t border-slate-200 p-4">
+      <div className="border-t border-gray-200/60 p-4">
         {!isCollapsed ? (
           <div className="space-y-3">
             {/* User Profile */}
-            <div className="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg">
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
               {loading ? (
-                // Loading skeleton
                 <>
-                  <div className="w-8 h-8 bg-slate-300 rounded-full animate-pulse"></div>
+                  <div className="w-8 h-8 bg-gray-300 rounded-full animate-pulse"></div>
                   <div className="flex-1 min-w-0">
-                    <div className="h-4 bg-slate-300 rounded animate-pulse mb-1"></div>
-                    <div className="h-3 bg-slate-200 rounded animate-pulse w-3/4"></div>
+                    <div className="h-4 bg-gray-300 rounded animate-pulse mb-1"></div>
+                    <div className="h-3 bg-gray-200 rounded animate-pulse w-3/4"></div>
                   </div>
                 </>
               ) : error ? (
-                // Error state
-                <div className="flex items-center space-x-3 text-red-600">
+                <div className="flex items-center gap-3 text-red-600">
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">Error loading profile</p>
+                    <p className="text-sm font-medium truncate">Error loading</p>
                     <button 
                       onClick={fetchUserProfile}
                       className="text-xs text-red-500 hover:text-red-700 underline"
@@ -278,7 +268,6 @@ export default function Sidebar() {
                   </div>
                 </div>
               ) : user ? (
-                // User profile loaded
                 <>
                   {user.avatar ? (
                     <img 
@@ -287,15 +276,15 @@ export default function Sidebar() {
                       className="w-8 h-8 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center">
                       <span className="text-white text-xs font-medium">
                         {getInitials(user.name)}
                       </span>
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-800 truncate">{user.name}</p>
-                    <p className="text-xs text-slate-500 truncate">{user.email}</p>
+                    <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
+                    <p className="text-xs text-gray-500 truncate">{user.email}</p>
                   </div>
                 </>
               ) : null}
@@ -305,9 +294,9 @@ export default function Sidebar() {
             <button
               onClick={handleLogout}
               disabled={loading}
-              className="w-full flex items-center space-x-3 px-3 py-2.5 text-slate-600 hover:bg-red-50 hover:text-red-700 rounded-lg transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-red-50 hover:text-red-700 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <svg className="w-5 h-5 text-slate-400 group-hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
               <span className="font-medium text-sm">Logout</span>
@@ -317,12 +306,12 @@ export default function Sidebar() {
           <div className="space-y-2">
             {/* Collapsed User Profile */}
             {loading ? (
-              <div className="w-8 h-8 bg-slate-300 rounded-full animate-pulse mx-auto"></div>
+              <div className="w-8 h-8 bg-gray-300 rounded-full animate-pulse mx-auto"></div>
             ) : error ? (
               <button 
                 onClick={fetchUserProfile}
                 className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mx-auto hover:bg-red-200 transition-colors"
-                title="Error loading profile - Click to retry"
+                title="Error - Click to retry"
               >
                 <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -338,7 +327,7 @@ export default function Sidebar() {
                 />
               ) : (
                 <div 
-                  className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto"
+                  className="w-8 h-8 bg-gradient-to-br from-amber-400 to-amber-500 rounded-full flex items-center justify-center mx-auto"
                   title={`${user.name} (${user.email})`}
                 >
                   <span className="text-white text-xs font-medium">
@@ -352,10 +341,10 @@ export default function Sidebar() {
             <button
               onClick={handleLogout}
               disabled={loading}
-              className="w-full p-2 text-slate-600 hover:bg-red-50 hover:text-red-700 rounded-lg transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full p-2 text-gray-600 hover:bg-red-50 hover:text-red-700 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               title="Logout"
             >
-              <svg className="w-5 h-5 text-slate-400 group-hover:text-red-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
             </button>

@@ -1,18 +1,21 @@
-// src/middlewares/authMiddleware.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/jwt';
 import { prisma } from '@/lib/db';
 
-// Middleware auth
 export async function authMiddleware(req: NextRequest) {
   try {
     const authHeader = req.headers.get('authorization');
+    console.log('Authorization Header:', authHeader);
+
     if (!authHeader) {
       return NextResponse.json({ message: 'Unauthorized: No token' }, { status: 401 });
     }
 
     const token = authHeader.split(' ')[1];
+    console.log('Extracted Token:', token);
+
     const decoded = verifyToken(token);
+    console.log('Decoded Token:', decoded);
 
     if (!decoded || typeof decoded === 'string') {
       return NextResponse.json({ message: 'Unauthorized: Invalid token' }, { status: 401 });
@@ -37,11 +40,12 @@ export async function authMiddleware(req: NextRequest) {
       },
     });
 
+    console.log('Authenticated User:', user);
+
     if (!user) {
       return NextResponse.json({ message: 'Unauthorized: User not found' }, { status: 401 });
     }
 
-    // Tambahkan user ke header (atau bisa juga return langsung user jika dipakai sebagai helper function)
     const requestHeaders = new Headers(req.headers);
     requestHeaders.set('x-user-id', String(user.id));
 

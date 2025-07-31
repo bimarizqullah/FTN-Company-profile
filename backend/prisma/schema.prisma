@@ -28,12 +28,12 @@ model User {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   roles      UserRole[]
-  sliders    Slider[]
-  galleries  Gallery[]
-  services   Service[]
-  projects   Project[]
-  managements Management[]
-  languages  Language[]
+  sliders    Slider[]   @relation("SliderCreatedBy")
+  galleries  Gallery[]  @relation("GalleryCreatedBy")
+  services   Service[]  @relation("ServiceCreatedBy")
+  projects   Project[]  @relation("ProjectCreatedBy")
+  managements Management[] @relation("ManagementCreatedBy")
+  languages  Language[] @relation("LanguageCreatedBy")
 }
 
 model Slider {
@@ -43,7 +43,7 @@ model Slider {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   createdBy  Int
-  user       User      @relation(fields: [createdBy], references: [id])
+  user       User      @relation("SliderCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
 }
 
 model Gallery {
@@ -53,7 +53,7 @@ model Gallery {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   createdBy  Int
-  user       User      @relation(fields: [createdBy], references: [id])
+  user       User      @relation("GalleryCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
 }
 
 model Service {
@@ -64,7 +64,7 @@ model Service {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   createdBy  Int
-  user       User      @relation(fields: [createdBy], references: [id])
+  user       User      @relation("ServiceCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
 }
 
 model Project {
@@ -77,7 +77,7 @@ model Project {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   createdBy  Int
-  user       User      @relation(fields: [createdBy], references: [id])
+  user       User      @relation("ProjectCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
 }
 
 model Management {
@@ -89,7 +89,7 @@ model Management {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   createdBy  Int
-  user       User      @relation(fields: [createdBy], references: [id])
+  user       User      @relation("ManagementCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
 }
 
 model Language {
@@ -100,37 +100,40 @@ model Language {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   createdBy  Int
-  user       User      @relation(fields: [createdBy], references: [id])
+  user       User      @relation("LanguageCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
 }
 
 model Role {
-  id         Int       @id @default(autoincrement())
-  role       String    @unique
-  description String
-  users      UserRole[]
+  id          Int       @id @default(autoincrement())
+  role        String    @unique
+  description String?
+  users       UserRole[]
   permissions RolePermission[]
 }
 
 model Permission {
   id          Int       @id @default(autoincrement())
   permission  String    @unique
-  description String
+  description String?
   roles       RolePermission[]
 }
-
 
 model UserRole {
   userId Int
   roleId Int
-  user   User @relation(fields: [userId], references: [id])
-  role   Role @relation(fields: [roleId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
   @@id([userId, roleId])
+  @@index([userId])
+  @@index([roleId])
 }
 
 model RolePermission {
   roleId       Int
   permissionId Int
-  role         Role       @relation(fields: [roleId], references: [id])
-  permission   Permission @relation(fields: [permissionId], references: [id])
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
   @@id([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
 }
