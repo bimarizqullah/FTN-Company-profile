@@ -1,4 +1,4 @@
-export type FeaturedProperty = {
+export type FeaturedProjects = {
     scr: string
     alt: string
 }

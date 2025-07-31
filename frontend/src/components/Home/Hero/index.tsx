@@ -16,9 +16,9 @@ const Hero: React.FC = () => {
               <Link href="/contactus" className='px-8 py-4 border border-white dark:border-dark bg-white dark:bg-dark text-dark dark:text-white duration-300 dark:hover:text-dark hover:bg-transparent hover:text-white text-base font-semibold rounded-full hover:cursor-pointer'>
                 Get in touch
               </Link>
-              <button className='px-8 py-4 border border-white dark:border-dark bg-transparent text-white dark:text-dark hover:bg-white dark:hover:bg-dark dark:hover:text-white hover:text-dark duration-300 text-base font-semibold rounded-full hover:cursor-pointer'>
+              <Link href='/projects' className='px-8 py-4 border border-white dark:border-dark bg-transparent text-white dark:text-dark hover:bg-white dark:hover:bg-dark dark:hover:text-white hover:text-dark duration-300 text-base font-semibold rounded-full hover:cursor-pointer'>
                 View Details
-              </button>
+              </Link>
             </div>
           </div>
           <div className='hidden md:block absolute -top-2 -right-68'>
@@ -36,7 +36,7 @@ const Hero: React.FC = () => {
           <div className='grid grid-cols-2 sm:grid-cols-4 md:flex gap-16 md:gap-24 sm:text-center dark:text-white text-black'>
             <div className='flex flex-col sm:items-center gap-3'>
               <Image
-                src={'/images/hero/sofa.svg'}
+                src={'/images/hero/shieldcheck.svg'}
                 alt='sofa'
                 width={32}
                 height={32}
@@ -44,7 +44,7 @@ const Hero: React.FC = () => {
                 unoptimized={true}
               />
               <Image
-                src={'/images/hero/dark-sofa.svg'}
+                src={'/images/hero/shieldcheck.svg'}
                 alt='sofa'
                 width={32}
                 height={32}
@@ -57,7 +57,7 @@ const Hero: React.FC = () => {
             </div>
             <div className='flex flex-col sm:items-center gap-3'>
               <Image
-                src={'/images/hero/tube.svg'}
+                src={'/images/hero/leaf.svg'}
                 alt='sofa'
                 width={32}
                 height={32}
@@ -65,7 +65,7 @@ const Hero: React.FC = () => {
                 unoptimized={true}
               />
               <Image
-                src={'/images/hero/dark-tube.svg'}
+                src={'/images/hero/leaf.svg'}
                 alt='sofa'
                 width={32}
                 height={32}
@@ -78,7 +78,7 @@ const Hero: React.FC = () => {
             </div>
             <div className='flex flex-col sm:items-center gap-3'>
               <Image
-                src={'/images/hero/parking.svg'}
+                src={'/images/hero/lightbulb.svg'}
                 alt='sofa'
                 width={32}
                 height={32}
@@ -86,7 +86,7 @@ const Hero: React.FC = () => {
                 unoptimized={true}
               />
               <Image
-                src={'/images/hero/dark-parking.svg'}
+                src={'/images/hero/lightbulb.svg'}
                 alt='sofa'
                 width={32}
                 height={32}

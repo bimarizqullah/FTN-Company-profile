@@ -11,16 +11,16 @@ export const propertyHomes: PropertyHomes[] = [
     area: 120,
     images: [
       {
-        src: "/images/properties/property1/property1.jpg",
+        src: "/images/projects/property1/property1.jpg",
       },
       {
-        src: "/images/properties/property1/image-2.jpg"
+        src: "/images/projects/property1/image-2.jpg"
       },
       {
-        src: "/images/properties/property1/image-3.jpg"
+        src: "/images/projects/property1/image-3.jpg"
       },
       {
-        src: "/images/properties/property1/image-4.jpg"
+        src: "/images/projects/property1/image-4.jpg"
       },
     ]
   },
@@ -34,16 +34,16 @@ export const propertyHomes: PropertyHomes[] = [
     area: 150,
     images: [
       {
-        src: "/images/properties/property2/property2.jpg",
+        src: "/images/projects/property2/property2.jpg",
       },
       {
-        src: "/images/properties/property2/image-2.jpg"
+        src: "/images/projects/property2/image-2.jpg"
       },
       {
-        src: "/images/properties/property2/image-3.jpg"
+        src: "/images/projects/property2/image-3.jpg"
       },
       {
-        src: "/images/properties/property2/image-4.jpg"
+        src: "/images/projects/property2/image-4.jpg"
       },
     ]
   },
@@ -57,16 +57,16 @@ export const propertyHomes: PropertyHomes[] = [
     area: 180,
     images: [
       {
-        src: "/images/properties/property3/property3.jpg",
+        src: "/images/projects/property3/property3.jpg",
       },
       {
-        src: "/images/properties/property3/image-2.jpg"
+        src: "/images/projects/property3/image-2.jpg"
       },
       {
-        src: "/images/properties/property3/image-3.jpg"
+        src: "/images/projects/property3/image-3.jpg"
       },
       {
-        src: "/images/properties/property3/image-4.jpg"
+        src: "/images/projects/property3/image-4.jpg"
       },
     ]
   },
@@ -80,16 +80,16 @@ export const propertyHomes: PropertyHomes[] = [
     area: 200,
     images: [
       {
-        src: "/images/properties/property4/property4.jpg",
+        src: "/images/projects/property4/property4.jpg",
       },
       {
-        src: "/images/properties/property4/image-2.jpg"
+        src: "/images/projects/property4/image-2.jpg"
       },
       {
-        src: "/images/properties/property4/image-3.jpg"
+        src: "/images/projects/property4/image-3.jpg"
       },
       {
-        src: "/images/properties/property4/image-4.jpg"
+        src: "/images/projects/property4/image-4.jpg"
       },
     ]
   },
@@ -103,16 +103,16 @@ export const propertyHomes: PropertyHomes[] = [
     area: 90,
     images: [
       {
-        src: "/images/properties/property5/property5.jpg",
+        src: "/images/projects/property5/property5.jpg",
       },
       {
-        src: "/images/properties/property5/image-2.jpg"
+        src: "/images/projects/property5/image-2.jpg"
       },
       {
-        src: "/images/properties/property5/image-3.jpg"
+        src: "/images/projects/property5/image-3.jpg"
       },
       {
-        src: "/images/properties/property5/image-4.jpg"
+        src: "/images/projects/property5/image-4.jpg"
       },
     ]
   },
@@ -126,16 +126,16 @@ export const propertyHomes: PropertyHomes[] = [
     area: 130,
     images: [
       {
-        src: "/images/properties/property6/property6.jpg",
+        src: "/images/projects/property6/property6.jpg",
       },
       {
-        src: "/images/properties/property6/image-2.jpg"
+        src: "/images/projects/property6/image-2.jpg"
       },
       {
-        src: "/images/properties/property6/image-3.jpg"
+        src: "/images/projects/property6/image-3.jpg"
       },
       {
-        src: "/images/properties/property6/image-4.jpg"
+        src: "/images/projects/property6/image-4.jpg"
       },
     ]
   },
@@ -149,16 +149,16 @@ export const propertyHomes: PropertyHomes[] = [
     area: 180,
     images: [
       {
-        src: "/images/properties/property7.jpg",
+        src: "/images/projects/property7.jpg",
       },
       {
-        src: "/images/properties/property9.jpg"
+        src: "/images/projects/property9.jpg"
       },
       {
-        src: "/images/properties/property2.jpg"
+        src: "/images/projects/property2.jpg"
       },
       {
-        src: "/images/properties/property5.jpg"
+        src: "/images/projects/property5.jpg"
       },
     ]
   },
@@ -172,16 +172,16 @@ export const propertyHomes: PropertyHomes[] = [
     area: 150,
     images: [
       {
-        src: "/images/properties/property8.jpg",
+        src: "/images/projects/property8.jpg",
       },
       {
-        src: "/images/properties/property2.jpg"
+        src: "/images/projects/property2.jpg"
       },
       {
-        src: "/images/properties/property4.jpg"
+        src: "/images/projects/property4.jpg"
       },
       {
-        src: "/images/properties/property7.jpg"
+        src: "/images/projects/property7.jpg"
       },
     ]
   },
@@ -195,16 +195,16 @@ export const propertyHomes: PropertyHomes[] = [
     area: 120,
     images: [
       {
-        src: "/images/properties/property9.jpg",
+        src: "/images/projects/property9.jpg",
       },
       {
-        src: "/images/properties/property3.jpg"
+        src: "/images/projects/property3.jpg"
       },
       {
-        src: "/images/properties/property5.jpg"
+        src: "/images/projects/property5.jpg"
       },
       {
-        src: "/images/properties/property9.jpg"
+        src: "/images/projects/property9.jpg"
       },
     ]
   },

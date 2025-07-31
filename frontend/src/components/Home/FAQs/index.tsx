@@ -38,19 +38,19 @@ const FAQ: React.FC = () => {
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger>1. Can I personalize my homely home?</AccordionTrigger>
                                     <AccordionContent>
-                                        Discover a diverse range of premium properties, from luxurious apartments to spacious villas, tailored to your needs.
+                                        Discover a diverse range of premium Projects, from luxurious apartments to spacious villas, tailored to your needs.
                                     </AccordionContent>
                                 </AccordionItem>
                                 <AccordionItem value="item-2">
                                     <AccordionTrigger>2. Where can I find homely homes?</AccordionTrigger>
                                     <AccordionContent>
-                                        Discover a diverse range of premium properties, from luxurious apartments to spacious villas, tailored to your needs.
+                                        Discover a diverse range of premium Projects, from luxurious apartments to spacious villas, tailored to your needs.
                                     </AccordionContent>
                                 </AccordionItem>
                                 <AccordionItem value="item-3">
                                     <AccordionTrigger>3. What steps to buy a homely?</AccordionTrigger>
                                     <AccordionContent>
-                                        Discover a diverse range of premium properties, from luxurious apartments to spacious villas, tailored to your needs.
+                                        Discover a diverse range of premium Projects, from luxurious apartments to spacious villas, tailored to your needs.
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>

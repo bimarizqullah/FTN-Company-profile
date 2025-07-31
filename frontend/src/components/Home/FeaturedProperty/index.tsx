@@ -11,7 +11,7 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 
-const FeaturedProperty: React.FC = () => {
+const FeaturedProjects: React.FC = () => {
   const [api, setApi] = React.useState<CarouselApi | undefined>(undefined);
   const [current, setCurrent] = React.useState(0);
   const [count, setCount] = React.useState(0);
@@ -197,4 +197,4 @@ const FeaturedProperty: React.FC = () => {
   );
 };
 
-export default FeaturedProperty;
+export default FeaturedProjects;
