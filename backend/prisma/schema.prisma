@@ -12,6 +12,11 @@ enum status_enum {
   inactive
 }
 
+enum gallery_status_enum {
+  active
+  inactive
+}
+
 enum project_status_enum {
   ongoing
   pending
@@ -50,13 +55,16 @@ model Slider {
 }
 
 model Gallery {
-  id         Int       @id @default(autoincrement())
-  imagePath  String
-  description String
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  createdBy  Int
-  user       User      @relation("GalleryCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+  id          Int                  @id @default(autoincrement())
+  imagePath   String
+  tagline     String?
+  title       String?
+  subtitle    String?
+  status      gallery_status_enum  @default(active)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  createdBy   Int
+  user        User @relation("GalleryCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
 }
 
 model Service {
