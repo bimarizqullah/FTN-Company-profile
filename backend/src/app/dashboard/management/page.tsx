@@ -7,32 +7,33 @@ import Sidebar from '@/app/components/admin-dashboard/Sidebar'
 import LoadingSpinner from '@/app/components/admin-dashboard/LoadingSpinner'
 import Image from 'next/image'
 import { toast } from 'react-hot-toast'
-import SlidersModal from '@/app/components/admin-dashboard/SlidersModal'
+import ManagementModal from '@/app/components/admin-dashboard/ManagementModal'
 import ConfirmModal from '@/app/components/admin-dashboard/ConfirmModal'
 import {
   PlusIcon,
   PencilIcon,
   TrashIcon,
-  PhotoIcon,
+  UserGroupIcon,
   EyeIcon,
   EyeSlashIcon,
-  SparklesIcon
+  SparklesIcon,
+  BriefcaseIcon
 } from '@heroicons/react/24/outline'
 import StatsGrid from '@/app/components/admin-dashboard/StatsGrid'
 
-export default function SlidersPage() {
+export default function ManagementPage() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
-  const [sliders, setSliders] = useState<any[]>([])
+  const [management, setManagement] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Modal sliders
+  // Modal management
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedSlider, setSelectedSlider] = useState<any>(null)
+  const [selectedManagement, setSelectedManagement] = useState<any>(null)
 
   // Modal konfirmasi delete
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
-  const [deleteSliderId, setDeleteSliderId] = useState<number | null>(null)
+  const [deleteManagementId, setDeleteManagementId] = useState<number | null>(null)
 
   // Auth check
   useEffect(() => {
@@ -55,52 +56,58 @@ export default function SlidersPage() {
       })
   }, [router])
 
-  // Fetch sliders
-  const fetchSliders = async () => {
+  // Fetch management
+  const fetchManagement = async () => {
     try {
       setLoading(true)
-      const res = await fetch('/api/sliders', {
+      const res = await fetch('/api/management', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       })
-      if (!res.ok) throw new Error('Failed fetch sliders')
-      const data = await res.json()
-      setSliders(data)
-    } catch {
-      toast.error('Gagal memuat sliders')
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.message || 'Failed fetch management')
+      }
+      const response = await res.json()
+      setManagement(response.data || [])
+    } catch (error) {
+      toast.error('Gagal memuat data management')
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    if (user) fetchSliders()
+    if (user) fetchManagement()
   }, [user])
 
-  // Delete slider
+  // Delete management
   const handleDeleteClick = (id: number) => {
-    setDeleteSliderId(id)
+    setDeleteManagementId(id)
     setIsConfirmOpen(true)
   }
 
   const handleDeleteConfirm = async () => {
-    if (!deleteSliderId) return
+    if (!deleteManagementId) return
     try {
-      const res = await fetch(`/api/sliders/${deleteSliderId}`, {
+      const res = await fetch(`/api/management/${deleteManagementId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       })
-      if (!res.ok) throw new Error('Delete gagal')
-      toast.success('Slider berhasil dihapus')
-      fetchSliders()
-    } catch {
-      toast.error('Gagal hapus slider')
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.message || 'Delete gagal')
+      }
+      toast.success('Data management berhasil dihapus')
+      fetchManagement()
+    } catch (error) {
+      toast.error('Gagal hapus data management')
     } finally {
       setIsConfirmOpen(false)
-      setDeleteSliderId(null)
+      setDeleteManagementId(null)
     }
   }
 
@@ -108,31 +115,39 @@ export default function SlidersPage() {
   const handleToggleStatus = async (id: number, newStatus: boolean) => {
     try {
       const status = newStatus ? 'active' : 'inactive'
-      const res = await fetch(`/api/sliders/${id}`, {
+      const formData = new FormData()
+      formData.append('status', status)
+      formData.append('name', management.find(m => m.id === id).name)
+      formData.append('position', management.find(m => m.id === id).position)
+      formData.append('imagePath', management.find(m => m.id === id).imagePath)
+
+      const res = await fetch(`/api/management/${id}`, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify({ status })
+        body: formData
       })
-      if (!res.ok) throw new Error('Gagal update status')
-      toast.success('Status slider diperbarui')
-      fetchSliders()
-    } catch {
-      toast.error('Gagal update status slider')
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.message || 'Gagal update status')
+      }
+      toast.success('Status management diperbarui')
+      fetchManagement()
+    } catch (error) {
+      toast.error('Gagal update status management')
     }
   }
 
-  // Open modal sliders
-  const handleOpenModal = (slider?: any) => {
-    setSelectedSlider(slider || null)
+  // Open modal management
+  const handleOpenModal = (managementItem?: any) => {
+    setSelectedManagement(managementItem || null)
     setIsModalOpen(true)
   }
 
   if (!user) return <LoadingSpinner />
 
-  const activeCount = sliders.filter(s => s.status === 'active').length
+  const activeCount = management.filter(m => m.status === 'active').length
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
@@ -153,21 +168,21 @@ export default function SlidersPage() {
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-                  <PhotoIcon className="w-8 h-8 text-blue-600" />
-                  Slider Management
+                  <UserGroupIcon className="w-8 h-8 text-blue-600" />
+                  Management Team
                 </h1>
                 <p className="text-gray-600 mt-2">
-                  Kelola gambar slider untuk halaman utama website
+                  Kelola tim management untuk ditampilkan di website
                 </p>
                 <div className="flex items-center gap-4 mt-4">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                     <span className="text-sm text-gray-600">
-                      {activeCount} slider aktif
+                      {activeCount} anggota aktif
                     </span>
                   </div>
                   <div className="text-sm text-gray-500">
-                    Maksimal 5 slider aktif
+                    Total {management.length} anggota
                   </div>
                 </div>
               </div>
@@ -176,7 +191,7 @@ export default function SlidersPage() {
                 className="group flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 <PlusIcon className="w-5 h-5 group-hover:rotate-90 transition-transform duration-200" />
-                <span className="font-medium">Tambah Slider</span>
+                <span className="font-medium">Tambah Anggota</span>
               </button>
             </div>
           </div>
@@ -186,38 +201,44 @@ export default function SlidersPage() {
             <div className="flex items-center justify-center py-20">
               <LoadingSpinner />
             </div>
-          ) : sliders.length === 0 ? (
+          ) : management.length === 0 ? (
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <PhotoIcon className="w-10 h-10 text-gray-400" />
+                <UserGroupIcon className="w-10 h-10 text-gray-400" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Belum Ada Slider
+                Belum Ada Data Management
               </h3>
               <p className="text-gray-600 mb-6">
-                Mulai tambahkan slider untuk menampilkan konten menarik di halaman utama
+                Mulai tambahkan anggota tim management untuk ditampilkan di website
               </p>
               <button
                 onClick={() => handleOpenModal()}
                 className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
               >
                 <PlusIcon className="w-5 h-5" />
-                <span>Tambah Slider Pertama</span>
+                <span>Tambah Anggota Pertama</span>
               </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {sliders.map((slider, index) => {
-                const isActive = slider.status === 'active'
-                const canActivate = !isActive && activeCount < 5
+              {management.map((member, index) => {
+                const isActive = member.status === 'active'
                 return (
-                  <div key={slider.id} className="bg-white rounded-2xl shadow-sm hover:shadow-xl border border-gray-100 transition overflow-hidden">
-                    <div className="relative h-52">
-                      <Image src={slider.imagePath} alt={slider.title} fill className="object-cover" />
+                  <div key={member.id} className="bg-white rounded-2xl shadow-sm hover:shadow-xl border border-gray-100 transition overflow-hidden">
+                    <div className="relative h-64">
+                      <Image 
+                        src={member.imagePath || '/default-avatar.png'} 
+                        alt={member.name} 
+                        fill 
+                        className="object-cover" 
+                      />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-4">
-                        <h3 className="text-white font-bold">{slider.title}</h3>
-                        <p className="text-white/80 text-sm">{slider.subtitle}</p>
-                        <p className="text-white/60 text-xs">{slider.tagline}</p>
+                        <h3 className="text-white font-bold text-lg">{member.name}</h3>
+                        <div className="flex items-center gap-2 mt-1">
+                          <BriefcaseIcon className="w-4 h-4 text-white/80" />
+                          <p className="text-white/80 text-sm">{member.position}</p>
+                        </div>
                       </div>
                       <div className="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-medium bg-black/50 text-white">
                         {isActive ? 'Aktif' : 'Nonaktif'}
@@ -230,30 +251,27 @@ export default function SlidersPage() {
                     <div className="p-4 space-y-2">
                       {/* Toggle Status */}
                       <button
-                        disabled={!canActivate && !isActive}
-                        onClick={() => handleToggleStatus(slider.id, !isActive)}
+                        onClick={() => handleToggleStatus(member.id, !isActive)}
                         className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 text-sm
                           ${isActive
                             ? 'bg-green-50 text-green-700 hover:bg-green-100'
-                            : canActivate
-                              ? 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                              : 'bg-gray-50 text-gray-400 cursor-not-allowed'
+                            : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                           }`}
                       >
                         {isActive ? <EyeIcon className="w-4 h-4" /> : <EyeSlashIcon className="w-4 h-4" />}
-                        <span>{isActive ? 'Slider Aktif' : canActivate ? 'Aktifkan Slider' : 'Kuota Penuh'}</span>
+                        <span>{isActive ? 'Status Aktif' : 'Status Nonaktif'}</span>
                       </button>
 
                       {/* Action Buttons */}
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleOpenModal(slider)}
+                          onClick={() => handleOpenModal(member)}
                           className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-50 text-blue-700 rounded-xl hover:bg-blue-100 transition-colors text-sm font-medium"
                         >
                           <PencilIcon className="w-4 h-4" /> Edit
                         </button>
                         <button
-                          onClick={() => handleDeleteClick(slider.id)}
+                          onClick={() => handleDeleteClick(member.id)}
                           className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 text-red-700 rounded-xl hover:bg-red-100 transition-colors text-sm font-medium"
                         >
                           <TrashIcon className="w-4 h-4" /> Hapus
@@ -265,8 +283,9 @@ export default function SlidersPage() {
               })}
             </div>
           )}
+          
           {/* Info Section */}
-          {sliders.length > 0 && (
+          {management.length > 0 && (
             <div className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -274,14 +293,14 @@ export default function SlidersPage() {
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-1">
-                    Tips Penggunaan Slider
+                    Tips Pengelolaan Tim Management
                   </h4>
                   <ul className="text-sm text-gray-600 space-y-1">
-                    <li>• Gunakan gambar yang tidak memiliki latar belakang</li>
-                    <li>• Gunakan gambar berkualitas tinggi dengan rasio 16:9 untuk hasil terbaik</li>
-                    <li>• Maksimal 5 slider dapat aktif bersamaan</li>
-                    <li>• Slider akan ditampilkan berurutan di halaman utama</li>
-                    <li>• Pastikan teks pada slider mudah dibaca dan menarik</li>
+                    <li>• Gunakan foto profil berkualitas tinggi dengan latar belakang profesional</li>
+                    <li>• Pastikan nama dan posisi/jabatan ditulis dengan jelas dan akurat</li>
+                    <li>• Foto sebaiknya berukuran persegi (1:1) untuk tampilan yang konsisten</li>
+                    <li>• Aktifkan hanya anggota yang masih aktif dalam organisasi</li>
+                    <li>• Urutkan berdasarkan hierarki atau tingkat kepentingan</li>
                   </ul>
                 </div>
               </div>
@@ -290,13 +309,13 @@ export default function SlidersPage() {
         </main>
       </div>
 
-      {/* Modal slider */}
+      {/* Modal management */}
       {isModalOpen && (
-        <SlidersModal
+        <ManagementModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          slider={selectedSlider}
-          onSuccess={fetchSliders}
+          management={selectedManagement}
+          onSuccess={fetchManagement}
         />
       )}
 
@@ -306,7 +325,7 @@ export default function SlidersPage() {
           isOpen={isConfirmOpen}
           onClose={() => setIsConfirmOpen(false)}
           onConfirm={handleDeleteConfirm}
-          message="Apakah Anda yakin ingin menghapus slider ini?"
+          message="Apakah Anda yakin ingin menghapus data management ini?"
         />
       )}
     </div>
