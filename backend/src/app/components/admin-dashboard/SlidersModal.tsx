@@ -242,7 +242,7 @@ export default function SlidersModal({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Masukkan judul yang menarik"
-                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
                 required
                 maxLength={50}
               />
@@ -258,7 +258,7 @@ export default function SlidersModal({
                 value={subtitle}
                 onChange={(e) => setSubtitle(e.target.value)}
                 placeholder="Deskripsi singkat untuk mendukung judul"
-                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
                 required
                 maxLength={80}
               />
@@ -274,7 +274,7 @@ export default function SlidersModal({
                 value={tagline}
                 onChange={(e) => setTagline(e.target.value)}
                 placeholder="Pesan singkat atau call-to-action"
-                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
                 required
                 maxLength={100}
               />
