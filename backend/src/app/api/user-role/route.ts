@@ -30,21 +30,16 @@ export async function GET(req: NextRequest) {
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    console.log('Request body:', body)
-
     const { userId, roleId } = body
 
     if (!userId || !roleId) {
       return NextResponse.json({ error: 'userId and roleId are required' }, { status: 400 })
     }
 
-    // Cek apakah kombinasi userId dan roleId sudah ada
-    const existing = await prisma.userRole.findUnique({
+    const existing = await prisma.userRole.findFirst({
       where: {
-        userId_roleId: {
-          userId: Number(userId),
-          roleId: Number(roleId),
-        },
+        userId: Number(userId),
+        roleId: Number(roleId),
       },
     })
 
@@ -52,7 +47,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'User already has this role assigned' }, { status: 409 })
     }
 
-    // Buat data baru
     const userRole = await prisma.userRole.create({
       data: {
         userId: Number(userId),

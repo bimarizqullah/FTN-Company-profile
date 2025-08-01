@@ -2,8 +2,10 @@
 'use client'
 
 import QuickActionButton from './QuickActionButton'
+import { useRouter } from 'next/navigation'
 
 export default function QuickActions() {
+  const router = useRouter()
   const actions = [
     {
       title: 'Add New User',
@@ -13,7 +15,7 @@ export default function QuickActions() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
         </svg>
       ),
-      onClick: () => console.log('Add new user clicked')
+      onClick: () => router.push('/dashboard/users')
     },
     {
       title: 'View Reports',

@@ -1,86 +1,142 @@
-// src/app/api/user-role/[id]/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import prisma from '@/lib/db'
+import { NextRequest } from 'next/server'
+import { PrismaClient } from '@prisma/client'
+import jwt from 'jsonwebtoken'
 
-interface Params {
-  params: {
-    id: string // userId sebagai param
-  }
-}
+const prisma = new PrismaClient()
 
-// GET: ambil user dan semua role-nya
-export async function GET(_: Request, { params }: Params) {
-  const userId = parseInt(params.id)
-
+export async function GET(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  const params = await context.params // ✅ Await params
+  const userRoleId = parseInt(params.id)
+  
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
+    const userRole = await prisma.userRole.findFirst({
+      where: { id: userRoleId },
       include: {
-        roles: {
-          include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        role: {
+          select: {
+            id: true,
             role: true,
+            description: true,
           },
         },
       },
     })
 
-    if (!user) {
-      return NextResponse.json({ message: 'User not found' }, { status: 404 })
+    if (!userRole) {
+      return Response.json({ message: 'User role not found' }, { status: 404 })
     }
 
-    const response = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      roles: user.roles.map((r) => ({
-        id: r.role.id,
-        role: r.role.role,
-        description: r.role.description,
-      })),
-    }
-
-    return NextResponse.json(response)
+    return Response.json(userRole)
   } catch (error) {
-    console.error(error)
-    return NextResponse.json({ error: 'Failed to get user roles' }, { status: 500 })
+    console.error('Error fetching user role:', error)
+    return Response.json(
+      { message: 'Internal server error' },
+      { status: 500 }
+    )
   }
 }
 
-// PUT: update semua role user (replace)
-export async function PUT(req: NextRequest, { params }: Params) {
-  const userId = parseInt(params.id)
-  const body = await req.json()
-
-  const newRoleIds: number[] = body.roleIds // contoh: [1, 2, 3]
-
-  try {
-    // hapus semua role lama
-    await prisma.userRole.deleteMany({ where: { userId } })
-
-    // tambah relasi baru
-    await prisma.userRole.createMany({
-      data: newRoleIds.map((roleId) => ({ userId, roleId })),
-    })
-
-    return NextResponse.json({ message: 'Roles updated successfully' })
-  } catch (error) {
-    console.error(error)
-    return NextResponse.json({ error: 'Failed to update roles' }, { status: 500 })
-  }
-}
-
-// DELETE: hapus semua role milik user
-export async function DELETE(_: NextRequest, { params }: Params) {
-  const userId = parseInt(params.id)
+export async function PUT(
+  req: NextRequest, 
+  context: { params: Promise<{ id: string }> }
+) {
+  const params = await context.params // ✅ Await params
+  const userRoleId = parseInt(params.id)
 
   try {
-    await prisma.userRole.deleteMany({
-      where: { userId },
+    const body = await req.json()
+    const { userId, roleId } = body
+
+    console.log('[UPDATE_USER_ROLE] Received data:', { userId, roleId, userRoleId })
+
+    // Validasi input
+    if (!userId || !roleId) {
+      console.log('[UPDATE_USER_ROLE_ERROR] Missing required fields:', { userId, roleId })
+      return Response.json(
+        { message: 'userId dan roleId wajib diisi' },
+        { status: 400 }
+      )
+    }
+
+    // Cek apakah user role exists
+    const existingUserRole = await prisma.userRole.findUnique({
+      where: { id: userRoleId }
     })
 
-    return NextResponse.json({ message: 'User roles deleted successfully' })
+    if (!existingUserRole) {
+      return Response.json(
+        { message: 'User role tidak ditemukan' },
+        { status: 404 }
+      )
+    }
+
+    // Cek apakah user exists
+    const userExists = await prisma.user.findUnique({
+      where: { id: userId }
+    })
+
+    if (!userExists) {
+      return Response.json(
+        { message: 'User tidak ditemukan' },
+        { status: 400 }
+      )
+    }
+
+    // Cek apakah role exists
+    const roleExists = await prisma.role.findUnique({
+      where: { id: roleId }
+    })
+
+    if (!roleExists) {
+      return Response.json(
+        { message: 'Role tidak ditemukan' },
+        { status: 400 }
+      )
+    }
+
+    // Update user role
+    const updatedUserRole = await prisma.userRole.update({
+      where: { id: userRoleId },
+      data: {
+        userId: userId,
+        roleId: roleId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        role: {
+          select: {
+            id: true,
+            role: true,
+            description: true,
+          },
+        },
+      },
+    })
+
+    console.log('[UPDATE_USER_ROLE_SUCCESS]', updatedUserRole)
+    return Response.json(updatedUserRole)
+
   } catch (error) {
-    console.error(error)
-    return NextResponse.json({ error: 'Failed to delete user roles' }, { status: 500 })
+    console.error('[UPDATE_USER_ROLE_ERROR]', error)
+    return Response.json(
+      { message: 'Gagal memperbarui user role' },
+      { status: 500 }
+    )
   }
 }

@@ -57,17 +57,18 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params; // Await params untuk mengatasi error
+    const { id } = await params;
     const userId = parseInt(id);
     if (isNaN(userId)) {
       return NextResponse.json({ message: 'ID pengguna tidak valid' }, { status: 400 });
     }
 
     const { name, email, password, roleId, status } = await req.json();
+    console.log('Received payload:', { name, email, password, roleId, status }); // Tambahkan log
 
     // Validasi input
-    if (!name || !email || !roleId || !status) {
-      return NextResponse.json({ message: 'Nama, email, peran, dan status wajib diisi' }, { status: 400 });
+    if (!name || !email || !status) {
+      return NextResponse.json({ message: 'Nama, email, dan status wajib diisi' }, { status: 400 });
     }
 
     // Validasi format email
@@ -84,12 +85,6 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       return NextResponse.json({ message: 'Email sudah terdaftar' }, { status: 400 });
     }
 
-    // Cek apakah roleId valid
-    const roleExists = await prisma.role.findUnique({ where: { id: parseInt(roleId) } });
-    if (!roleExists) {
-      return NextResponse.json({ message: 'Peran tidak valid' }, { status: 400 });
-    }
-
     // Validasi status
     if (!['active', 'inactive'].includes(status)) {
       return NextResponse.json({ message: 'Status tidak valid' }, { status: 400 });
@@ -100,12 +95,6 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       name,
       email,
       status,
-      roles: {
-        deleteMany: {}, // Hapus semua peran yang ada
-        create: {
-          roleId: parseInt(roleId), // Tambahkan peran baru
-        },
-      },
     };
 
     // Jika kata sandi diisi, hash dan perbarui
@@ -114,6 +103,24 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         return NextResponse.json({ message: 'Kata sandi harus minimal 6 karakter' }, { status: 400 });
       }
       updateData.password = await bcrypt.hash(password, 10);
+    }
+
+    // Jika roleId ada dan valid, perbarui peran
+    if (roleId !== undefined && roleId !== null && roleId !== '') {
+      const roleIdInt = parseInt(roleId);
+      if (isNaN(roleIdInt)) {
+        return NextResponse.json({ message: 'Peran tidak valid' }, { status: 400 });
+      }
+      const roleExists = await prisma.role.findUnique({ where: { id: roleIdInt } });
+      if (!roleExists) {
+        return NextResponse.json({ message: 'Peran tidak valid' }, { status: 400 });
+      }
+      updateData.roles = {
+        deleteMany: {},
+        create: {
+          roleId: roleIdInt,
+        },
+      };
     }
 
     // Perbarui pengguna
@@ -138,7 +145,6 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       },
     });
 
-    // Format respons
     const formattedUser = {
       id: user.id,
       name: user.name,

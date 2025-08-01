@@ -5,27 +5,30 @@ import { useRouter } from 'next/navigation'
 import axios from 'axios'
 
 export type FormField = {
-  name: string
-  label: string
-  type: 'text' | 'checkbox-list' | 'select' | 'customText'
-  placeholder?: string
-  required?: boolean
-  value: any
-  fetchUrl?: string
-  displayField?: string
-  descriptionField?: string
-  valueField?: string
-  readOnly?: boolean
-}
+  name: string;
+  label: string;
+  type: 'text' | 'checkbox-list' | 'select' | 'customText';
+  placeholder?: string;
+  required?: boolean;
+  value: any;
+  fetchUrl?: string;
+  displayField?: string;
+  descriptionField?: string;
+  valueField?: string;
+  readOnly?: boolean;
+  options?: { value: string; display: string }[];
+  validation?: (value: any) => string | null;
+};
 
 export type FormConfig = {
-  title: string
-  description: string
-  fields: FormField[]
-  submitUrl: string
-  submitMethod: 'POST' | 'PUT'
-  redirectUrl: string
-}
+  title: string;
+  description: string;
+  fields: FormField[];
+  submitUrl: string;
+  submitMethod: 'POST' | 'PUT';
+  redirectUrl: string;
+  validate?: (data: { [key: string]: any }) => string | null;
+};
 
 type Props = {
   config: FormConfig
@@ -96,35 +99,66 @@ export default function DynamicForm({ config, error, success, onSuccess, onError
   }
 
   async function handleSubmit(e: React.FormEvent) {
-  e.preventDefault()
-  try {
-    const token = localStorage.getItem('token')
-    if (!token) {
-      throw new Error('No authentication token found')
-    }
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
 
-    const payload = {
-      roleIds: [parseInt(formData.roleId)], // Ubah roleId menjadi array roleIds
-    }
-    console.log('Submitting payload:', payload)
+      // ✅ PERBAIKAN: Pastikan semua field dikirim, termasuk yang readOnly
+      const payload: { [key: string]: any } = {};
+      
+      config.fields.forEach((field) => {
+        // Ambil nilai dari formData, pastikan tidak undefined
+        let value = formData[field.name];
+        
+        // Untuk select field, pastikan value adalah number jika valueField adalah id
+        if (field.type === 'select' && field.valueField === 'id' && value !== undefined && value !== null) {
+          value = Number(value);
+        }
+        
+        // Sertakan semua field, termasuk yang readOnly
+        payload[field.name] = value;
+      });
 
-    await axios({
-      method: config.submitMethod,
-      url: config.submitUrl,
-      data: payload,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    })
-    onSuccess(config.submitMethod === 'PUT' ? 'Data berhasil diperbarui!' : 'Data berhasil dibuat!')
-  } catch (err: any) {
-    console.error('Error submitting form:', err.response?.data || err.message)
-    onError(
-      err.response?.data?.message || err.message || 'Gagal menyimpan perubahan'
-    )
+      // Validasi per field
+      for (const field of config.fields) {
+        if (field.required && (payload[field.name] === undefined || payload[field.name] === null || payload[field.name] === '')) {
+          throw new Error(`${field.label} wajib diisi`);
+        }
+        if (field.validation) {
+          const error = field.validation(payload[field.name]);
+          if (error) throw new Error(error);
+        }
+      }
+
+      // Validasi global jika ada
+      if (config.validate) {
+        const globalError = config.validate(payload);
+        if (globalError) throw new Error(globalError);
+      }
+
+      console.log('Submitting payload:', payload);
+      console.log('Submit URL:', config.submitUrl);
+
+      const response = await axios({
+        method: config.submitMethod,
+        url: config.submitUrl,
+        data: payload,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('API Response:', response.data);
+      onSuccess(config.submitMethod === 'PUT' ? 'Data berhasil diperbarui!' : 'Data berhasil dibuat!');
+    } catch (err: any) {
+      console.error('Error submitting form:', err.response?.data || err.message);
+      onError(err.response?.data?.message || err.message || 'Gagal menyimpan perubahan');
+    }
   }
-}
 
   return (
     <>
@@ -171,10 +205,20 @@ export default function DynamicForm({ config, error, success, onSuccess, onError
                 <label className="block text-sm font-medium text-gray-700 mb-3">{field.label}</label>
                 {field.type === 'text' ? (
                   field.readOnly ? (
-                    <p className="text-sm text-gray-600">{formData[field.name] || '-'}</p>
+                    <div>
+                      <p className="text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg border">
+                        {formData[field.name] || '-'}
+                      </p>
+                      {/* Hidden input untuk memastikan nilai dikirim */}
+                      <input
+                        type="hidden"
+                        value={formData[field.name] || ''}
+                        name={field.name}
+                      />
+                    </div>
                   ) : (
                     <input
-                      type="text"
+                      type={field.name === 'password' ? 'password' : 'text'}
                       value={formData[field.name] || ''}
                       onChange={(e) => handleInputChange(field.name, e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm"
@@ -182,26 +226,45 @@ export default function DynamicForm({ config, error, success, onSuccess, onError
                       required={field.required}
                     />
                   )
-                ) : field.type === 'select' && listData[field.name] ? (
+                ) : field.type === 'select' ? (
                   field.readOnly ? (
-                    <p className="text-sm text-gray-600">
-                      {listData[field.name].find((item: any) => item[field.valueField!] === formData[field.name])?.[field.displayField!] || '-'}
-                    </p>
+                    <div>
+                      <p className="text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg border">
+                        {field.options
+                          ? field.options.find((item) => item.value === formData[field.name])?.display || '-'
+                          : listData[field.name]?.find((item: any) => item[field.valueField!] === formData[field.name])?.[field.displayField!] || '-'}
+                      </p>
+                      {/* Hidden input untuk memastikan nilai dikirim */}
+                      <input
+                        type="hidden"
+                        value={formData[field.name] || ''}
+                        name={field.name}
+                      />
+                    </div>
                   ) : (
                     <select
                       value={formData[field.name] || ''}
-                      onChange={(e) => handleInputChange(field.name, e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        handleInputChange(field.name, field.valueField === 'id' ? Number(value) : value);
+                      }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm"
                       required={field.required}
                     >
                       <option value="" disabled>
                         {field.placeholder || 'Pilih opsi'}
                       </option>
-                      {listData[field.name].map((item: any) => (
-                        <option key={item[field.valueField!]} value={item[field.valueField!]}>
-                          {item[field.displayField!]}
-                        </option>
-                      ))}
+                      {field.options
+                        ? field.options.map((item) => (
+                            <option key={item.value} value={item.value}>
+                              {item.display}
+                            </option>
+                          ))
+                        : listData[field.name]?.map((item: any) => (
+                            <option key={item[field.valueField!]} value={item[field.valueField!]}>
+                              {item[field.displayField!]}
+                            </option>
+                          ))}
                     </select>
                   )
                 ) : field.type === 'checkbox-list' && listData[field.name] ? (
