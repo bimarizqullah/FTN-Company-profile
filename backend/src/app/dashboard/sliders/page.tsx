@@ -8,6 +8,16 @@ import LoadingSpinner from '@/app/components/admin-dashboard/LoadingSpinner'
 import Image from 'next/image'
 import { toast } from 'react-hot-toast'
 import SlidersModal from '@/app/components/admin-dashboard/SlidersModal'
+import ConfirmModal from '@/app/components/admin-dashboard/ConfirmModal'
+import {
+  PlusIcon,
+  PencilIcon,
+  TrashIcon,
+  PhotoIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  SparklesIcon
+} from '@heroicons/react/24/outline'
 
 export default function SlidersPage() {
   const router = useRouter()
@@ -15,9 +25,13 @@ export default function SlidersPage() {
   const [sliders, setSliders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Modal state
+  // Modal sliders
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedSlider, setSelectedSlider] = useState<any>(null) // null = create, object = edit
+  const [selectedSlider, setSelectedSlider] = useState<any>(null)
+
+  // Modal konfirmasi delete
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [deleteSliderId, setDeleteSliderId] = useState<number | null>(null)
 
   // Auth check
   useEffect(() => {
@@ -64,20 +78,28 @@ export default function SlidersPage() {
   }, [user])
 
   // Delete slider
-  const handleDelete = async (id: number) => {
-    if (!confirm('Hapus slider ini?')) return
+  const handleDeleteClick = (id: number) => {
+    setDeleteSliderId(id)
+    setIsConfirmOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteSliderId) return
     try {
-      const res = await fetch(`/api/sliders/${id}`, {
+      const res = await fetch(`/api/sliders/${deleteSliderId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       })
       if (!res.ok) throw new Error('Delete gagal')
-      toast.success('Slider dihapus')
+      toast.success('Slider berhasil dihapus')
       fetchSliders()
     } catch {
       toast.error('Gagal hapus slider')
+    } finally {
+      setIsConfirmOpen(false)
+      setDeleteSliderId(null)
     }
   }
 
@@ -101,16 +123,18 @@ export default function SlidersPage() {
     }
   }
 
-  // Open modal
+  // Open modal sliders
   const handleOpenModal = (slider?: any) => {
-    setSelectedSlider(slider || null) // null untuk tambah
+    setSelectedSlider(slider || null)
     setIsModalOpen(true)
   }
 
   if (!user) return <LoadingSpinner />
 
+  const activeCount = sliders.filter(s => s.status === 'active').length
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
       <div className="flex-1 flex flex-col lg:pl-64">
         <DashboardHeader onLogout={() => {
           localStorage.removeItem('token')
@@ -121,72 +145,116 @@ export default function SlidersPage() {
       <div className="flex">
         <Sidebar />
 
-        <main className="flex-1 p-6 ml-0 lg:ml-64">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 ml-0 lg:ml-64">
           {/* Header Section */}
-          <div className="mb-6 flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-semibold text-gray-900">Sliders</h1>
-              <p className="text-gray-600 text-sm">Kelola gambar slider untuk halaman utama</p>
+          <div className="mb-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+                  <PhotoIcon className="w-8 h-8 text-blue-600" />
+                  Slider Management
+                </h1>
+                <p className="text-gray-600 mt-2">
+                  Kelola gambar slider untuk halaman utama website
+                </p>
+                <div className="flex items-center gap-4 mt-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-gray-600">
+                      {activeCount} slider aktif
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    Maksimal 5 slider aktif
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => handleOpenModal()}
+                className="group flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                <PlusIcon className="w-5 h-5 group-hover:rotate-90 transition-transform duration-200" />
+                <span className="font-medium">Tambah Slider</span>
+              </button>
             </div>
-            <button
-              onClick={() => handleOpenModal()} // create mode
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
-            >
-              + Tambah Slider
-            </button>
           </div>
 
           {/* Content */}
           {loading ? (
-            <div className="flex items-center justify-center py-12">
+            <div className="flex items-center justify-center py-20">
               <LoadingSpinner />
             </div>
           ) : sliders.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">Belum ada slider</div>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <PhotoIcon className="w-10 h-10 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Belum Ada Slider
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Mulai tambahkan slider untuk menampilkan konten menarik di halaman utama
+              </p>
+              <button
+                onClick={() => handleOpenModal()}
+                className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+              >
+                <PlusIcon className="w-5 h-5" />
+                <span>Tambah Slider Pertama</span>
+              </button>
+            </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sliders.map(slider => {
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {sliders.map((slider, index) => {
                 const isActive = slider.status === 'active'
-                const activeCount = sliders.filter(s => s.status === 'active').length
-
+                const canActivate = !isActive && activeCount < 5
                 return (
-                  <div key={slider.id} className="bg-white shadow rounded-lg overflow-hidden border border-gray-200">
-                    <div className="relative w-full h-40">
-                      <Image
-                        src={slider.imagePath}
-                        alt="Slider"
-                        fill
-                        className="object-cover"
-                      />
-                      <div className="absolute bottom-0 left-0 right-0 bg-black/40 text-white p-2">
-                        <p className="font-bold">{slider.title}</p>
-                        <p className="text-sm">{slider.subtitle}</p>
-                        <p className="text-xs">{slider.tagline}</p>
+                  <div key={slider.id} className="bg-white rounded-2xl shadow-sm hover:shadow-xl border border-gray-100 transition overflow-hidden">
+                    <div className="relative h-52">
+                      <Image src={slider.imagePath} alt={slider.title} fill className="object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-4">
+                        <h3 className="text-white font-bold">{slider.title}</h3>
+                        <p className="text-white/80 text-sm">{slider.subtitle}</p>
+                        <p className="text-white/60 text-xs">{slider.tagline}</p>
+                      </div>
+                      <div className="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-medium bg-black/50 text-white">
+                        {isActive ? 'Aktif' : 'Nonaktif'}
+                      </div>
+                      <div className="absolute top-4 left-4 w-8 h-8 bg-white rounded-full flex items-center justify-center font-bold text-gray-700">
+                        {index + 1}
                       </div>
                     </div>
-                    <div className="p-4 flex flex-col gap-3">
+
+                    <div className="p-4 space-y-2">
+                      {/* Toggle Status */}
                       <button
-                        disabled={!isActive && activeCount >= 5}
+                        disabled={!canActivate && !isActive}
                         onClick={() => handleToggleStatus(slider.id, !isActive)}
-                        className={`px-3 py-1 rounded text-xs font-medium ${isActive
-                          ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                          : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                          } disabled:opacity-50`}
+                        className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 text-sm
+                          ${isActive
+                            ? 'bg-green-50 text-green-700 hover:bg-green-100'
+                            : canActivate
+                              ? 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                              : 'bg-gray-50 text-gray-400 cursor-not-allowed'
+                          }`}
                       >
-                        {isActive ? 'Aktif' : 'Nonaktif'}
+                        {isActive ? <EyeIcon className="w-4 h-4" /> : <EyeSlashIcon className="w-4 h-4" />}
+                        <span>{isActive ? 'Slider Aktif' : canActivate ? 'Aktifkan Slider' : 'Kuota Penuh'}</span>
                       </button>
-                      <div className="flex justify-between">
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-2">
                         <button
                           onClick={() => handleOpenModal(slider)}
-                          className="text-blue-600 hover:underline text-sm"
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-50 text-blue-700 rounded-xl hover:bg-blue-100 transition-colors text-sm font-medium"
                         >
-                          Edit
+                          <PencilIcon className="w-4 h-4" /> Edit
                         </button>
                         <button
-                          onClick={() => handleDelete(slider.id)}
-                          className="text-red-600 hover:underline text-sm"
+                          onClick={() => handleDeleteClick(slider.id)}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 text-red-700 rounded-xl hover:bg-red-100 transition-colors text-sm font-medium"
                         >
-                          Hapus
+                          <TrashIcon className="w-4 h-4" /> Hapus
                         </button>
                       </div>
                     </div>
@@ -195,23 +263,48 @@ export default function SlidersPage() {
               })}
             </div>
           )}
+          {/* Info Section */}
+          {sliders.length > 0 && (
+            <div className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <SparklesIcon className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-1">
+                    Tips Penggunaan Slider
+                  </h4>
+                  <ul className="text-sm text-gray-600 space-y-1">
+                    <li>• Gunakan gambar yang tidak memiliki latar belakang</li>
+                    <li>• Gunakan gambar berkualitas tinggi dengan rasio 16:9 untuk hasil terbaik</li>
+                    <li>• Maksimal 5 slider dapat aktif bersamaan</li>
+                    <li>• Slider akan ditampilkan berurutan di halaman utama</li>
+                    <li>• Pastikan teks pada slider mudah dibaca dan menarik</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
         </main>
       </div>
 
-      {/* Modal */}
+      {/* Modal slider */}
       {isModalOpen && (
         <SlidersModal
           isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false)
-            setSelectedSlider(null)
-          }}
+          onClose={() => setIsModalOpen(false)}
           slider={selectedSlider}
-          onSuccess={() => {
-            fetchSliders()
-            setIsModalOpen(false)
-            setSelectedSlider(null)
-          }}
+          onSuccess={fetchSliders}
+        />
+      )}
+
+      {/* Modal konfirmasi hapus */}
+      {isConfirmOpen && (
+        <ConfirmModal
+          isOpen={isConfirmOpen}
+          onClose={() => setIsConfirmOpen(false)}
+          onConfirm={handleDeleteConfirm}
+          message="Apakah Anda yakin ingin menghapus slider ini?"
         />
       )}
     </div>

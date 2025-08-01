@@ -60,51 +60,58 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const formData = await req.formData();
-    const imageFile = formData.get("image") as File | null;
-    const statusString = formData.get("status")?.toString() || null;
-    const title = formData.get("title")?.toString() || "";
-    const subtitle = formData.get("subtitle")?.toString() || "";
-    const tagline = formData.get("tagline")?.toString() || "";
+    const contentType = req.headers.get("content-type") || "";
+    let updateData: any = {};
 
-    let imagePath: string | undefined;
+    if (contentType.includes("application/json")) {
+      // 🔹 Handle JSON
+      const body = await req.json();
+      updateData = {
+        title: body.title || undefined,
+        subtitle: body.subtitle || undefined,
+        tagline: body.tagline || undefined,
+        status: body.status || undefined,
+      };
+    } 
+    else if (contentType.includes("multipart/form-data")) {
+      // 🔹 Handle FormData
+      const formData = await req.formData();
+      const imageFile = formData.get("image") as File | null;
+      updateData.title = formData.get("title")?.toString() || undefined;
+      updateData.subtitle = formData.get("subtitle")?.toString() || undefined;
+      updateData.tagline = formData.get("tagline")?.toString() || undefined;
+      updateData.status = formData.get("status")?.toString() || undefined;
 
-    if (imageFile) {
-      const bytes = await imageFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
-      const fileName = `${crypto.randomUUID()}${path.extname(imageFile.name)}`;
-      const filePath = path.join(process.cwd(), "public", "uploads", "sliders", fileName);
-
-      await mkdir(path.dirname(filePath), { recursive: true });
-      await writeFile(filePath, buffer);
-
-      imagePath = `/uploads/sliders/${fileName}`;
+      if (imageFile) {
+        const bytes = await imageFile.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        const fileName = `${crypto.randomUUID()}${path.extname(imageFile.name)}`;
+        const filePath = path.join(process.cwd(), "public", "uploads", "sliders", fileName);
+        await mkdir(path.dirname(filePath), { recursive: true });
+        await writeFile(filePath, buffer);
+        updateData.imagePath = `/uploads/sliders/${fileName}`;
+      }
+    } 
+    else {
+      return NextResponse.json({ message: "Unsupported Content-Type" }, { status: 400 });
     }
 
-    // 🚦 Cek batas slider aktif saat update
-    if (statusString === "active") {
+    // 🚦 Cek batas slider aktif
+    if (updateData.status === "active") {
       const activeCount = await prisma.slider.count({
-        where: {
-          status: "active",
-          NOT: { id: Number(params.id) }, // Kecualikan slider yang sedang diupdate
-        },
+        where: { status: "active", NOT: { id: Number(params.id) } },
       });
       if (activeCount >= 5) {
         return NextResponse.json({ message: "Maksimal 5 slider aktif diperbolehkan" }, { status: 400 });
       }
     }
 
-    const updateData: any = { title, subtitle, tagline };
-    if (imagePath) updateData.imagePath = imagePath;
-    if (statusString) updateData.status = statusString as status_enum;
-
     const updatedSlider = await prisma.slider.update({
       where: { id: Number(params.id) },
       data: updateData,
     });
 
-    return NextResponse.json(updatedSlider, { status: 200 });
+    return NextResponse.json(updatedSlider);
   } catch (error) {
     console.error("PUT Slider Error:", error);
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
