@@ -1,78 +1,61 @@
-// components/StatsGrid.tsx
 'use client'
 
 import StatsCard from './StatsCard'
 import { useEffect, useState } from 'react'
 
+// Fungsi bantu untuk mengubah string SVG menjadi React element
+function parseSvg(svgString: string) {
+  return <span dangerouslySetInnerHTML={{ __html: svgString }} />
+}
+
+interface StatItem {
+  title: string
+  value: string
+  change: string
+  changeType: 'positive' | 'negative' | 'neutral'
+  icon: string
+  bgColor: string
+  iconColor: string
+}
+
 export default function StatsGrid() {
-  const [totalUsers, setTotalUsers] = useState<number | null>(null)
+  const [stats, setStats] = useState<StatItem[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const res = await fetch('/api/user/stats')
-        const data = await res.json()
-        setTotalUsers(data.value)
+        const res = await fetch('/api/summary/stats')
+        const json = await res.json()
+        setStats(json.data)
       } catch (error) {
         console.error('Failed to fetch stats:', error)
+      } finally {
+        setLoading(false)
       }
     }
 
     fetchStats()
   }, [])
 
-  const statsData = [
-    {
-      title: 'Total Users',
-      value: totalUsers !== null ? totalUsers.toLocaleString() : 'Loading...',
-      change: '+5%',
-      changeType: 'positive' as const,
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-        </svg>
-      )
-    },
-    {
-      title: 'Revenue',
-      value: '$45,678',
-      change: '+8%',
-      changeType: 'positive' as const,
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-        </svg>
-      )
-    },
-    {
-      title: 'Orders',
-      value: '567',
-      change: '-3%',
-      changeType: 'negative' as const,
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-        </svg>
-      )
-    },
-    {
-      title: 'Growth',
-      value: '23.5%',
-      change: '+15%',
-      changeType: 'positive' as const,
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-        </svg>
-      )
-    }
-  ]
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      {statsData.map((stat, index) => (
-        <StatsCard key={index} {...stat} />
-      ))}
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-6">
+      {loading ? (
+        Array.from({ length: 4 }).map((_, idx) => (
+          <div key={idx} className="h-[100px] bg-gray-100 rounded-xl animate-pulse" />
+        ))
+      ) : (
+        stats.map((stat, index) => (
+          <StatsCard
+            key={index}
+            title={stat.title}
+            value={stat.value}
+            change={stat.change}
+            changeType={stat.changeType === 'neutral' ? 'positive' : stat.changeType} // fallback to positive for neutral style
+            icon={parseSvg(stat.icon)}
+          />
+        ))
+      )}
     </div>
   )
 }
