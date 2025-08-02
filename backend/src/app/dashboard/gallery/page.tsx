@@ -155,7 +155,7 @@ export default function GalleryPage() {
                   Gallery Management
                 </h1>
                 <p className="text-gray-600 mt-2">
-                  Kelola gambar gallery untuk halaman gallery website
+                  Kelola foto untuk halaman gallery website
                 </p>
                 <div className="flex items-center gap-4 mt-4">
                   <div className="flex items-center gap-2">
@@ -171,7 +171,7 @@ export default function GalleryPage() {
                 className="group flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 <PlusIcon className="w-5 h-5 group-hover:rotate-90 transition-transform duration-200" />
-                <span className="font-medium">Tambah Gallery</span>
+                <span className="font-medium">Tambah Foto</span>
               </button>
             </div>
           </div>
@@ -187,17 +187,17 @@ export default function GalleryPage() {
                 <PhotoIcon className="w-10 h-10 text-gray-400" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Belum Ada Gallery
+                Belum Ada Foto
               </h3>
               <p className="text-gray-600 mb-6">
-                Mulai tambahkan gallery untuk menampilkan konten menarik di halaman gallery
+                Mulai tambahkan foto untuk menampilkan konten menarik di halaman gallery
               </p>
               <button
                 onClick={() => handleOpenModal()}
                 className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
               >
                 <PlusIcon className="w-5 h-5" />
-                <span>Tambah Gallery Pertama</span>
+                <span>Tambah Foto Pertama</span>
               </button>
             </div>
           ) : (
@@ -269,11 +269,11 @@ export default function GalleryPage() {
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-1">
-                    Tips Penggunaan Gallery
+                    Tips Upload Foto
                   </h4>
                   <ul className="text-sm text-gray-600 space-y-1">
                     <li>• Gunakan gambar berkualitas tinggi dengan rasio 16:9 untuk hasil terbaik</li>
-                    <li>• Pastikan teks pada gallery mudah dibaca dan menarik</li>
+                    <li>• Pastikan teks pada foto mudah dibaca dan menarik</li>
                   </ul>
                 </div>
               </div>
