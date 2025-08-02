@@ -3,6 +3,7 @@
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
+    "jsx": "react-jsx", // or "react" for older versions
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,

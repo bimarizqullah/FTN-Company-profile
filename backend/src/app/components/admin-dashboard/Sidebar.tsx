@@ -1,8 +1,8 @@
-// components/Sidebar.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import React from 'react'
 
 interface User {
   id: string
@@ -17,6 +17,14 @@ interface ApiResponse<T> {
   success: boolean
   data?: T
   message?: string
+}
+
+interface MenuItem {
+  id: string
+  label: string
+  icon: React.ReactNode
+  href: string
+  group: string // Properti baru untuk pengelompokan
 }
 
 export default function Sidebar() {
@@ -95,16 +103,20 @@ export default function Sidebar() {
     }
   }
 
-  const menuItems = [
+  const menuItems: MenuItem[] = [
     {
       id: 'dashboard',
       label: 'Dashboard',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5v4" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v4" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 5v4" />
         </svg>
       ),
       href: '/dashboard',
+      group: 'General',
     },
     {
       id: 'users',
@@ -115,82 +127,91 @@ export default function Sidebar() {
         </svg>
       ),
       href: '/dashboard/users',
+      group: 'User Management',
     },
     {
       id: 'user-role',
       label: 'User Roles',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l2 2-2 2" />
         </svg>
       ),
       href: '/dashboard/user-role',
+      group: 'User Management',
     },
-
     {
       id: 'role-permission',
       label: 'Role Permission',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
         </svg>
       ),
       href: '/dashboard/role-permission',
+      group: 'User Management',
     },
     {
-      id: 'managements', // ID unik
-      label: 'Management', // Teks yang akan ditampilkan di sidebar
+      id: 'managements',
+      label: 'Official Management',
       icon: (
-        // Anda bisa memilih ikon SVG yang sesuai. Ini contoh ikon gambar/media.
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+        </svg>
+      ),
+      href: '/dashboard/management',
+      group: 'Content Management',
+    },
+    {
+      id: 'sliders',
+      label: 'Sliders',
+      icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h8" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8l4 4-4 4" />
         </svg>
       ),
-      href: '/dashboard/management', // Path ke halaman Sliders
+      href: '/dashboard/sliders',
+      group: 'Content Management',
     },
     {
-      id: 'sliders', // ID unik
-      label: 'Sliders', // Teks yang akan ditampilkan di sidebar
+      id: 'gallery',
+      label: 'Galleries',
       icon: (
-        // Anda bisa memilih ikon SVG yang sesuai. Ini contoh ikon gambar/media.
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+      ),
+      href: '/dashboard/gallery',
+      group: 'Content Management',
+    },
+    {
+      id: 'services',
+      label: 'Services',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0H8m8 0v2a2 2 0 01-2 2H10a2 2 0 01-2-2V6m8 0H8" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v4" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 13h8" />
+        </svg>
+      ),
+      href: '/dashboard/services',
+      group: 'Content Management',
+    },
+    {
+      id: 'projects',
+      label: 'Project',
+      icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h8" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8l4 4-4 4" />
         </svg>
       ),
-      href: '/dashboard/sliders', // Path ke halaman Sliders
-    },
-    // --- END: Tambahkan Sliders di sini ---
-    {
-      id: 'gallery', // ID unik
-      label: 'Gallery', // Teks yang akan ditampilkan di sidebar
-      icon: (
-        // Anda bisa memilih ikon SVG yang sesuai. Ini contoh ikon gambar/media.
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      ),
-      href: '/dashboard/gallery', // Path ke halaman Gallery
-    },
-    {
-      id: 'services', // ID unik
-      label: 'Services', // Teks yang akan ditampilkan di sidebar
-      icon: (
-        // Anda bisa memilih ikon SVG yang sesuai. Ini contoh ikon gambar/media.
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      ),
-      href: '/dashboard/services', // Path ke halaman Services
-    },
-    {
-      id: 'orders',
-      label: 'Orders',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-        </svg>
-      ),
-      href: '/orders',
+      href: '/dashboard/projects',
+      group: 'Content Management',
     },
     {
       id: 'analytics',
@@ -201,6 +222,7 @@ export default function Sidebar() {
         </svg>
       ),
       href: '/analytics',
+      group: 'General',
     },
     {
       id: 'settings',
@@ -212,6 +234,7 @@ export default function Sidebar() {
         </svg>
       ),
       href: '/settings',
+      group: 'Configuration',
     },
   ]
 
@@ -227,6 +250,15 @@ export default function Sidebar() {
       .toUpperCase()
       .slice(0, 2)
   }
+
+  // Kelompokkan menuItems berdasarkan group
+  const groupedMenuItems = menuItems.reduce((acc, item) => {
+    if (!acc[item.group]) {
+      acc[item.group] = []
+    }
+    acc[item.group].push(item)
+    return acc
+  }, {} as Record<string, MenuItem[]>)
 
   return (
     <aside 
@@ -266,32 +298,41 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4">
-        <ul className="space-y-1">
-          {menuItems.map((item) => {
-            const isActive = pathname === item.href
-            return (
-              <li key={item.id}>
-                <button
-                  onClick={() => handleMenuClick(item.href)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
-                    isActive
-                      ? 'bg-blue-50 text-cyan-700 border border-cyan-200/50'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                  title={isCollapsed ? item.label : ''}
-                >
-                  <div className={`flex-shrink-0 ${isActive ? 'text-cyan-600' : 'text-gray-400'}`}>
-                    {item.icon}
-                  </div>
-                  {!isCollapsed && (
-                    <span className="font-medium text-sm">{item.label}</span>
-                  )}
-                </button>
-              </li>
-            )
-          })}
-        </ul>
+      <nav className="flex-1 p-4 overflow-y-auto">
+        {Object.entries(groupedMenuItems).map(([group, items]) => (
+          <div key={group} className="mb-6">
+            {!isCollapsed && (
+              <h3 className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                {group}
+              </h3>
+            )}
+            <ul className="space-y-1">
+              {items.map((item) => {
+                const isActive = pathname === item.href
+                return (
+                  <li key={item.id}>
+                    <button
+                      onClick={() => handleMenuClick(item.href)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                        isActive
+                          ? 'bg-blue-50 text-cyan-700 border border-cyan-200/50'
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      }`}
+                      title={isCollapsed ? item.label : ''}
+                    >
+                      <div className={`flex-shrink-0 ${isActive ? 'text-cyan-600' : 'text-gray-400'}`}>
+                        {item.icon}
+                      </div>
+                      {!isCollapsed && (
+                        <span className="font-medium text-sm">{item.label}</span>
+                      )}
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        ))}
       </nav>
 
       {/* User Profile & Logout */}
@@ -372,7 +413,6 @@ export default function Sidebar() {
                 <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Retry
               </button>
             ) : user ? (
               user.avatar ? (
