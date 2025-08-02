@@ -11,52 +11,44 @@ import {
   ExclamationCircleIcon
 } from '@heroicons/react/24/outline'
 
-interface GallerriesModalProps {
+interface ServicesModalProps {
   isOpen: boolean
   onClose: () => void
-  gallery: {
+  service: {
     id: number
     imagePath: string
-    title: string
-    subtitle: string
-    tagline: string
-    status: 'active' | 'inactive'
+    name: string
+    description: string
   } | null
   onSuccess: () => void
 }
 
-export default function GallerriesModal({
+export default function ServicesModal({
   isOpen,
   onClose,
-  gallery,
+  service,
   onSuccess
-}: GallerriesModalProps) {
+}: ServicesModalProps) {
   const [loading, setLoading] = useState(false)
-  const [status, setStatus] = useState<'active' | 'inactive'>('active')
-  const [title, setTitle] = useState('')
-  const [subtitle, setSubtitle] = useState('')
-  const [tagline, setTagline] = useState('')
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string>('')
   const [dragActive, setDragActive] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (gallery) {
-      setStatus(gallery.status)
-      setTitle(gallery.title || '')
-      setSubtitle(gallery.subtitle || '')
-      setTagline(gallery.tagline || '')
-      setPreviewUrl(gallery.imagePath)
+    if (service) {
+      setName(service.name || '')
+      setDescription(service.description || '')
+      setPreviewUrl(service.imagePath)
     } else {
-      setStatus('active')
-      setTitle('')
-      setSubtitle('')
-      setTagline('')
+      setName('')
+      setDescription('')
       setPreviewUrl('')
       setSelectedFile(null)
     }
-  }, [gallery])
+  }, [service])
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -101,22 +93,20 @@ export default function GallerriesModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!gallery && !selectedFile) {
-      toast.error('Silakan pilih gambar untuk gallery')
+    if (!service && !selectedFile) {
+      toast.error('Silakan pilih gambar untuk service')
       return
     }
 
     setLoading(true)
     try {
       const formData = new FormData()
-      formData.append('title', title)
-      formData.append('subtitle', subtitle)
-      formData.append('tagline', tagline)
-      formData.append('status', status)
+      formData.append('name', name)
+      formData.append('description', description)
       if (selectedFile) formData.append('file', selectedFile)
 
-      const url = gallery ? `/api/gallery/${gallery.id}` : `/api/gallery`
-      const method = gallery ? 'PUT' : 'POST'
+      const url = service ? `/api/services/${service.id}` : `/api/services`
+      const method = service ? 'PUT' : 'POST'
 
       const res = await fetch(url, {
         method,
@@ -127,11 +117,11 @@ export default function GallerriesModal({
       })
 
       if (!res.ok) throw new Error()
-      toast.success(gallery ? 'Gallery berhasil diperbarui' : 'Gallery berhasil ditambahkan')
+      toast.success(service ? 'Gambar berhasil diperbarui' : 'Gambar berhasil ditambahkan')
       onSuccess()
       onClose()
     } catch {
-      toast.error('Gagal menyimpan gallery')
+      toast.error('Gagal menyimpan gambar')
     } finally {
       setLoading(false)
     }
@@ -149,10 +139,10 @@ export default function GallerriesModal({
         <div className="flex justify-between items-center p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
-              {gallery ? 'Edit Gallery' : 'Tambah Gallery Baru'}
+              {service ? 'Edit Services' : 'Tambah Services Baru'}
             </h2>
             <p className="text-sm text-gray-600 mt-1">
-              {gallery ? 'Perbarui informasi gallery' : 'Buat gallery baru untuk halaman gallery'}
+              {service ? 'Perbarui informasi services' : 'Buat services baru untuk halaman services'}
             </p>
           </div>
           <button
@@ -169,7 +159,7 @@ export default function GallerriesModal({
           {/* Image Upload */}
           <div className="space-y-3">
             <label className="block text-sm font-semibold text-gray-700">
-              Gambar Gallery <span className="text-red-500">*</span>
+              Gambar Services <span className="text-red-500">*</span>
             </label>
             
             <div
@@ -233,102 +223,48 @@ export default function GallerriesModal({
 
           {/* Form Fields */}
           <div className="grid gap-5">
-            {/* Title */}
+            {/* Name */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Judul Gallery <span className="text-red-500">*</span>
+                Nama Services <span className="text-red-500">*</span>
               </label>
               <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Masukkan judul yang menarik"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Masukkan nama yang menarik"
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
                 required
                 maxLength={50}
               />
-              <p className="text-xs text-gray-500 mt-1">{title.length}/50 karakter</p>
+              <p className="text-xs text-gray-500 mt-1">{name.length}/50 karakter</p>
             </div>
 
-            {/* Subtitle */}
+            {/* Description */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Sub Judul <span className="text-red-500">*</span>
+                Deskripsi <span className="text-red-500">*</span>
               </label>
               <input
-                value={subtitle}
-                onChange={(e) => setSubtitle(e.target.value)}
-                placeholder="Deskripsi singkat untuk mendukung judul"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Deskripsi singkat untuk mendukung nama"
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
                 required
                 maxLength={80}
               />
-              <p className="text-xs text-gray-500 mt-1">{subtitle.length}/80 karakter</p>
-            </div>
-
-            {/* Tagline */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Tagline <span className="text-red-500">*</span>
-              </label>
-              <input
-                value={tagline}
-                onChange={(e) => setTagline(e.target.value)}
-                placeholder="Pesan singkat atau call-to-action"
-                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
-                required
-                maxLength={100}
-              />
-              <p className="text-xs text-gray-500 mt-1">{tagline.length}/100 karakter</p>
-            </div>
-
-            {/* Status */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Status Gallery
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setStatus('active')}
-                  className={`
-                    px-4 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2
-                    ${status === 'active'
-                      ? 'bg-green-100 text-green-700 ring-2 ring-green-500'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }
-                  `}
-                >
-                  <CheckCircleIcon className="w-5 h-5" />
-                  Aktif
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStatus('inactive')}
-                  className={`
-                    px-4 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2
-                    ${status === 'inactive'
-                      ? 'bg-gray-700 text-white ring-2 ring-gray-700'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }
-                  `}
-                >
-                  <ExclamationCircleIcon className="w-5 h-5" />
-                  Nonaktif
-                </button>
-              </div>
+              <p className="text-xs text-gray-500 mt-1">{description.length}/80 karakter</p>
             </div>
           </div>
 
           {/* Preview Section */}
-          {title && subtitle && tagline && previewUrl && (
+          {name && description && previewUrl && (
             <div className="bg-gray-50 rounded-2xl p-4">
-              <p className="text-sm font-semibold text-gray-700 mb-3">Preview Gallery:</p>
+              <p className="text-sm font-semibold text-gray-700 mb-3">Preview Services:</p>
               <div className="relative h-40 rounded-xl overflow-hidden">
                 <Image src={previewUrl} alt="Preview" fill className="object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-4">
-                  <h3 className="text-white font-bold text-base line-clamp-1">{title}</h3>
-                  <p className="text-white/90 text-sm line-clamp-1">{subtitle}</p>
-                  <p className="text-white/80 text-xs line-clamp-1 mt-1">{tagline}</p>
+                  <h3 className="text-white font-bold text-base line-clamp-1">{name}</h3>
+                  <p className="text-white/90 text-sm line-clamp-1">{description}</p>
                 </div>
               </div>
             </div>
@@ -347,7 +283,7 @@ export default function GallerriesModal({
           </button>
           <button
             onClick={handleSubmit}
-            disabled={loading || !title || !subtitle || !tagline || (!gallery && !selectedFile)}
+            disabled={loading || !name || !description || (!previewUrl && !selectedFile)}
             className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium hover:from-blue-700 hover:to-blue-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {loading ? (
@@ -356,7 +292,7 @@ export default function GallerriesModal({
                 <span>Menyimpan...</span>
               </>
             ) : (
-              <span>{gallery ? 'Perbarui Gallery' : 'Tambah Gallery'}</span>
+              <span>{previewUrl ? 'Perbarui Services' : 'Tambah Services'}</span>
             )}
           </button>
         </div>
