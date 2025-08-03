@@ -1,8 +1,12 @@
+
 'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import { getInitials } from '@/lib/utils'
+import Swal from 'sweetalert2'
+
 
 type Role = {
   id: number
@@ -11,10 +15,11 @@ type Role = {
 
 type User = {
   id: number
+  imagePath?: string
   name: string
   email: string
   roles: { role: Role }[]
-  status: string
+  status: 'active' | 'inactive'
 }
 
 export default function UserList() {
@@ -38,16 +43,39 @@ export default function UserList() {
   }
 
   async function handleDelete(id: number) {
-    if (confirm('Yakin ingin menghapus pengguna ini?')) {
-      try {
-        await axios.delete(`/api/user/${id}`)
-        setError('')
-        fetchUsers()
-      } catch (err: any) {
-        setError(err.response?.data?.message || 'Gagal menghapus pengguna')
-      }
+  const result = await Swal.fire({
+    title: 'Yakin ingin menghapus?',
+    text: 'Data pengguna akan dihapus secara permanen.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Ya, hapus!',
+    cancelButtonText: 'Batal',
+  })
+
+  if (result.isConfirmed) {
+    try {
+      await axios.delete(`/api/user/${id}`)
+      await fetchUsers()
+
+      Swal.fire({
+        title: 'Berhasil!',
+        text: 'Pengguna berhasil dihapus.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false,
+      })
+    } catch (err: any) {
+      Swal.fire({
+        title: 'Gagal!',
+        text: err.response?.data?.message || 'Gagal menghapus pengguna',
+        icon: 'error',
+      })
     }
   }
+}
+
 
   return (
     <>
@@ -95,6 +123,9 @@ export default function UserList() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                  Photo
+                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
                   Name
                 </th>
@@ -115,6 +146,21 @@ export default function UserList() {
             <tbody className="bg-white divide-y divide-gray-200">
               {users.map((u) => (
                 <tr key={`${u.id}`} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap w-1/6">
+                    <div className="flex items-center">
+                      {u.imagePath ? (
+                        <img
+                          src={u.imagePath}
+                          alt={u.name}
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-sm font-medium">{getInitials(u.name)}</span>
+                        </div>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap w-1/4">
                     <div className="flex items-center">
                       <div className="w-2 h-2 bg-cyan-400 rounded-full mr-3"></div>
@@ -167,7 +213,7 @@ export default function UserList() {
               </svg>
             </div>
             <h3 className="text-sm font-medium text-gray-900 mb-1">Belum ada data</h3>
-            <p className="text-sm text-gray-500">Mulai dengan menambahkan role permission baru</p>
+            <p className="text-sm text-gray-500">Mulai dengan menambahkan pengguna baru</p>
           </div>
         )}
       </div>

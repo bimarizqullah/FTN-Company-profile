@@ -14,6 +14,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       where: { id: userId },
       select: {
         id: true,
+        imagePath: true,
         name: true,
         email: true,
         status: true,
@@ -37,6 +38,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     // Format respons
     const formattedUser = {
       id: user.id,
+      imagePath: user.imagePath,
       name: user.name,
       email: user.email,
       status: user.status,
@@ -129,6 +131,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       data: updateData,
       select: {
         id: true,
+        imagePath: true,
         name: true,
         email: true,
         status: true,
@@ -147,6 +150,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     const formattedUser = {
       id: user.id,
+      imagePath: user.imagePath,
       name: user.name,
       email: user.email,
       status: user.status,

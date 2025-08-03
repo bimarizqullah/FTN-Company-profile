@@ -26,12 +26,15 @@ export default function WelcomeCard({ user }: WelcomeCardProps) {
           <div className="flex items-center gap-2 mt-1">
             <span className="text-sm text-gray-500">Role:</span>
             <div className="flex gap-1">
-              {user?.roles?.map((r: any, index: number) => (
-                <span key={index} className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-md">
-                  {r.role.role}
+              {user?.roles?.map((role, index) => (
+                <span
+                  key={index}
+                  className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-md"
+                >
+                  {role}
                 </span>
               ))}
-            </div>
+            </div>  
           </div>
         </div>
       </div>

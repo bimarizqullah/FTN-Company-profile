@@ -27,8 +27,8 @@ export default function Dashboard() {
     })
       .then(async res => {
         if (!res.ok) throw new Error('Unauthorized')
-        const data = await res.json()
-        setUser(data)
+        const resData = await res.json()
+        setUser(resData.data)
       })
       .catch(() => {
         localStorage.removeItem('token')

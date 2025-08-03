@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import Swal from 'sweetalert2'
 
 interface Role {
   id: number
@@ -61,27 +62,38 @@ export default function UserRoleList() {
   }
 
   async function handleDelete(userId: number, roleId: number) {
-    if (confirm('Yakin ingin menghapus peran pengguna ini?')) {
-      try {
-        const token = localStorage.getItem('token')
-        if (!token) {
-          throw new Error('No authentication token found')
-        }
+  const result = await Swal.fire({
+    title: 'Yakin ingin menghapus peran?',
+    text: 'Peran akan dihapus secara permanen.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d11609ff',
+    confirmButtonText: 'Ya, hapus!',
+    cancelButtonText: 'Batal',
+  })
 
-        await axios.delete(`/api/user-role/${userId}/${roleId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        })
-        setError('')
-        fetchUserRoles()
-      } catch (err: any) {
-        console.error('Error deleting user-role:', err)
-        setError(err.response?.data?.message || 'Gagal menghapus peran pengguna')
-      }
+  if (result.isConfirmed) {
+    try {
+      await axios.delete(`/api/user-role/${userId}/${roleId}`)
+      await fetchUserRoles()
+
+      Swal.fire({
+        title: 'Berhasil!',
+        text: 'Peran berhasil dihapus.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false,
+      })
+    } catch (err: any) {
+      Swal.fire({
+        title: 'Gagal!',
+        text: err.response?.data?.message || 'Gagal menghapus peran',
+        icon: 'error',
+      })
     }
   }
+}
 
   return (
     <>

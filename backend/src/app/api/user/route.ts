@@ -8,6 +8,7 @@ export async function GET() {
     const users = await prisma.user.findMany({
       select: {
         id: true,
+        imagePath:true,
         name: true,
         email: true,
         status: true,
@@ -27,6 +28,7 @@ export async function GET() {
     // Format data agar sesuai dengan UserPage.tsx
     const formattedUsers = users.map(user => ({
       id: user.id,
+      imagePath: user.imagePath,
       name: user.name,
       email: user.email,
       status: user.status,
@@ -47,7 +49,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password, status } = await req.json();
+    const { imagePath, name, email, password, status } = await req.json();
 
     // Validasi input
     if (!name || !email || !password) {
@@ -77,6 +79,7 @@ export async function POST(req: NextRequest) {
     // Buat pengguna baru
     const user = await prisma.user.create({
       data: {
+        imagePath,
         name,
         email,
         password: hashedPassword,
@@ -84,6 +87,7 @@ export async function POST(req: NextRequest) {
       },
       select: {
         id: true,
+        imagePath: true,
         name: true,
         email: true,
         status: true,
@@ -103,6 +107,7 @@ export async function POST(req: NextRequest) {
     // Format respons
     const formattedUser = {
       id: user.id,
+      imagePath: user.imagePath,
       name: user.name,
       email: user.email,
       status: user.status,

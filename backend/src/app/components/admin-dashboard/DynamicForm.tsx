@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import Swal from 'sweetalert2'
 
 export type FormField = {
   name: string;
@@ -99,66 +100,67 @@ export default function DynamicForm({ config, error, success, onSuccess, onError
   }
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      // ✅ PERBAIKAN: Pastikan semua field dikirim, termasuk yang readOnly
-      const payload: { [key: string]: any } = {};
-      
-      config.fields.forEach((field) => {
-        // Ambil nilai dari formData, pastikan tidak undefined
-        let value = formData[field.name];
-        
-        // Untuk select field, pastikan value adalah number jika valueField adalah id
-        if (field.type === 'select' && field.valueField === 'id' && value !== undefined && value !== null) {
-          value = Number(value);
-        }
-        
-        // Sertakan semua field, termasuk yang readOnly
-        payload[field.name] = value;
-      });
-
-      // Validasi per field
-      for (const field of config.fields) {
-        if (field.required && (payload[field.name] === undefined || payload[field.name] === null || payload[field.name] === '')) {
-          throw new Error(`${field.label} wajib diisi`);
-        }
-        if (field.validation) {
-          const error = field.validation(payload[field.name]);
-          if (error) throw new Error(error);
-        }
-      }
-
-      // Validasi global jika ada
-      if (config.validate) {
-        const globalError = config.validate(payload);
-        if (globalError) throw new Error(globalError);
-      }
-
-      console.log('Submitting payload:', payload);
-      console.log('Submit URL:', config.submitUrl);
-
-      const response = await axios({
-        method: config.submitMethod,
-        url: config.submitUrl,
-        data: payload,
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      console.log('API Response:', response.data);
-      onSuccess(config.submitMethod === 'PUT' ? 'Data berhasil diperbarui!' : 'Data berhasil dibuat!');
-    } catch (err: any) {
-      console.error('Error submitting form:', err.response?.data || err.message);
-      onError(err.response?.data?.message || err.message || 'Gagal menyimpan perubahan');
+  e.preventDefault();
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No authentication token found');
     }
+
+    const payload: { [key: string]: any } = {};
+    config.fields.forEach((field) => {
+      let value = formData[field.name];
+      if (field.type === 'select' && field.valueField === 'id' && value !== undefined && value !== null) {
+        value = Number(value);
+      }
+      payload[field.name] = value;
+    });
+
+    for (const field of config.fields) {
+      if (field.required && (payload[field.name] === undefined || payload[field.name] === null || payload[field.name] === '')) {
+        throw new Error(`${field.label} wajib diisi`);
+      }
+      if (field.validation) {
+        const error = field.validation(payload[field.name]);
+        if (error) throw new Error(error);
+      }
+    }
+
+    if (config.validate) {
+      const globalError = config.validate(payload);
+      if (globalError) throw new Error(globalError);
+    }
+
+    // 🔥 Konfirmasi sebelum kirim request
+    const confirm = await Swal.fire({
+      title: 'Yakin ingin menyimpan perubahan?',
+      text: 'Perubahan akan diterapkan ke data pengguna.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, simpan!',
+      cancelButtonText: 'Batal',
+    })
+
+    if (!confirm.isConfirmed) return;
+
+    // ✅ Submit data ke API
+    const response = await axios({
+      method: config.submitMethod,
+      url: config.submitUrl,
+      data: payload,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    onSuccess(config.submitMethod === 'PUT' ? 'Data berhasil diperbarui!' : 'Data berhasil dibuat!');
+  } catch (err: any) {
+    console.error('Error submitting form:', err.response?.data || err.message);
+    onError(err.response?.data?.message || err.message || 'Gagal menyimpan perubahan');
   }
+}
+
 
   return (
     <>
