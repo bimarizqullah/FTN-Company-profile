@@ -1,67 +1,60 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { comparePassword } from '@/lib/bcrypt'
-import { signToken, verifyToken } from '@/lib/auth'
-import prisma from '@/lib/db'
-
-export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get('Authorization')
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
-  }
-
-  const token = authHeader.split(' ')[1]
-  const payload = verifyToken(token)
-
-  if (!payload) {
-    return NextResponse.json({ message: 'Invalid token' }, { status: 401 })
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { id: payload.userId },
-    select: { id: true, name: true, email: true },
-  })
-
-  if (!user) {
-    return NextResponse.json({ message: 'User not found' }, { status: 404 })
-  }
-
-  return NextResponse.json(user)
-}
+import { NextRequest, NextResponse } from 'next/server';
+import { comparePassword } from '@/lib/bcrypt';
+import { signToken } from '@/lib/auth';
+import prisma from '@/lib/db';
 
 export async function POST(req: NextRequest) {
-  const { email, password } = await req.json()
+  try {
+    const { email, password } = await req.json();
 
-  const user = await prisma.user.findUnique({
-    where: { email },
-    include: {
-      roles: {
-        include: {
-          role: {
-            include: {
-              permissions: {
-                include: { permission: true }
-              }
-            }
-          }
-        }
-      }
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        roles: {
+          include: {
+            role: {
+              select: {
+                id: true,
+                role: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
     }
-  })
 
-  if (!user || !comparePassword(password, user.password)) {
-    return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 })
+    if (user.status === 'inactive') {
+      return NextResponse.json({ message: 'Akun Anda tidak aktif. Hubungi administrator.' }, { status: 403 });
+    }
+
+    if (!comparePassword(password, user.password)) {
+      return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
+    }
+
+    const roles = user.roles.map((r) => r.role.role);
+    const token = signToken(user.id, roles);
+
+    return NextResponse.json({
+      success: true,
+      token,
+      data: {
+        id: user.id.toString(),
+        name: user.name,
+        email: user.email,
+        roles,
+        imagePath: user.imagePath,
+        status: user.status,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error during login:', {
+      message: error.message,
+      stack: error.stack,
+    });
+    return NextResponse.json({ message: 'Gagal login', error: error.message }, { status: 500 });
   }
-
-  const token = signToken(user.id) // <- pastikan user.id adalah number
-
-  return NextResponse.json({
-    token,
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      roles: user.roles.map(r => r.role.role),
-    }
-  })
 }

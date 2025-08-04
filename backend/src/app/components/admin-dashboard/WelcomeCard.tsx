@@ -2,6 +2,7 @@
 'use client'
 
 interface User {
+  imagePath: string
   name: string
   email: string
   roles: string[]
@@ -16,10 +17,12 @@ export default function WelcomeCard({ user }: WelcomeCardProps) {
   return (
     <div className="bg-white rounded-xl border border-gray-200/60 p-6 mb-6">
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-xl flex items-center justify-center shadow-sm">
-          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
+        <div className="w-12 h-12 rounded-xl overflow-hidden shadow-sm">
+          <img
+            src={user.imagePath}
+            alt={user.name}
+            className="w-full h-full object-cover"
+          />
         </div>
         <div>
           <h2 className="text-xl font-semibold text-gray-900">Welcome back, {user.name}</h2>

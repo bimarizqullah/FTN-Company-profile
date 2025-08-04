@@ -1,14 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import { authMiddleware } from '@/middlewares/authMiddleware';
+import { roleMiddleware } from '@/middlewares/roleMiddleware';
+import { ROLES } from '@/constants/roles';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const authResponse = await authMiddleware(req);
+  if (authResponse) {
+    console.error('Auth Middleware Error:', authResponse);
+    return authResponse;
+  }
+
+  const roleResponse = await roleMiddleware(req, [ROLES.SUPERADMIN]);
+  if (roleResponse) {
+    console.error('Role Middleware Error:', roleResponse);
+    return roleResponse;
+  }
+
   try {
     const users = await prisma.user.findMany({
       select: {
         id: true,
-        imagePath:true,
+        imagePath: true,
         name: true,
         email: true,
         status: true,
@@ -25,7 +39,6 @@ export async function GET() {
       },
     });
 
-    // Format data agar sesuai dengan UserPage.tsx
     const formattedUsers = users.map(user => ({
       id: user.id,
       imagePath: user.imagePath,
@@ -41,42 +54,45 @@ export async function GET() {
     }));
 
     return NextResponse.json(formattedUsers, { status: 200 });
-  } catch (error) {
-    console.error('Error mengambil pengguna:', error);
-    return NextResponse.json({ message: 'Gagal mengambil pengguna' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Error mengambil pengguna:', {
+      message: error.message,
+      stack: error.stack,
+    });
+    return NextResponse.json({ message: 'Gagal mengambil pengguna', error: error.message }, { status: 500 });
   }
 }
 
 export async function POST(req: NextRequest) {
-  try {
-    const { imagePath, name, email, password, status } = await req.json();
+  const authResponse = await authMiddleware(req);
+  if (authResponse) return authResponse;
 
-    // Validasi input
+  const roleResponse = await roleMiddleware(req, [ROLES.SUPERADMIN]);
+  if (roleResponse) return roleResponse;
+
+  try {
+    const { imagePath, name, email, password, status, roleIds } = await req.json();
+
     if (!name || !email || !password) {
       return NextResponse.json({ message: 'Semua field wajib diisi' }, { status: 400 });
     }
 
-    // Validasi format email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json({ message: 'Format email tidak valid' }, { status: 400 });
     }
 
-    // Validasi panjang kata sandi
     if (password.length < 6) {
       return NextResponse.json({ message: 'Kata sandi harus minimal 6 karakter' }, { status: 400 });
     }
 
-    // Cek apakah email sudah digunakan
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return NextResponse.json({ message: 'Email sudah terdaftar' }, { status: 400 });
     }
 
-    // Hash kata sandi
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Buat pengguna baru
     const user = await prisma.user.create({
       data: {
         imagePath,
@@ -84,6 +100,13 @@ export async function POST(req: NextRequest) {
         email,
         password: hashedPassword,
         status,
+        roles: roleIds
+          ? {
+              create: roleIds.map((roleId: number) => ({
+                roleId,
+              })),
+            }
+          : undefined,
       },
       select: {
         id: true,
@@ -104,7 +127,6 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Format respons
     const formattedUser = {
       id: user.id,
       imagePath: user.imagePath,
@@ -120,8 +142,11 @@ export async function POST(req: NextRequest) {
     };
 
     return NextResponse.json({ message: 'Pengguna berhasil dibuat', user: formattedUser }, { status: 201 });
-  } catch (error) {
-    console.error('Error membuat pengguna:', error);
-    return NextResponse.json({ message: 'Gagal membuat pengguna' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Error membuat pengguna:', {
+      message: error.message,
+      stack: error.stack,
+    });
+    return NextResponse.json({ message: 'Gagal membuat pengguna', error: error.message }, { status: 500 });
   }
 }

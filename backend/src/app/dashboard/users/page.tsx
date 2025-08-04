@@ -6,6 +6,7 @@ import DashboardHeader from '@/app/components/admin-dashboard/DashboardHeader'
 import Sidebar from '@/app/components/admin-dashboard/Sidebar'
 import StatsGrid from '@/app/components/admin-dashboard/StatsGrid'
 import UserList from './list/page'
+import { ROLES } from '@/constants/roles'
 
 type AuthUser = {
   email: string
@@ -31,7 +32,12 @@ export default function UserPage() {
       .then(async res => {
         if (!res.ok) throw new Error('Unauthorized')
         const data = await res.json()
-        setAuthUser(data)
+        // Jika bukan superadmin, arahkan ke dashboard
+        if (!data.data.roles.includes(ROLES.SUPERADMIN)) {
+          router.push('/dashboard')
+          return
+        }
+        setAuthUser(data.data)
       })
       .catch(() => {
         localStorage.removeItem('token')

@@ -1,33 +1,28 @@
-// lib/auth.ts
-import jwt from 'jsonwebtoken'
-import { verify } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'secret-key'
-
-export function signToken(userId: number) {
-  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '1d' })
-}
+const JWT_SECRET = process.env.JWT_SECRET || 'FTN@Fiber2730';
 
 export interface JwtPayloadWithUserId {
-  userId: number
-  iat: number
-  exp: number
+  userId: number;
+  roles: string[];
+  iat: number;
+  exp: number;
+}
+
+export function signToken(userId: number, roles: string[]) {
+  return jwt.sign({ userId, roles }, JWT_SECRET, { expiresIn: '1d' });
 }
 
 export function verifyToken(token: string): JwtPayloadWithUserId | null {
   try {
-    const decoded = verify(token, process.env.JWT_SECRET as string)
-    if (typeof decoded === 'object' && 'userId' in decoded) {
-      return decoded as JwtPayloadWithUserId
+    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayloadWithUserId;
+    if (decoded && 'userId' in decoded) {
+      return decoded;
     }
-    return null
-  } catch {
-    return null
+    console.error('Token verification failed: Invalid payload');
+    return null;
+  } catch (error) {
+    console.error('Token verification error:', error);
+    return null;
   }
-}
-
-export function generateToken(userId: number) {
-  return jwt.sign({ userId }, process.env.JWT_SECRET as string, {
-    expiresIn: '7d',
-  })
 }

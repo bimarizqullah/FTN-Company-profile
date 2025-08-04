@@ -8,40 +8,27 @@ import Swal from 'sweetalert2'
 interface Role {
   id: number
   role: string
+  description: string
 }
 
-interface User {
-  id: number
-  imagePath: string
-  name: string
-  email: string
-}
 
-interface UserRole {
-  userId: number
-  roleId: number
-  user: User
-  role: Role
-  description?: string
-}
-
-export default function UserRoleList() {
-  const [userRoles, setUserRoles] = useState<UserRole[]>([])
+export default function RoleList() {
+  const [Roles, setRoles] = useState<Role[]>([])
   const [error, setError] = useState('')
   const router = useRouter()
 
   useEffect(() => {
-    fetchUserRoles()
+    fetchRoles()
   }, [])
 
-  async function fetchUserRoles() {
+  async function fetchRoles() {
     try {
       const token = localStorage.getItem('token')
       if (!token) {
         throw new Error('No authentication token found')
       }
 
-      const res = await fetch('/api/user-role', {
+      const res = await fetch('/api/role', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -51,18 +38,18 @@ export default function UserRoleList() {
         if (res.status === 401) {
           throw new Error('Unauthorized: Invalid or expired token')
         }
-        throw new Error(`Failed to fetch user-roles: ${res.statusText}`)
+        throw new Error(`Failed to fetch roles: ${res.statusText}`)
       }
       const data = await res.json()
-      setUserRoles(data.data)
+      setRoles(data)
       setError('')
     } catch (err) {
-      console.error('Error fetching user-roles:', err)
-      setError(err instanceof Error ? err.message : 'Gagal memuat user-role')
+      console.error('Error fetching roles:', err)
+      setError(err instanceof Error ? err.message : 'Gagal memuat role')
     }
   }
 
-  async function handleDelete(userId: number, roleId: number) {
+  async function handleDelete(id:number) {
   const result = await Swal.fire({
     title: 'Yakin ingin menghapus peran?',
     text: 'Peran akan dihapus secara permanen.',
@@ -76,8 +63,8 @@ export default function UserRoleList() {
 
   if (result.isConfirmed) {
     try {
-      await axios.delete(`/api/user-role/${userId}/${roleId}`)
-      await fetchUserRoles()
+      await axios.delete(`/api/role/${id}`)
+      await fetchRoles()
 
       Swal.fire({
         title: 'Berhasil!',
@@ -105,12 +92,12 @@ export default function UserRoleList() {
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                 </svg>
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">Manajemen User Role</h1>
-                <p className="text-sm text-gray-500">Kelola hubungan pengguna dan peran</p>
+                <h1 className="text-xl font-semibold text-gray-900">Manajemen Role</h1>
+                <p className="text-sm text-gray-500">Kelola peran</p>
               </div>
             </div>
             <div className="flex space-x-3">
@@ -121,10 +108,10 @@ export default function UserRoleList() {
                 Kembali
               </button>
               <button
-                onClick={() => router.push('/dashboard/user-role/create')}
+                onClick={() => router.push('/dashboard/role/create')}
                 className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
               >
-                Tambah Peran Pengguna
+                Tambah Peran
               </button>
             </div>
           </div>
@@ -143,12 +130,6 @@ export default function UserRoleList() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
-                  Photo
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
-                  Nama Pengguna
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
                   Peran
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
@@ -160,32 +141,27 @@ export default function UserRoleList() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {userRoles.map((ur) => (
-                <tr key={`${ur.userId}-${ur.roleId}`} className="hover:bg-gray-50">
+              {Roles?.map((r) => (
+                <tr key={`${r.id}`} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 w-1/4 truncate">
                     <div className="flex items-center">
                       <div className="w-2 h-2 bg-cyan-400 rounded-full mr-3"></div>
-                      <span className="font-medium">{ur.user.name}</span>
+                      <span className="font-medium">{r.role}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-1/4 truncate">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
-                      {ur.role.role}
-                    </span>
-                  </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-1/4 truncate">   
-                    {ur.description || '-'}
+                    {r.description || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium w-1/4">
                     <div className="flex space-x-2">
                       <button
-                        onClick={() => router.push(`/dashboard/user-role/edit/${ur.userId}`)}
+                        onClick={() => router.push(`/dashboard/role/edit/${r.id}`)}
                         className="px-3 py-1 text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
                       >
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(ur.userId, ur.roleId)}
+                        onClick={() => handleDelete(r.id)}
                         className="px-3 py-1 text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors"
                       >
                         Hapus
@@ -199,7 +175,7 @@ export default function UserRoleList() {
         </div>
 
         {/* Empty State */}
-        {userRoles.length === 0 && !error && (
+        {Roles?.length === 0 && !error && (
           <div className="px-6 py-12 text-center">
             <div className="w-12 h-12 bg-gray-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
               <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

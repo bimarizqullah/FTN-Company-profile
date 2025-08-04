@@ -26,11 +26,10 @@ export type FormConfig = {
   description: string;
   fields: FormField[];
   submitUrl: string;
-  submitMethod: 'POST' | 'PUT';
+  submitMethod: 'POST' | 'PUT' | 'PATCH'; // ✅ PERBAIKAN: Tambahkan 'PATCH'
   redirectUrl: string;
   validate?: (data: { [key: string]: any }) => string | null;
 };
-
 type Props = {
   config: FormConfig
   error: string
@@ -99,29 +98,44 @@ export default function DynamicForm({ config, error, success, onSuccess, onError
     })
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  // ===== PERBAIKAN FUNGSI handleSubmit DI DynamicForm.tsx =====
+
+async function handleSubmit(e: React.FormEvent) {
   e.preventDefault();
+  
   try {
     const token = localStorage.getItem('token');
     if (!token) {
       throw new Error('No authentication token found');
     }
 
+    // ✅ PERBAIKAN 1: Build payload dengan lebih hati-hati
     const payload: { [key: string]: any } = {};
+    
     config.fields.forEach((field) => {
       let value = formData[field.name];
-      if (field.type === 'select' && field.valueField === 'id' && value !== undefined && value !== null) {
+      
+      // Handle different field types
+      if (field.type === 'select' && field.valueField === 'id' && value !== undefined && value !== null && value !== '') {
         value = Number(value);
       }
-      payload[field.name] = value;
+      
+      // Only include non-empty values
+      if (value !== undefined && value !== null && value !== '') {
+        payload[field.name] = value;
+      }
     });
 
+    // ✅ PERBAIKAN 2: Enhanced validation dengan lebih detail
     for (const field of config.fields) {
-      if (field.required && (payload[field.name] === undefined || payload[field.name] === null || payload[field.name] === '')) {
+      const fieldValue = payload[field.name];
+      
+      if (field.required && (fieldValue === undefined || fieldValue === null || fieldValue === '')) {
         throw new Error(`${field.label} wajib diisi`);
       }
-      if (field.validation) {
-        const error = field.validation(payload[field.name]);
+      
+      if (field.validation && fieldValue !== undefined && fieldValue !== null && fieldValue !== '') {
+        const error = field.validation(fieldValue);
         if (error) throw new Error(error);
       }
     }
@@ -131,19 +145,36 @@ export default function DynamicForm({ config, error, success, onSuccess, onError
       if (globalError) throw new Error(globalError);
     }
 
-    // 🔥 Konfirmasi sebelum kirim request
-    const confirm = await Swal.fire({
-      title: 'Yakin ingin menyimpan perubahan?',
-      text: 'Perubahan akan diterapkan ke data pengguna.',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Ya, simpan!',
-      cancelButtonText: 'Batal',
-    })
+    // ✅ PERBAIKAN 3: Enhanced logging untuk debugging
+    console.log('Form submission details:', {
+      method: config.submitMethod,
+      url: config.submitUrl,
+      payload: payload,
+      hasToken: !!token
+    });
+
+    // ✅ PERBAIKAN 4: Konfirmasi dengan error handling
+    let confirm;
+    try {
+      confirm = await Swal.fire({
+        title: 'Yakin ingin menyimpan perubahan?',
+        text: 'Perubahan akan diterapkan ke data pengguna.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, simpan!',
+        cancelButtonText: 'Batal',
+      });
+    } catch (swalError) {
+      console.error('SweetAlert error:', swalError);
+      // Fallback to native confirm if SweetAlert fails
+      confirm = { isConfirmed: window.confirm('Yakin ingin menyimpan perubahan?') };
+    }
 
     if (!confirm.isConfirmed) return;
 
-    // ✅ Submit data ke API
+    // ✅ PERBAIKAN 5: Enhanced request dengan better error handling
+    console.log('Sending request to:', config.submitUrl);
+    
     const response = await axios({
       method: config.submitMethod,
       url: config.submitUrl,
@@ -152,12 +183,57 @@ export default function DynamicForm({ config, error, success, onSuccess, onError
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      timeout: 10000, // 10 second timeout
     });
 
-    onSuccess(config.submitMethod === 'PUT' ? 'Data berhasil diperbarui!' : 'Data berhasil dibuat!');
+    console.log('Response received:', response.data);
+    
+    onSuccess(config.submitMethod === 'PUT' || config.submitMethod === 'PATCH' 
+      ? 'Data berhasil diperbarui!' 
+      : 'Data berhasil dibuat!'
+    );
+    
   } catch (err: any) {
-    console.error('Error submitting form:', err.response?.data || err.message);
-    onError(err.response?.data?.message || err.message || 'Gagal menyimpan perubahan');
+    // ✅ PERBAIKAN 6: Enhanced error handling dan logging
+    console.error('Error submitting form:', {
+      error: err,
+      message: err?.message,
+      response: err?.response?.data,
+      status: err?.response?.status,
+      config: err?.config
+    });
+
+    let errorMessage = 'Gagal menyimpan perubahan';
+    
+    if (err?.response?.data?.message) {
+      errorMessage = err.response.data.message;
+    } else if (err?.response?.data?.error) {
+      errorMessage = err.response.data.error;
+    } else if (err?.message) {
+      errorMessage = err.message;
+    } else if (err?.response?.status) {
+      switch (err.response.status) {
+        case 400:
+          errorMessage = 'Data yang dikirim tidak valid';
+          break;
+        case 401:
+          errorMessage = 'Token tidak valid, silakan login ulang';
+          break;
+        case 403:
+          errorMessage = 'Akses ditolak';
+          break;
+        case 404:
+          errorMessage = 'Data tidak ditemukan';
+          break;
+        case 500:
+          errorMessage = 'Terjadi kesalahan server';
+          break;
+        default:
+          errorMessage = `Terjadi kesalahan (${err.response.status})`;
+      }
+    }
+    
+    onError(errorMessage);
   }
 }
 

@@ -6,6 +6,7 @@ import DashboardHeader from '@/app/components/admin-dashboard/DashboardHeader'
 import Sidebar from '@/app/components/admin-dashboard/Sidebar'
 import StatsGrid from '@/app/components/admin-dashboard/StatsGrid'
 import DynamicForm, { FormConfig } from '@/app/components/admin-dashboard/DynamicForm'
+import { ROLES } from '@/constants/roles'
 
 type User = {
   id: number
@@ -17,6 +18,12 @@ type User = {
 type AuthUser = {
   email: string
   roles: string[]
+}
+
+type ApiResponse<T> = {
+  success: boolean
+  data?: T
+  message?: string
 }
 
 export default function EditUserPage() {
@@ -34,21 +41,42 @@ export default function EditUserPage() {
       return
     }
 
+    // Fetch authenticated user
     fetch('/api/user/me', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
       .then(async (res) => {
-        if (!res.ok) throw new Error('Unauthorized')
-        const data = await res.json()
-        setAuthUser(data)
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            localStorage.removeItem('token')
+            router.push('/login')
+            return
+          }
+          throw new Error('Gagal memuat data pengguna')
+        }
+        const data: ApiResponse<AuthUser> = await res.json()
+        if (data.success && data.data) {
+          // Hanya superadmin yang boleh mengakses halaman edit
+          if (!data.data.roles.includes(ROLES.SUPERADMIN)) {
+            setError('Akses ditolak: Hanya superadmin yang dapat mengedit pengguna')
+            router.push('/dashboard')
+            return
+          }
+          setAuthUser(data.data)
+        } else {
+          throw new Error(data.message || 'Gagal memuat data pengguna')
+        }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error('Error fetching auth user:', err)
+        setError(err.message || 'Gagal memuat data pengguna')
         localStorage.removeItem('token')
         router.push('/login')
       })
 
+    // Fetch user data
     if (id) fetchUser()
   }, [id, router])
 
@@ -64,11 +92,29 @@ export default function EditUserPage() {
         },
       })
 
-      if (!res.ok) throw new Error('Gagal memuat pengguna')
-      const data = await res.json()
-      setUser(data)
+      if (!res.ok) {
+        if (res.status === 403) {
+          setError('Akses ditolak: Hanya superadmin yang dapat mengedit pengguna')
+          router.push('/dashboard')
+          return
+        }
+        throw new Error('Gagal memuat pengguna')
+      }
+
+      const data: ApiResponse<User> = await res.json()
+      if (data.success && data.data) {
+        setUser({
+          id: Number(data.data.id),
+          name: data.data.name,
+          email: data.data.email,
+          status: data.data.status,
+        })
+      } else {
+        throw new Error(data.message || 'Gagal memuat pengguna')
+      }
     } catch (err) {
-      setError('Gagal memuat pengguna')
+      console.error('Error fetching user:', err)
+      setError(err instanceof Error ? err.message : 'Gagal memuat pengguna')
     }
   }
 
@@ -118,7 +164,7 @@ export default function EditUserPage() {
       },
     ],
     submitUrl: `/api/user/${id}`,
-    submitMethod: 'PUT',
+    submitMethod: 'PATCH', // Ubah ke PATCH sesuai API
     redirectUrl: '/dashboard/users',
   }
 

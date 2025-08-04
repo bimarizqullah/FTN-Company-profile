@@ -5,43 +5,30 @@ import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 
-interface Role {
+interface Permission {
   id: number
-  role: string
+  permission: string
+  description: string
 }
 
-interface User {
-  id: number
-  imagePath: string
-  name: string
-  email: string
-}
 
-interface UserRole {
-  userId: number
-  roleId: number
-  user: User
-  role: Role
-  description?: string
-}
-
-export default function UserRoleList() {
-  const [userRoles, setUserRoles] = useState<UserRole[]>([])
+export default function PermissionList() {
+  const [Permissions, setPermissions] = useState<Permission[]>([])
   const [error, setError] = useState('')
   const router = useRouter()
 
   useEffect(() => {
-    fetchUserRoles()
+    fetchPermissions()
   }, [])
 
-  async function fetchUserRoles() {
+  async function fetchPermissions() {
     try {
       const token = localStorage.getItem('token')
       if (!token) {
         throw new Error('No authentication token found')
       }
 
-      const res = await fetch('/api/user-role', {
+      const res = await fetch('/api/permission', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -51,21 +38,21 @@ export default function UserRoleList() {
         if (res.status === 401) {
           throw new Error('Unauthorized: Invalid or expired token')
         }
-        throw new Error(`Failed to fetch user-roles: ${res.statusText}`)
+        throw new Error(`Failed to fetch roles: ${res.statusText}`)
       }
       const data = await res.json()
-      setUserRoles(data.data)
+      setPermissions(data)
       setError('')
     } catch (err) {
-      console.error('Error fetching user-roles:', err)
-      setError(err instanceof Error ? err.message : 'Gagal memuat user-role')
+      console.error('Error fetching roles:', err)
+      setError(err instanceof Error ? err.message : 'Gagal memuat role')
     }
   }
 
-  async function handleDelete(userId: number, roleId: number) {
+  async function handleDelete(id:number) {
   const result = await Swal.fire({
-    title: 'Yakin ingin menghapus peran?',
-    text: 'Peran akan dihapus secara permanen.',
+    title: 'Yakin ingin menghapus Permission?',
+    text: 'Permission akan dihapus secara permanen.',
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
@@ -76,12 +63,12 @@ export default function UserRoleList() {
 
   if (result.isConfirmed) {
     try {
-      await axios.delete(`/api/user-role/${userId}/${roleId}`)
-      await fetchUserRoles()
+      await axios.delete(`/api/permission/${id}`)
+      await fetchPermissions()
 
       Swal.fire({
         title: 'Berhasil!',
-        text: 'Peran berhasil dihapus.',
+        text: 'Permission berhasil dihapus.',
         icon: 'success',
         timer: 2000,
         showConfirmButton: false,
@@ -89,7 +76,7 @@ export default function UserRoleList() {
     } catch (err: any) {
       Swal.fire({
         title: 'Gagal!',
-        text: err.response?.data?.message || 'Gagal menghapus peran',
+        text: err.response?.data?.message || 'Gagal menghapus permission',
         icon: 'error',
       })
     }
@@ -105,12 +92,12 @@ export default function UserRoleList() {
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">Manajemen User Role</h1>
-                <p className="text-sm text-gray-500">Kelola hubungan pengguna dan peran</p>
+                <h1 className="text-xl font-semibold text-gray-900">Manajemen Permission</h1>
+                <p className="text-sm text-gray-500">Kelola Permission</p>
               </div>
             </div>
             <div className="flex space-x-3">
@@ -121,10 +108,10 @@ export default function UserRoleList() {
                 Kembali
               </button>
               <button
-                onClick={() => router.push('/dashboard/user-role/create')}
+                onClick={() => router.push('/dashboard/permission/create')}
                 className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
               >
-                Tambah Peran Pengguna
+                Tambah Peran
               </button>
             </div>
           </div>
@@ -143,13 +130,7 @@ export default function UserRoleList() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
-                  Photo
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
-                  Nama Pengguna
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
-                  Peran
+                  Permission
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
                   Deskripsi
@@ -160,32 +141,27 @@ export default function UserRoleList() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {userRoles.map((ur) => (
-                <tr key={`${ur.userId}-${ur.roleId}`} className="hover:bg-gray-50">
+              {Permissions?.map((p) => (
+                <tr key={`${p.id}`} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 w-1/4 truncate">
                     <div className="flex items-center">
                       <div className="w-2 h-2 bg-cyan-400 rounded-full mr-3"></div>
-                      <span className="font-medium">{ur.user.name}</span>
+                      <span className="font-medium">{p.permission}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-1/4 truncate">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
-                      {ur.role.role}
-                    </span>
-                  </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-1/4 truncate">   
-                    {ur.description || '-'}
+                    {p.description || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium w-1/4">
                     <div className="flex space-x-2">
                       <button
-                        onClick={() => router.push(`/dashboard/user-role/edit/${ur.userId}`)}
+                        onClick={() => router.push(`/dashboard/permission/edit/${p.id}`)}
                         className="px-3 py-1 text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
                       >
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(ur.userId, ur.roleId)}
+                        onClick={() => handleDelete(p.id)}
                         className="px-3 py-1 text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors"
                       >
                         Hapus
@@ -199,7 +175,7 @@ export default function UserRoleList() {
         </div>
 
         {/* Empty State */}
-        {userRoles.length === 0 && !error && (
+        {Permissions?.length === 0 && !error && (
           <div className="px-6 py-12 text-center">
             <div className="w-12 h-12 bg-gray-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
               <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -207,7 +183,7 @@ export default function UserRoleList() {
               </svg>
             </div>
             <h3 className="text-sm font-medium text-gray-900 mb-1">Belum ada data</h3>
-            <p className="text-sm text-gray-500">Mulai dengan menambahkan peran pengguna baru</p>
+            <p className="text-sm text-gray-500">Mulai dengan menambahkan Permission baru</p>
           </div>
         )}
       </div>

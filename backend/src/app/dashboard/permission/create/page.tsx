@@ -7,7 +7,7 @@ import Sidebar from '@/app/components/admin-dashboard/Sidebar'
 import StatsGrid from '@/app/components/admin-dashboard/StatsGrid'
 import DynamicForm, { FormConfig } from '@/app/components/admin-dashboard/DynamicForm'
 
-export default function RolePage() {
+export default function PermissionPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const router = useRouter()
@@ -15,7 +15,7 @@ export default function RolePage() {
   const handleSuccess = (message: string) => {
     setSuccess(message)
     setError('')
-    setTimeout(() => router.push('/dashboard/role'), 1500)
+    setTimeout(() => router.push('/dashboard/permission'), 1500)
   }
 
   const handleError = (message: string) => {
@@ -24,16 +24,16 @@ export default function RolePage() {
   }
 
   const formConfig: FormConfig = {
-    title: 'Tambah Role Baru',
-    description: 'Buat role baru untuk pengguna',
+    title: 'Tambah Permission Baru',
+    description: 'Buat Permission baru untuk pengguna',
     fields: [
       {
-        name: 'role',
-        label: 'Role Name',
+        name: 'permission',
+        label: 'Permission',
         type: 'text' as const,
-        fetchUrl: '/api/role',
-        displayField: 'role',
-        placeholder: 'Role Name',
+        fetchUrl: '/api/permission',
+        displayField: 'permission',
+        placeholder: 'Permission',
         required: true,
         value: '',
         readOnly: false,
@@ -42,16 +42,17 @@ export default function RolePage() {
         name: 'description',
         label: 'Description',
         type: 'text' as const,
-        fetchUrl: '/api/role',
+        fetchUrl: '/api/permission',
         displayField: 'description',
+        placeholder: 'description',
         descriptionField: 'description',
         value: '',
         readOnly: false,
       },
     ],
-    submitUrl: '/api/role',
+    submitUrl: '/api/permission',
     submitMethod: 'POST',
-    redirectUrl: '/dashboard/role',
+    redirectUrl: '/dashboard/permission',
   }
 
   return (
