@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
     // Auth optional (kalau dashboard saja)
     const sliders = await prisma.slider.findMany({
       orderBy: { createdAt: "desc" },
+      where: { status: "active" },
     });
 
     return NextResponse.json(sliders);
