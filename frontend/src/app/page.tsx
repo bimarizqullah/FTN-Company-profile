@@ -288,10 +288,6 @@ const Home: React.FC = () => {
       )}
     </div>
   </section>
-
-      <footer className="py-8 px-4 bg-gray-800 text-white text-center">
-        <p>&copy; {new Date().getFullYear()} Company Name. All rights reserved.</p>
-      </footer>
     </div>
   );
 };
