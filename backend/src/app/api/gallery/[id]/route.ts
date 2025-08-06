@@ -4,7 +4,6 @@ import prisma from "@/lib/db";
 import path from "path";
 import { writeFile, unlink, mkdir } from "fs/promises";
 import crypto from "crypto";
-import { gallery_status_enum } from "@prisma/client";
 
 // GET detail gallery by ID
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
@@ -42,20 +41,14 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       // 🔹 Handle JSON
       const body = await req.json();
       updateData = {
-        title: body.title || undefined,
-        subtitle: body.subtitle || undefined,
-        tagline: body.tagline || undefined,
-        status: body.status || undefined,
+        description: body.description || undefined,
       };
     } 
     else if (contentType.includes("multipart/form-data")) {
       // 🔹 Handle FormData
       const formData = await req.formData();
       const imageFile = formData.get("image") as File | null;
-      updateData.title = formData.get("title")?.toString() || undefined;
-      updateData.subtitle = formData.get("subtitle")?.toString() || undefined;
-      updateData.tagline = formData.get("tagline")?.toString() || undefined;
-      updateData.status = formData.get("status")?.toString() || undefined;
+      updateData.description = formData.get("description")?.toString() || undefined;
 
       if (imageFile) {
         const bytes = await imageFile.arrayBuffer();

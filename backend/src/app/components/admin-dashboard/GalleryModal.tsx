@@ -17,10 +17,7 @@ interface GallerriesModalProps {
   gallery: {
     id: number
     imagePath: string
-    title: string
-    subtitle: string
-    tagline: string
-    status: 'active' | 'inactive'
+    description: string
   } | null
   onSuccess: () => void
 }
@@ -32,10 +29,7 @@ export default function GallerriesModal({
   onSuccess
 }: GallerriesModalProps) {
   const [loading, setLoading] = useState(false)
-  const [status, setStatus] = useState<'active' | 'inactive'>('active')
-  const [title, setTitle] = useState('')
-  const [subtitle, setSubtitle] = useState('')
-  const [tagline, setTagline] = useState('')
+  const [description, setDescription] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string>('')
   const [dragActive, setDragActive] = useState(false)
@@ -43,16 +37,10 @@ export default function GallerriesModal({
 
   useEffect(() => {
     if (gallery) {
-      setStatus(gallery.status)
-      setTitle(gallery.title || '')
-      setSubtitle(gallery.subtitle || '')
-      setTagline(gallery.tagline || '')
+      setDescription(gallery.description || '')
       setPreviewUrl(gallery.imagePath)
     } else {
-      setStatus('active')
-      setTitle('')
-      setSubtitle('')
-      setTagline('')
+      setDescription('')
       setPreviewUrl('')
       setSelectedFile(null)
     }
@@ -109,10 +97,7 @@ export default function GallerriesModal({
     setLoading(true)
     try {
       const formData = new FormData()
-      formData.append('title', title)
-      formData.append('subtitle', subtitle)
-      formData.append('tagline', tagline)
-      formData.append('status', status)
+      formData.append('Description', description)
       if (selectedFile) formData.append('file', selectedFile)
 
       const url = gallery ? `/api/gallery/${gallery.id}` : `/api/gallery`
@@ -239,96 +224,25 @@ export default function GallerriesModal({
                 Judul Gallery <span className="text-red-500">*</span>
               </label>
               <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 placeholder="Masukkan judul yang menarik"
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
                 required
                 maxLength={50}
               />
-              <p className="text-xs text-gray-500 mt-1">{title.length}/50 karakter</p>
+              <p className="text-xs text-gray-500 mt-1">{description.length}/50 karakter</p>
             </div>
-
-            {/* Subtitle */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Sub Judul <span className="text-red-500">*</span>
-              </label>
-              <input
-                value={subtitle}
-                onChange={(e) => setSubtitle(e.target.value)}
-                placeholder="Deskripsi singkat untuk mendukung judul"
-                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
-                required
-                maxLength={80}
-              />
-              <p className="text-xs text-gray-500 mt-1">{subtitle.length}/80 karakter</p>
             </div>
-
-            {/* Tagline */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Tagline <span className="text-red-500">*</span>
-              </label>
-              <input
-                value={tagline}
-                onChange={(e) => setTagline(e.target.value)}
-                placeholder="Pesan singkat atau call-to-action"
-                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
-                required
-                maxLength={100}
-              />
-              <p className="text-xs text-gray-500 mt-1">{tagline.length}/100 karakter</p>
-            </div>
-
-            {/* Status */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Status Gallery
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setStatus('active')}
-                  className={`
-                    px-4 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2
-                    ${status === 'active'
-                      ? 'bg-green-100 text-green-700 ring-2 ring-green-500'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }
-                  `}
-                >
-                  <CheckCircleIcon className="w-5 h-5" />
-                  Aktif
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStatus('inactive')}
-                  className={`
-                    px-4 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2
-                    ${status === 'inactive'
-                      ? 'bg-gray-700 text-white ring-2 ring-gray-700'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }
-                  `}
-                >
-                  <ExclamationCircleIcon className="w-5 h-5" />
-                  Nonaktif
-                </button>
-              </div>
-            </div>
-          </div>
 
           {/* Preview Section */}
-          {title && subtitle && tagline && previewUrl && (
+          {description && previewUrl && (
             <div className="bg-gray-50 rounded-2xl p-4">
               <p className="text-sm font-semibold text-gray-700 mb-3">Preview Gallery:</p>
               <div className="relative h-40 rounded-xl overflow-hidden">
                 <Image src={previewUrl} alt="Preview" fill className="object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-4">
-                  <h3 className="text-white font-bold text-base line-clamp-1">{title}</h3>
-                  <p className="text-white/90 text-sm line-clamp-1">{subtitle}</p>
-                  <p className="text-white/80 text-xs line-clamp-1 mt-1">{tagline}</p>
+                  <p className="text-white/90 text-sm line-clamp-1">{description}</p>
                 </div>
               </div>
             </div>
@@ -347,7 +261,7 @@ export default function GallerriesModal({
           </button>
           <button
             onClick={handleSubmit}
-            disabled={loading || !title || !subtitle || !tagline || (!gallery && !selectedFile)}
+            disabled={loading || !description || (!gallery && !selectedFile)}
             className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium hover:from-blue-700 hover:to-blue-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {loading ? (

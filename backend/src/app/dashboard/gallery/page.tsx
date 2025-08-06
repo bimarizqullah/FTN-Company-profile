@@ -208,11 +208,9 @@ export default function GalleryPage() {
                 return (
                   <div key={gallery.id} className="bg-white rounded-2xl shadow-sm hover:shadow-xl border border-gray-100 transition overflow-hidden">
                     <div className="relative h-52">
-                      <Image src={gallery.imagePath} alt={gallery.title} fill className="object-cover" />
+                      <Image src={gallery.imagePath} alt={gallery.imagePath} fill className="object-cover" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-4">
-                        <h3 className="text-white font-bold">{gallery.title}</h3>
-                        <p className="text-white/80 text-sm">{gallery.subtitle}</p>
-                        <p className="text-white/60 text-xs">{gallery.tagline}</p>
+                        <h3 className="text-white font-bold">{gallery.description}</h3>
                       </div>
                       <div className="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-medium bg-black/50 text-white">
                         {isActive ? 'Aktif' : 'Nonaktif'}
@@ -224,21 +222,6 @@ export default function GalleryPage() {
 
                     <div className="p-4 space-y-2">
                       {/* Toggle Status */}
-                      <button
-                        disabled={!canActivate && !isActive}
-                        onClick={() => handleToggleStatus(gallery.id, !isActive)}
-                        className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 text-sm
-                          ${isActive
-                            ? 'bg-green-50 text-green-700 hover:bg-green-100'
-                            : canActivate
-                              ? 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                              : 'bg-gray-50 text-gray-400 cursor-not-allowed'
-                          }`}
-                      >
-                        {isActive ? <EyeIcon className="w-4 h-4" /> : <EyeSlashIcon className="w-4 h-4" />}
-                        <span>{isActive ? 'Gallery Aktif' : canActivate ? 'Aktifkan Gallery' : 'Kuota Penuh'}</span>
-                      </button>
-
                       {/* Action Buttons */}
                       <div className="flex gap-2">
                         <button

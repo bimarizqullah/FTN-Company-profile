@@ -4,7 +4,6 @@ import prisma from "@/lib/db";
 import { writeFile } from "fs/promises";
 import path from "path";
 import * as uuid from "uuid";
-import { gallery_status_enum } from "@prisma/client";
 
 // GET semua gallery
 export async function GET() {
@@ -35,10 +34,7 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData();
     const file = formData.get("file") as File;
-    const title = formData.get("title")?.toString() || "";
-    const subtitle = formData.get("subtitle")?.toString() || "";
-    const tagline = formData.get("tagline")?.toString() || "";
-    const status = (formData.get("status")?.toString() || "active") as gallery_status_enum;
+    const description = formData.get("description")?.toString() || "";
 
     if (!file) {
       return NextResponse.json({ message: "File is required" }, { status: 400 });
@@ -53,10 +49,7 @@ export async function POST(req: NextRequest) {
     const gallery = await prisma.gallery.create({
       data: {
         imagePath: `/uploads/gallery/${fileName}`,
-        title,
-        subtitle,
-        tagline,
-        status,
+        description,
         createdBy: Number(decoded.userId),
       },
     });

@@ -49,72 +49,60 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 // Endpoint ini digunakan untuk memperbarui data slider yang sudah ada, termasuk mengganti gambar.
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    // Validasi Content-Type
+    const contentType = req.headers.get('content-type');
+    if (!contentType || !contentType.includes('multipart/form-data')) {
+      return NextResponse.json(
+        { message: 'Content-Type harus multipart/form-data' },
+        { status: 400 }
+      );
     }
 
-    const token = authHeader.split(" ")[1];
-    const decoded = verifyToken(token);
-    if (!decoded || typeof decoded === "string") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    const formData = await req.formData();
+    const title = formData.get('title')?.toString() || '';
+    const subtitle = formData.get('subtitle')?.toString() || '';
+    const tagline = formData.get('tagline')?.toString() || '';
+    const status = formData.get('status')?.toString() as status_enum;
+    const file = formData.get('file') as File | null;
+
+    if (!title || !subtitle || !tagline) {
+      return NextResponse.json(
+        { message: 'Judul, SubJudul, dan Tagline wajib diisi' },
+        { status: 400 }
+      );
     }
 
-    const contentType = req.headers.get("content-type") || "";
-    let updateData: any = {};
+    let imagePath: string | undefined = undefined;
 
-    if (contentType.includes("application/json")) {
-      // 🔹 Handle JSON
-      const body = await req.json();
-      updateData = {
-        title: body.title || undefined,
-        subtitle: body.subtitle || undefined,
-        tagline: body.tagline || undefined,
-        status: body.status || undefined,
-      };
-    } 
-    else if (contentType.includes("multipart/form-data")) {
-      // 🔹 Handle FormData
-      const formData = await req.formData();
-      const imageFile = formData.get("image") as File | null;
-      updateData.title = formData.get("title")?.toString() || undefined;
-      updateData.subtitle = formData.get("subtitle")?.toString() || undefined;
-      updateData.tagline = formData.get("tagline")?.toString() || undefined;
-      updateData.status = formData.get("status")?.toString() || undefined;
-
-      if (imageFile) {
-        const bytes = await imageFile.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        const fileName = `${crypto.randomUUID()}${path.extname(imageFile.name)}`;
-        const filePath = path.join(process.cwd(), "public", "uploads", "sliders", fileName);
-        await mkdir(path.dirname(filePath), { recursive: true });
-        await writeFile(filePath, buffer);
-        updateData.imagePath = `/uploads/sliders/${fileName}`;
-      }
-    } 
-    else {
-      return NextResponse.json({ message: "Unsupported Content-Type" }, { status: 400 });
+    if (file && file.size > 0) {
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const filename = `${Date.now()}-${file.name.replace(/\s+/g, '_')}`;
+      const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'sliders');
+      await mkdir(uploadsDir, { recursive: true });
+      const filePath = path.join(uploadsDir, filename);
+      await writeFile(filePath, buffer);
+      imagePath = `/uploads/sliders/${filename}`;
     }
 
-    // 🚦 Cek batas slider aktif
-    if (updateData.status === "active") {
-      const activeCount = await prisma.slider.count({
-        where: { status: "active", NOT: { id: Number(params.id) } },
-      });
-      if (activeCount >= 5) {
-        return NextResponse.json({ message: "Maksimal 5 slider aktif diperbolehkan" }, { status: 400 });
-      }
-    }
-
-    const updatedSlider = await prisma.slider.update({
+    const updated = await prisma.slider.update({
       where: { id: Number(params.id) },
-      data: updateData,
+      data: {
+        title,
+        subtitle,
+        tagline,
+        status,
+        ...(imagePath ? { imagePath } : {}),
+      },
     });
 
-    return NextResponse.json(updatedSlider);
+    return NextResponse.json({ success: true, data: updated });
   } catch (error) {
-    console.error("PUT Slider Error:", error);
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
+    console.error('Update error:', error);
+    return NextResponse.json(
+      { message: 'Gagal update data', details: error },
+      { status: 500 }
+    );
   }
 }
 
