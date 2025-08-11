@@ -1,3 +1,4 @@
+// services/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth";
 import prisma from "@/lib/db";
@@ -48,7 +49,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     else if (contentType.includes("multipart/form-data")) {
       // 🔹 Handle FormData
       const formData = await req.formData();
-      const imageFile = formData.get("image") as File | null;
+      const imageFile = formData.get("file") as File | null;
       updateData.name = formData.get("name")?.toString() || undefined;
       updateData.description = formData.get("description")?.toString() || undefined;
 

@@ -1,3 +1,4 @@
+// File: app/api/project/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth";
 import prisma from "@/lib/db";
@@ -5,7 +6,7 @@ import path from "path";
 import { writeFile, unlink, mkdir } from "fs/promises";
 import crypto from "crypto";
 
-// GET detail gallery by ID
+// GET detail project by ID
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const gallery = await prisma.gallery.findUnique({
@@ -19,8 +20,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-// PUT update gallery
-// Endpoint ini digunakan untuk memperbarui data gallery yang sudah ada, termasuk mengganti gambar.
+// PUT update project
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const authHeader = req.headers.get("authorization");
@@ -38,16 +38,13 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     let updateData: any = {};
 
     if (contentType.includes("application/json")) {
-      // 🔹 Handle JSON
       const body = await req.json();
       updateData = {
         description: body.description || undefined,
       };
-    } 
-    else if (contentType.includes("multipart/form-data")) {
-      // 🔹 Handle FormData
+    } else if (contentType.includes("multipart/form-data")) {
       const formData = await req.formData();
-      const imageFile = formData.get("image") as File | null;
+      const imageFile = formData.get("file") as File | null;
       updateData.description = formData.get("description")?.toString() || undefined;
 
       if (imageFile) {
@@ -59,8 +56,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         await writeFile(filePath, buffer);
         updateData.imagePath = `/uploads/gallery/${fileName}`;
       }
-    } 
-    else {
+    } else {
       return NextResponse.json({ message: "Unsupported Content-Type" }, { status: 400 });
     }
 
@@ -71,12 +67,12 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     return NextResponse.json(updatedGallery);
   } catch (error) {
-    console.error("PUT Gallery Error:", error);
+    console.error("PUT Project Error:", error);
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
 
-// DELETE gallery
+// DELETE project
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const gallery = await prisma.gallery.findUnique({
@@ -87,13 +83,12 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
     await prisma.gallery.delete({ where: { id: Number(params.id) } });
 
-    // Delete file
     if (gallery.imagePath) {
       const fullPath = path.join(process.cwd(), "public", gallery.imagePath);
       try {
         await unlink(fullPath);
       } catch (err) {
-        console.warn("Failed to delete file:", err);
+        console.warn("Failed to delete image:", err);
       }
     }
 

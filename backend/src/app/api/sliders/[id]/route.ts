@@ -1,3 +1,5 @@
+// API: app/api/sliders/[id]/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth";
 import prisma from "@/lib/db";
@@ -51,23 +53,49 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   try {
     // Validasi Content-Type
     const contentType = req.headers.get('content-type');
-    if (!contentType || !contentType.includes('multipart/form-data')) {
+    let title: string | undefined;
+    let subtitle: string | undefined;
+    let tagline: string | undefined;
+    let status: status_enum | undefined;
+    let file: File | null = null;
+
+    // Handle both JSON and multipart/form-data
+    if (contentType?.includes('multipart/form-data')) {
+      const formData = await req.formData();
+      title = formData.get('title')?.toString();
+      subtitle = formData.get('subtitle')?.toString();
+      tagline = formData.get('tagline')?.toString();
+      status = formData.get('status')?.toString() as status_enum;
+      file = formData.get('file') as File | null;
+
+      // Validate required fields for full update (when file or text fields are provided)
+      if ((file || title || subtitle || tagline) && (!title || !subtitle || !tagline)) {
+        return NextResponse.json(
+          { message: 'Judul, SubJudul, dan Tagline wajib diisi jika salah satu diantaranya disediakan' },
+          { status: 400 }
+        );
+      }
+    } else if (contentType?.includes('application/json')) {
+      const body = await req.json();
+      status = body.status as status_enum;
+      // Only allow status updates for JSON requests
+      if (!status) {
+        return NextResponse.json(
+          { message: 'Status wajib disediakan untuk pembaruan JSON' },
+          { status: 400 }
+        );
+      }
+    } else {
       return NextResponse.json(
-        { message: 'Content-Type harus multipart/form-data' },
+        { message: 'Content-Type harus multipart/form-data atau application/json' },
         { status: 400 }
       );
     }
 
-    const formData = await req.formData();
-    const title = formData.get('title')?.toString() || '';
-    const subtitle = formData.get('subtitle')?.toString() || '';
-    const tagline = formData.get('tagline')?.toString() || '';
-    const status = formData.get('status')?.toString() as status_enum;
-    const file = formData.get('file') as File | null;
-
-    if (!title || !subtitle || !tagline) {
+    // Validate status if provided
+    if (status && !['active', 'inactive'].includes(status)) {
       return NextResponse.json(
-        { message: 'Judul, SubJudul, dan Tagline wajib diisi' },
+        { message: 'Status tidak valid. Gunakan "active" atau "inactive"' },
         { status: 400 }
       );
     }
@@ -85,15 +113,25 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       imagePath = `/uploads/sliders/${filename}`;
     }
 
+    // Build the update data dynamically
+    const updateData: any = {};
+    if (title) updateData.title = title;
+    if (subtitle) updateData.subtitle = subtitle;
+    if (tagline) updateData.tagline = tagline;
+    if (status) updateData.status = status;
+    if (imagePath) updateData.imagePath = imagePath;
+
+    // Check if there's anything to update
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json(
+        { message: 'Tidak ada data yang disediakan untuk pembaruan' },
+        { status: 400 }
+      );
+    }
+
     const updated = await prisma.slider.update({
       where: { id: Number(params.id) },
-      data: {
-        title,
-        subtitle,
-        tagline,
-        status,
-        ...(imagePath ? { imagePath } : {}),
-      },
+      data: updateData,
     });
 
     return NextResponse.json({ success: true, data: updated });
@@ -137,9 +175,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
         }
 
         // 🗑️ Hapus record slider dari database
-        await prisma.slider.delete({
+        const deleted = await prisma.slider.delete({
             where: { id: Number(params.id) },
         });
+        console.log(`[DELETE] Slider with ID ${params.id} deleted from database`);
 
         // 🗑️ Hapus file gambar dari direktori public/uploads/sliders
         if (sliderToDelete.imagePath) {

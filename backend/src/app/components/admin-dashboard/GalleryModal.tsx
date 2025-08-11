@@ -1,3 +1,5 @@
+// Modal: components/SlidersModal.tsx
+
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
@@ -11,24 +13,26 @@ import {
   ExclamationCircleIcon
 } from '@heroicons/react/24/outline'
 
-interface GallerriesModalProps {
+interface GalleryModalProps {
   isOpen: boolean
   onClose: () => void
   gallery: {
     id: number
     imagePath: string
     description: string
+    status: 'active' | 'inactive'
   } | null
   onSuccess: () => void
 }
 
-export default function GallerriesModal({
+export default function GalleryModal({
   isOpen,
   onClose,
   gallery,
   onSuccess
-}: GallerriesModalProps) {
+}: GalleryModalProps) {
   const [loading, setLoading] = useState(false)
+  const [status, setStatus] = useState<'active' | 'inactive'>('active')
   const [description, setDescription] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string>('')
@@ -37,9 +41,11 @@ export default function GallerriesModal({
 
   useEffect(() => {
     if (gallery) {
+      setStatus(gallery.status)
       setDescription(gallery.description || '')
       setPreviewUrl(gallery.imagePath)
     } else {
+      setStatus('active')
       setDescription('')
       setPreviewUrl('')
       setSelectedFile(null)
@@ -97,8 +103,14 @@ export default function GallerriesModal({
     setLoading(true)
     try {
       const formData = new FormData()
-      formData.append('Description', description)
+      formData.append('description', description)
       if (selectedFile) formData.append('file', selectedFile)
+
+      // Log formData for debugging
+      console.log('FormData contents:');
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
 
       const url = gallery ? `/api/gallery/${gallery.id}` : `/api/gallery`
       const method = gallery ? 'PUT' : 'POST'
@@ -111,12 +123,16 @@ export default function GallerriesModal({
         body: formData
       })
 
-      if (!res.ok) throw new Error()
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to save gallery');
+      }
       toast.success(gallery ? 'Gallery berhasil diperbarui' : 'Gallery berhasil ditambahkan')
       onSuccess()
       onClose()
-    } catch {
-      toast.error('Gagal menyimpan gallery')
+    } catch (error) {
+      toast.error('Gagal menyimpan Gallery')
+      console.error(error);
     } finally {
       setLoading(false)
     }
@@ -134,10 +150,10 @@ export default function GallerriesModal({
         <div className="flex justify-between items-center p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
-              {gallery ? 'Edit Gallery' : 'Tambah Gallery Baru'}
+              {gallery ? 'Edit Gallery' : 'Tambah gallery Baru'}
             </h2>
             <p className="text-sm text-gray-600 mt-1">
-              {gallery ? 'Perbarui informasi gallery' : 'Buat gallery baru untuk halaman gallery'}
+              {gallery ? 'Perbarui informasi Gallery' : 'Buat Gallery baru untuk halaman utama'}
             </p>
           </div>
           <button
@@ -221,7 +237,7 @@ export default function GallerriesModal({
             {/* Title */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Judul Gallery <span className="text-red-500">*</span>
+                Judul Utama <span className="text-red-500">*</span>
               </label>
               <input
                 value={description}
@@ -229,11 +245,11 @@ export default function GallerriesModal({
                 placeholder="Masukkan judul yang menarik"
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
                 required
-                maxLength={50}
+                maxLength={255}
               />
-              <p className="text-xs text-gray-500 mt-1">{description.length}/50 karakter</p>
+              <p className="text-xs text-gray-500 mt-1">{description.length}/255 karakter</p>
             </div>
-            </div>
+          </div>
 
           {/* Preview Section */}
           {description && previewUrl && (

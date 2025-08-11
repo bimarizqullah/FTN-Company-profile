@@ -48,7 +48,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       };
     } else if (contentType.includes("multipart/form-data")) {
       const formData = await req.formData();
-      const imageFile = formData.get("image") as File | null;
+      const imageFile = formData.get("file") as File | null;
       updateData.name = formData.get("name")?.toString() || undefined;
       updateData.description = formData.get("description")?.toString() || undefined;
       updateData.location = formData.get("location")?.toString() || undefined;

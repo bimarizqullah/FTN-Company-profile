@@ -45,11 +45,14 @@ export default function SlidersPage() {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(async res => {
-        if (!res.ok) throw new Error('Unauthorized')
+        if (!res.ok) {
+          throw new Error('Unauthorized')
+        }
         const data = await res.json()
         setUser(data)
       })
-      .catch(() => {
+      .catch(error => {
+        console.error('Auth error:', error)
         localStorage.removeItem('token')
         router.push('/login')
       })
@@ -61,14 +64,20 @@ export default function SlidersPage() {
       setLoading(true)
       const res = await fetch('/api/sliders', {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${localStorage.getItem('token') || ''}`
         }
       })
-      if (!res.ok) throw new Error('Failed fetch sliders')
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.message || 'Failed to fetch sliders')
+      }
       const data = await res.json()
       setSliders(data)
-    } catch {
+    } catch (error) {
+      console.error('Fetch sliders error:', error)
       toast.error('Gagal memuat sliders')
+      // Jangan kosongkan state jika fetch gagal, gunakan state sebelumnya
+      // State akan tetap mempertahankan data lama
     } finally {
       setLoading(false)
     }
@@ -78,6 +87,50 @@ export default function SlidersPage() {
     if (user) fetchSliders()
   }, [user])
 
+  // Toggle status
+  const handleToggleStatus = async (id: number, currentStatus: 'active' | 'inactive') => {
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active'
+    // Simpan state sebelumnya untuk rollback
+    const previousSliders = [...sliders]
+
+    // Optimistic update: Ubah status lokal
+    setSliders(prev =>
+      prev.map(slider =>
+        slider.id === id ? { ...slider, status: newStatus } : slider
+      )
+    )
+
+    try {
+      const res = await fetch(`/api/sliders/${id}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+      })
+
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.message || 'Gagal update status')
+      }
+
+      const updatedSlider = await res.json() // Ambil data slider yang diperbarui dari respons
+      // Update state dengan data dari API untuk memastikan konsistensi
+      setSliders(prev =>
+        prev.map(slider =>
+          slider.id === id ? updatedSlider.data : slider
+        )
+      )
+      toast.success('Status slider diperbarui')
+    } catch (error) {
+      console.error('Toggle status error:', error)
+      toast.error('Gagal update status slider')
+      // Rollback ke state sebelumnya jika gagal
+      setSliders(previousSliders)
+    }
+  }
+
   // Delete slider
   const handleDeleteClick = (id: number) => {
     setDeleteSliderId(id)
@@ -86,41 +139,32 @@ export default function SlidersPage() {
 
   const handleDeleteConfirm = async () => {
     if (!deleteSliderId) return
+    const previousSliders = [...sliders]
+    // Optimistic update: Hapus dari UI segera
+    setSliders(prev => prev.filter(slider => slider.id !== deleteSliderId))
+
     try {
       const res = await fetch(`/api/sliders/${deleteSliderId}`, {
         method: 'DELETE',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${localStorage.getItem('token') || ''}`
         }
       })
-      if (!res.ok) throw new Error('Delete gagal')
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.message || 'Gagal menghapus slider')
+      }
       toast.success('Slider berhasil dihapus')
-      fetchSliders()
-    } catch {
+    } catch (error) {
+      console.error('Delete slider error:', error)
       toast.error('Gagal hapus slider')
+      // Rollback jika gagal
+      setSliders(previousSliders)
+      // Sinkronkan lagi dengan database
+      await fetchSliders()
     } finally {
       setIsConfirmOpen(false)
       setDeleteSliderId(null)
-    }
-  }
-
-  // Toggle status
-  const handleToggleStatus = async (id: number, newStatus: boolean) => {
-    try {
-      const status = newStatus ? 'active' : 'inactive'
-      const res = await fetch(`/api/sliders/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status })
-      })
-      if (!res.ok) throw new Error('Gagal update status')
-      toast.success('Status slider diperbarui')
-      fetchSliders()
-    } catch {
-      toast.error('Gagal update status slider')
     }
   }
 
@@ -149,7 +193,7 @@ export default function SlidersPage() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 ml-0 lg:ml-64">
           {/* Header Section */}
           <div className="mb-8">
-            <StatsGrid/>
+            <StatsGrid />
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
@@ -231,7 +275,7 @@ export default function SlidersPage() {
                       {/* Toggle Status */}
                       <button
                         disabled={!canActivate && !isActive}
-                        onClick={() => handleToggleStatus(slider.id, !isActive)}
+                        onClick={() => handleToggleStatus(slider.id, slider.status)}
                         className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 text-sm
                           ${isActive
                             ? 'bg-green-50 text-green-700 hover:bg-green-100'

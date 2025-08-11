@@ -1,3 +1,5 @@
+// Modal: components/SlidersModal.tsx
+
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
@@ -115,6 +117,12 @@ export default function SlidersModal({
       formData.append('status', status)
       if (selectedFile) formData.append('file', selectedFile)
 
+      // Log formData for debugging
+      console.log('FormData contents:');
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+
       const url = slider ? `/api/sliders/${slider.id}` : `/api/sliders`
       const method = slider ? 'PUT' : 'POST'
 
@@ -126,12 +134,16 @@ export default function SlidersModal({
         body: formData
       })
 
-      if (!res.ok) throw new Error()
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to save slider');
+      }
       toast.success(slider ? 'Slider berhasil diperbarui' : 'Slider berhasil ditambahkan')
       onSuccess()
       onClose()
-    } catch {
+    } catch (error) {
       toast.error('Gagal menyimpan slider')
+      console.error(error);
     } finally {
       setLoading(false)
     }
