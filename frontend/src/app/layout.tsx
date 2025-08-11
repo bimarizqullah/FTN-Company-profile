@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: 'FTN Company Profile',
+  title: 'PT Fiber Teknologi Nusantara',
   description: 'Company Profile Fiber Teknologi Nusantara',
 }
 
