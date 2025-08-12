@@ -10,7 +10,7 @@ import Projects from './projects/page';
 import Management from './management/page';
 import Slider from './sliders/page';
 import { ArrowUpIcon } from '@heroicons/react/24/solid';
-import VisionMission from './vision-mission/page';
+import VisionMission from './about/page';
 
 // Komponen utama untuk halaman beranda
 const Home: React.FC = () => {

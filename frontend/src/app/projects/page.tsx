@@ -123,10 +123,10 @@ const Projects: React.FC = () => {
               <span className="text-blue-700 text-sm font-semibold tracking-wider uppercase">Portfolio</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 mb-6 leading-tight">
-              Our <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">Projects</span>
+              Proyek <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">Kami</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-light">
-              Transforming infrastructure with cutting-edge fiber optic solutions across diverse industries
+              Mengubah infrastruktur dengan solusi Fiber Optik mutakhir di berbagai industri.
             </p>
           </div>
 
@@ -218,7 +218,7 @@ const Projects: React.FC = () => {
                   
                   {/* Learn More Button */}
                   <button className="inline-flex items-center gap-2 text-blue-600 font-semibold hover:gap-3 transition-all duration-300 group/btn">
-                    <span>View Details</span>
+                    <span>Lihat Selengkapnya</span>
                     <svg className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>

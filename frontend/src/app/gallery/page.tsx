@@ -73,10 +73,10 @@ const Gallery: React.FC = () => {
               <span className="text-blue-700 text-sm font-semibold tracking-wider uppercase">Gallery</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 mb-6 leading-tight">
-              Our <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">Showcase</span>
+              Galeri <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">Kami</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-light">
-              Discover our portfolio of fiber optic innovations and manufacturing excellence
+              Temukan portofolio inovasi Fiber optik dan keunggulan manufaktur kami
             </p>
           </div>
 
@@ -120,7 +120,7 @@ const Gallery: React.FC = () => {
                   
                   {/* View Button */}
                   <button className="inline-flex items-center gap-2 text-blue-600 font-semibold mt-4 hover:gap-3 transition-all duration-300 group/btn opacity-0 group-hover:opacity-100">
-                    <span>View Details</span>
+                    <span>Lihat Selengkapnya</span>
                     <svg className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
@@ -141,9 +141,9 @@ const Gallery: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">No Images Available</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">Tidak ada gambar</h3>
               <p className="text-gray-600 max-w-md mx-auto">
-                Our gallery is currently being updated. Please check back soon for our latest showcase.
+                Galeri kami belum ada perubahan, silahan kembali lagi esok!
               </p>
             </div>
           )}
@@ -193,13 +193,13 @@ const Gallery: React.FC = () => {
             
             <div className="relative z-10">
               <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
-                Impressed by Our Work?
+                Tertarik dengan kami?
               </h2>
               <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-                Let's create something amazing together. Explore how we can bring your vision to life.
+                Mari ciptakan sesuatu yang luar biasa bersama. Jelajahi bagaimana kami dapat mewujudkan visi Anda.
               </p>
               <button className="inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-600 font-semibold rounded-2xl hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 shadow-xl">
-                <span>Start Your Project</span>
+                <span>Mulai Proyek Anda</span>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>

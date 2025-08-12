@@ -2,17 +2,16 @@
 
 import type React from "react"
 import { useEffect } from "react"
-import AOS from "aos"
-import "aos/dist/aos.css"
 
 const VisionMission: React.FC = () => {
   useEffect(() => {
-    AOS.init({
-      duration: 1000,
-      once: true,
-      offset: 100,
-      easing: "ease-out-cubic",
-    })
+    // AOS initialization would go here in a real project
+    // AOS.init({
+    //   duration: 1000,
+    //   once: true,
+    //   offset: 100,
+    //   easing: "ease-out-cubic",
+    // })
   }, [])
 
   return (
@@ -27,9 +26,51 @@ const VisionMission: React.FC = () => {
               <span className="text-blue-700 text-sm font-semibold tracking-wider uppercase">About Us</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 mb-6 leading-tight">
+              Tentang{" "}
+              <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">Perusahaan</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-light">
+              Membangun masa depan teknologi fiber optik Indonesia dengan inovasi dan dedikasi
+            </p>
+          </div>
+
+          {/* About Company Section */}
+          <div className="mb-20" data-aos="fade-up">
+            <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 lg:p-12 shadow-lg">
+              <div className="max-w-5xl mx-auto">
+                <h2 className="text-3xl lg:text-4xl font-black text-gray-900 mb-8 text-center">
+                  PT Fiber Teknologi{" "}
+                  <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+                    Nusantara
+                  </span>
+                </h2>
+                
+                <div className="grid grid-cols-3 lg:grid-cols-1 gap-12 items-center">
+                  {/* Company Description */}
+                  <div className="space-y-6">
+                    <p className="text-lg text-gray-700 leading-relaxed text-justify">
+                      <strong className="text-blue-700">PT Fiber Teknologi Nusantara</strong> adalah perusahaan yang bergerak di bidang penyediaan infrastruktur pasif telekomunikasi yang berfokus pada solusi fiber optik berkualitas tinggi untuk mendukung transformasi digital Indonesia.
+                    </p>
+                    
+                    <p className="text-lg text-gray-700 leading-relaxed text-justify">
+                      Dengan pengalaman dan keahlian yang mendalam, kami berkomitmen untuk menghadirkan infrastruktur digital yang andal, efisien, dan sesuai dengan standar internasional. Perusahaan kami hadir sebagai mitra strategis bagi pemerintah daerah, operator telekomunikasi, dan berbagai instansi dalam mewujudkan konektivitas yang optimal.
+                    </p>
+                    
+                    <p className="text-lg text-gray-700 leading-relaxed text-justify">
+                      Sebagai bagian dari upaya mendukung program Smart City dan digitalisasi Indonesia, kami terus berinovasi dalam menyediakan solusi infrastruktur yang tidak hanya berkualitas tinggi, tetapi juga ramah lingkungan dan berkelanjutan.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Vision & Mission Section Header */}
+          <div className="text-center mb-16" data-aos="fade-up">
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 leading-tight">
               Visi &{" "}
               <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">Misi</span>
-            </h1>
+            </h2>
             <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-light">
               Komitmen kami dalam membangun masa depan teknologi fiber optik Indonesia
             </p>
@@ -70,7 +111,7 @@ const VisionMission: React.FC = () => {
                   VISI
                 </h2>
 
-                <p className="text-lg lg:text-xl text-gray-700 leading-relaxed font-medium">
+                <p className="text-lg lg:text-xl text-gray-700 leading-relaxed font-medium text-justify">
                   Menjadi perusahaan penyedia infrastruktur yang handal dan berstandar tinggi, serta berperan aktif dalam mewujudkan transformasi digital kota menuju Smart City yang modern, efisien, dan berkelanjutan.
                 </p>
 
@@ -113,25 +154,25 @@ const VisionMission: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex items-start gap-4">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mt-3 flex-shrink-0"></div>
-                    <p className="text-lg text-gray-700 leading-relaxed">
+                    <p className="text-lg text-gray-700 leading-relaxed text-justify">
                       Menata Estetika Perkotaan : Mengintegrasikan solusi infrastruktur yang modern dan tertata guna mengurangi kesemrawutan kabel udara serta meningkatkan estetika dan keamanan lingkungan perkotaan.
                     </p>
                   </div>
                   <div className="flex items-start gap-4">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mt-3 flex-shrink-0"></div>
-                    <p className="text-lg text-gray-700 leading-relaxed">
+                    <p className="text-lg text-gray-700 leading-relaxed text-justify">
                       Meningkatkan Efisiensi dan Keberlanjutan : Mengoptimalkan pemanfaatan infrastruktur pasif secara bersama guna mengurangi redundansi jaringan, meningkatkan efisiensi biaya, serta mendukung penggunaan teknologi ramah lingkungan.
                     </p>
                   </div>
                   <div className="flex items-start gap-4">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mt-3 flex-shrink-0"></div>
-                    <p className="text-lg text-gray-700 leading-relaxed">
+                    <p className="text-lg text-gray-700 leading-relaxed text-justify">
                       Menyediakan Infrastruktur Digital yang Tersertifikasi : Menghadirkan standarisasi infrastruktur digital yang berkualitas, aman, dan sesuai dengan regulasi untuk mendukung konektivitas yang andal.
                     </p>
                   </div>
                   <div className="flex items-start gap-4">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mt-3 flex-shrink-0"></div>
-                    <p className="text-lg text-gray-700 leading-relaxed">
+                    <p className="text-lg text-gray-700 leading-relaxed text-justify">
                       Mendukung Transformasi Digital Kota : Berkontribusi dalam percepatan digitalisasi melalui pembangunan infrastruktur digital yang mendukung Smart City, IoT, dan ekosistem digital yang inovatif.
                     </p>
                   </div>
@@ -161,12 +202,12 @@ const VisionMission: React.FC = () => {
           </div>
 
           {/* Values Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-justify">
             {[
               {
                 icon: (
                   <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0H8m8 0v2a2 2 0 002 2h2a2 2 0 002-2V8a2 2 0 00-2-2h-2zm-8 0V8a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2h2a2 2 0 012 2z" />
                   </svg>
                 ),
                 title: "Profesional",
@@ -179,7 +220,7 @@ const VisionMission: React.FC = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                     />
                   </svg>
                 ),
@@ -193,7 +234,7 @@ const VisionMission: React.FC = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                      d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
                     />
                   </svg>
                 ),
@@ -207,7 +248,7 @@ const VisionMission: React.FC = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
                 ),

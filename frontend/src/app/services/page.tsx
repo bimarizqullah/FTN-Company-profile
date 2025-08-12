@@ -73,10 +73,10 @@ const Services: React.FC = () => {
               <span className="text-blue-700 text-sm font-semibold tracking-wider uppercase">Our Services</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 mb-6 leading-tight">
-              Premium <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">Solutions</span>
+              Layanan <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">Kami</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-light">
-              Comprehensive fiber optic services designed for the future of connectivity
+              Layanan Fiber Optik komprehensif yang dirancang untuk masa depan konektivitas.
             </p>
           </div>
 
@@ -120,7 +120,7 @@ const Services: React.FC = () => {
                   
                   {/* Learn More Button */}
                   <button className="inline-flex items-center gap-2 text-blue-600 font-semibold hover:gap-3 transition-all duration-300 group/btn">
-                    <span>Learn More</span>
+                    <span>Pelajari Selengkapnya</span>
                     <svg className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
@@ -141,9 +141,9 @@ const Services: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">No Services Available</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">Tidak Ada Layanan</h3>
               <p className="text-gray-600 max-w-md mx-auto">
-                Our services are currently being updated. Please check back soon for our comprehensive offerings.
+                Layanan kami sedang diperbarui. Silakan periksa kembali dalam waktu dekat untuk melihat penawaran lengkap kami.
               </p>
             </div>
           )}
@@ -162,13 +162,14 @@ const Services: React.FC = () => {
             
             <div className="relative z-10">
               <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
-                Ready to Transform Your Infrastructure?
+                Siap untuk mengubah infrastruktur anda?
               </h2>
               <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-                Let's discuss how our fiber optic solutions can elevate your connectivity needs.
+               Mari kita bahas bagaimana solusi Fiber Optik kami dapat meningkatkan kebutuhan konektivitas Anda.
+
               </p>
               <button className="inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-600 font-semibold rounded-2xl hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 shadow-xl">
-                <span>Get Started Today</span>
+                <span>Mulai Sekarang</span>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>

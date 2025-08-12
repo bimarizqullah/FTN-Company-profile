@@ -37,7 +37,7 @@ export default function Footer() {
                       />
                     </svg>
                   </div>
-                  <span className="font-medium">Main Office: Bekasi, Indonesia</span>
+                  <span className="font-medium">Head Office : Jln. Telaga Sarangan IV. No. 85. Kel. pengasinan. Kec. Rawalumbu. Kota Bekasi. Jawa Barat</span>
                 </div>
                 <div className="flex items-center gap-3 text-gray-600">
                   <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
@@ -56,7 +56,7 @@ export default function Footer() {
                       />
                     </svg>
                   </div>
-                  <span className="font-medium">Branch Office: Madiun, Indonesia</span>
+                  <span className="font-medium">Branch Office : Jln. Kartawijaya No 30A. Kel. Klegen. Kec. Kartoharjo. Kota Madiun. Jawa Timur 63117</span>
                 </div>
                 <div className="flex items-center gap-3 text-gray-600">
                   <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
