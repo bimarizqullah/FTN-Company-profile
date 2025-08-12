@@ -45,7 +45,7 @@ const Gallery: React.FC = () => {
   }, [API_BASE_URL]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="min-h-screen bg-white">
       <Head>
         <title>PT. Fiber Teknologi Nusantara - Gallery</title>
         <meta name="description" content="Explore our gallery showcasing fiber optic innovations and achievements" />

@@ -45,7 +45,7 @@ const Management: React.FC = () => {
   }, [API_BASE_URL]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="min-h-screen bg-white">
       <Head>
         <title>PT. Fiber Teknologi Nusantara - Leadership Team</title>
         <meta name="description" content="Meet our visionary leadership team driving innovation in fiber optics" />
@@ -71,13 +71,13 @@ const Management: React.FC = () => {
           <div className="text-center mb-20" data-aos="fade-up">
             <div className="inline-flex items-center gap-3 px-6 py-3 bg-blue-50 rounded-full mb-6">
               <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-              <span className="text-blue-700 text-sm font-semibold tracking-wider uppercase">Leadership</span>
+              <span className="text-blue-700 text-sm font-semibold tracking-wider uppercase">Management</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 mb-6 leading-tight">
-              Our <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">Leaders</span>
+              Manajemen <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">Kami</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-light">
-              Visionary minds driving innovation and excellence in fiber optic technology
+              Pikiran visioner yang mendorong inovasi dan keunggulan dalam fiber Teknologi Nusantara.
             </p>
           </div>
 
@@ -199,13 +199,13 @@ const Management: React.FC = () => {
             
             <div className="relative z-10">
               <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
-                Want to Join Our Team?
+                Ingin Bergabung dengan Tim Kami?
               </h2>
               <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                We're always looking for talented individuals who share our passion for innovation and excellence.
+                Kami selalu mencari individu berbakat yang memiliki semangat yang sama terhadap inovasi dan keunggulan.
               </p>
               <button className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-2xl hover:from-blue-500 hover:to-blue-400 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl">
-                <span>View Careers</span>
+                <span>Hubungi Kami</span>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>

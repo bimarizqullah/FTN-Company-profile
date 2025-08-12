@@ -2,20 +2,21 @@
 
 import type React from "react"
 import { useEffect } from "react"
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 const VisionMission: React.FC = () => {
   useEffect(() => {
-    // AOS initialization would go here in a real project
-    // AOS.init({
-    //   duration: 1000,
-    //   once: true,
-    //   offset: 100,
-    //   easing: "ease-out-cubic",
-    // })
+    AOS.init({
+      duration: 1000,
+      once: true,
+      offset: 100,
+      easing: "ease-out-cubic",
+    })
   }, [])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <section className="pt-20 pb-16 px-4 md:px-8 lg:px-16 xl:px-32">
         <div className="max-w-7xl mx-auto">

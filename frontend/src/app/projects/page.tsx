@@ -94,7 +94,7 @@ const Projects: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="min-h-screen bg-white">
       <Head>
         <title>PT. Fiber Teknologi Nusantara - Project Portfolio</title>
         <meta name="description" content="Explore our comprehensive portfolio of fiber optic infrastructure projects" />
@@ -260,9 +260,9 @@ const Projects: React.FC = () => {
       <section className="py-20 px-4 md:px-8 lg:px-16 xl:px-32 bg-gradient-to-r from-blue-600 to-blue-500">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12" data-aos="fade-up">
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Project Impact</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Dampak Proyek</h2>
             <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-              Delivering excellence across multiple sectors and regions
+              Menyediakan keunggulan di berbagai sektor dan wilayah
             </p>
           </div>
           
@@ -320,20 +320,20 @@ const Projects: React.FC = () => {
             
             <div className="relative z-10">
               <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
-                Ready to Start Your Project?
+                Siap untuk Memulai Proyek Anda?
               </h2>
               <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                Let's transform your infrastructure vision into reality with our expertise in fiber optic solutions.
+                Mari Bangun Infrastruktur Masa Depan Anda menjadi Kenyataan dengan Pengalaman Kami di bidang Fiber Optik.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-2xl hover:from-blue-500 hover:to-blue-400 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl">
-                  <span>Start Your Project</span>
+                  <span>Mulai Proyek Anda</span>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </button>
                 <button className="inline-flex items-center gap-3 px-8 py-4 bg-white border-2 border-gray-200 text-gray-700 font-semibold rounded-2xl hover:border-blue-300 hover:text-blue-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                  <span>View Case Studies</span>
+                  <span>Lihat Studi Kasus</span>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
