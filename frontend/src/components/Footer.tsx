@@ -123,10 +123,7 @@ export default function Footer() {
                 <span className="text-gray-600 font-medium">Follow Us:</span>
                 <div className="flex gap-3">
                   {[
-                    { icon: "linkedin", href: "#" },
-                    { icon: "twitter", href: "#" },
-                    { icon: "instagram", href: "#" },
-                    { icon: "facebook", href: "#" },
+                    { icon: "instagram", href: "https://www.instagram.com/fiberteknologinusantara/?utm_source=ig_web_button_share_sheet" },
                   ].map((social) => (
                     <a
                       key={social.icon}

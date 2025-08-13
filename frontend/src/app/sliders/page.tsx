@@ -302,22 +302,7 @@ const ModernSlider: React.FC = () => {
                 </div>
               </button>
             ))}
-          </div>
-          
-          {/* Enhanced Scroll Indicator */}
-          <div className="absolute bottom-8 right-8 z-20">
-            <div className="flex flex-col items-center gap-3 text-white/70 group hover:text-white transition-colors duration-500">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-medium tracking-widest uppercase">Scroll Down</span>
-                <div className="w-6 h-6 border border-white/50 rounded-full flex items-center justify-center group-hover:border-white transition-colors duration-500">
-                  <svg className="w-3 h-3 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
-          
+          </div>          
           {/* Slide Counter */}
           <div className="absolute top-8 right-8 z-20">
             <div className="bg-black/30 backdrop-blur-2xl border border-white/10 rounded-2xl px-6 py-3">
