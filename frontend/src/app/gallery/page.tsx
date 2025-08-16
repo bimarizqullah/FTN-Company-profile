@@ -199,7 +199,7 @@ const Gallery: React.FC = () => {
                 Mari ciptakan sesuatu yang luar biasa bersama. Jelajahi bagaimana kami dapat mewujudkan visi Anda.
               </p>
               <button className="inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-600 font-semibold rounded-2xl hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 shadow-xl">
-                <span>Mulai Proyek Anda</span>
+                <span>Hubungi Kami</span>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
