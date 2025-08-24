@@ -39,6 +39,8 @@ model User {
   projects   Project[]  @relation("ProjectCreatedBy")
   managements Management[] @relation("ManagementCreatedBy")
   languages  Language[] @relation("LanguageCreatedBy")
+  offices    Office[]   @relation("OfficeCreatedBy")
+  contacts    Contact[]   @relation("ContactCreatedBy")
 }
 
 model Slider {
@@ -57,9 +59,7 @@ model Slider {
 model Gallery {
   id          Int                  @id @default(autoincrement())
   imagePath   String
-  tagline     String?
-  title       String?
-  subtitle    String?
+  description String?
   status      gallery_status_enum  @default(active)
   createdAt   DateTime             @default(now())
   updatedAt   DateTime             @updatedAt
@@ -148,4 +148,34 @@ model RolePermission {
   @@id([roleId, permissionId])
   @@index([roleId])
   @@index([permissionId])
+}
+
+model Office {
+  id         Int       @id @default(autoincrement())
+  name       String    // Nama kantor (e.g., Head Office, Branch Office)
+  address    String    // Alamat kantor
+  phone      String?   // Nomor telepon kantor
+  email      String?   // Email kantor
+  status     status_enum @default(active)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  createdBy  Int
+  user       User      @relation("OfficeCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+  contacts   Contact[] // Relasi one-to-many dengan Contact
+}
+
+model Contact {
+  id         Int       @id @default(autoincrement())
+  officeId   Int       // Foreign key ke Office
+  name       String    // Nama kontak
+  position   String    // Posisi (e.g., Head Administrator)
+  email      String?   // Email kontak
+  whatsapp   String?   // Nomor WhatsApp
+  status     status_enum @default(active)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  createdBy  Int
+  user       User      @relation("ContactCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+  office     Office    @relation(fields: [officeId], references: [id], onDelete: Cascade)
+  @@index([officeId])
 }

@@ -32,7 +32,8 @@ CREATE TABLE `Slider` (
 CREATE TABLE `Gallery` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `imagePath` VARCHAR(191) NOT NULL,
-    `description` VARCHAR(191) NOT NULL,
+    `description` VARCHAR(191) NULL,
+    `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
     `createdBy` INTEGER NOT NULL,
@@ -137,6 +138,38 @@ CREATE TABLE `RolePermission` (
     PRIMARY KEY (`roleId`, `permissionId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `Office` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(191) NOT NULL,
+    `address` VARCHAR(191) NOT NULL,
+    `phone` VARCHAR(191) NULL,
+    `email` VARCHAR(191) NULL,
+    `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `createdBy` INTEGER NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Contact` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `officeId` INTEGER NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `position` VARCHAR(191) NOT NULL,
+    `email` VARCHAR(191) NULL,
+    `whatsapp` VARCHAR(191) NULL,
+    `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `createdBy` INTEGER NOT NULL,
+
+    INDEX `Contact_officeId_idx`(`officeId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `Slider` ADD CONSTRAINT `Slider_createdBy_fkey` FOREIGN KEY (`createdBy`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -166,3 +199,12 @@ ALTER TABLE `RolePermission` ADD CONSTRAINT `RolePermission_roleId_fkey` FOREIGN
 
 -- AddForeignKey
 ALTER TABLE `RolePermission` ADD CONSTRAINT `RolePermission_permissionId_fkey` FOREIGN KEY (`permissionId`) REFERENCES `Permission`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Office` ADD CONSTRAINT `Office_createdBy_fkey` FOREIGN KEY (`createdBy`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Contact` ADD CONSTRAINT `Contact_createdBy_fkey` FOREIGN KEY (`createdBy`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Contact` ADD CONSTRAINT `Contact_officeId_fkey` FOREIGN KEY (`officeId`) REFERENCES `Office`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

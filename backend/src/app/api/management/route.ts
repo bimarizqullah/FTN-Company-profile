@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   try {
     const management = await prisma.management.findMany({
       include: { user: true },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { id: 'asc' },
     })
     return NextResponse.json({ success: true, data: management })
   } catch (error) {

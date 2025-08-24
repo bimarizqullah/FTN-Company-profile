@@ -10,7 +10,7 @@ import { project_status_enum } from "@prisma/client";
 export async function GET() {
   try {
     const projects = await prisma.project.findMany({
-      orderBy: { createdAt: "desc" },
+      orderBy: { id: "asc" },
     });
     return NextResponse.json(projects);
   } catch (error) {

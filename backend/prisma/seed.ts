@@ -1,101 +1,90 @@
-import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcrypt'
+import { PrismaClient, status_enum } from '@prisma/client';
+import { hash } from 'bcryptjs'; // Untuk hash password pengguna
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
-  // 1. Hash password
-  const superPassword = await bcrypt.hash('superadmin123', 10)
-  const adminPassword = await bcrypt.hash('admin123', 10)
+  // Hapus data lama (opsional, untuk reset)
+  await prisma.userRole.deleteMany();
+  await prisma.rolePermission.deleteMany();
+  await prisma.userRole.deleteMany();
+  await prisma.permission.deleteMany();
+  await prisma.role.deleteMany();
+  await prisma.user.deleteMany();
 
-  // 2. Seed permissions
-  const permissions = await Promise.all([
-    prisma.permission.upsert({
-      where: { permission: 'manage_users' },
-      update: {},
-      create: {
-        permission: 'manage_users',
-        description: 'Manage Users',
-      },
-    }),
-    prisma.permission.upsert({
-      where: { permission: 'manage_content' },
-      update: {},
-      create: {
-        permission: 'manage_content',
-        description: 'Manage Content',
-      },
-    }),
-  ])
-
-  // 3. Seed roles
-  const superadminRole = await prisma.role.upsert({
-    where: { role: 'superadmin' },
-    update: {},
-    create: {
-      role: 'superadmin',
-      description: 'Super Administrator',
-    },
-  })
-
-  const adminRole = await prisma.role.upsert({
-    where: { role: 'admin' },
-    update: {},
-    create: {
+  // Seed data untuk Role
+  const adminRole = await prisma.role.create({
+    data: {
       role: 'admin',
-      description: 'Administrator',
+      description: 'Administrator role',
     },
-  })
+  });
 
-  // 4. Hubungkan role ke permission
+  const userRole = await prisma.role.create({
+    data: {
+      role: 'user',
+      description: 'Regular user role',
+    },
+  });
+
+  // Seed data untuk Permission
+  const readPermission = await prisma.permission.create({
+    data: {
+      permission: 'read',
+      description: 'Read permission',
+    },
+  });
+
+  const writePermission = await prisma.permission.create({
+    data: {
+      permission: 'write',
+      description: 'Write permission',
+    },
+  });
+
+  // Hubungkan Role dengan Permission
   await prisma.rolePermission.createMany({
-    data: permissions.map((p) => ({
-      roleId: superadminRole.id,
-      permissionId: p.id,
-    })),
-    skipDuplicates: true,
-  })
-
-  // 5. Tambahkan user superadmin dan admin
-  const superadminUser = await prisma.user.upsert({
-    where: { email: 'superadmin@example.com' },
-    update: {},
-    create: {
-      name: 'Super Admin',
-      email: 'superadmin@example.com',
-      password: superPassword,
-      imagePath: '',
-      status: 'active',
-    },
-  })
-
-  const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@example.com' },
-    update: {},
-    create: {
-      name: 'Admin',
-      email: 'admin@example.com',
-      password: adminPassword,
-      imagePath: '',
-      status: 'active',
-    },
-  })
-
-  // 6. Hubungkan user ke role
-  await prisma.userRole.createMany({
     data: [
-      { userId: superadminUser.id, roleId: superadminRole.id },
-      { userId: adminUser.id, roleId: adminRole.id },
+      { roleId: adminRole.id, permissionId: readPermission.id },
+      { roleId: adminRole.id, permissionId: writePermission.id },
+      { roleId: userRole.id, permissionId: readPermission.id },
     ],
-    skipDuplicates: true,
-  })
+  });
 
-  console.log('Seeder berhasil dijalankan!')
+  // Seed data untuk User
+  const hashedPassword = await hash('password123', 10); // Hash password
+  const adminUser = await prisma.user.create({
+    data: {
+      name: 'Admin User',
+      email: 'admin@example.com',
+      password: hashedPassword,
+      status: status_enum.active,
+      roles: {
+        create: { roleId: adminRole.id },
+      },
+    },
+  });
+
+  const regularUser = await prisma.user.create({
+    data: {
+      name: 'Regular User',
+      email: 'user@example.com',
+      password: hashedPassword,
+      status: status_enum.active,
+      roles: {
+        create: { roleId: userRole.id },
+      },
+    },
+  });
+
+  console.log('Seeding completed successfully!');
 }
 
 main()
   .catch((e) => {
-    console.error(e)
-    process.exit(1)
+    console.error(e);
+    process.exit(1);
   })
-  .finally(() => prisma.$disconnect())
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

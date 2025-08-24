@@ -9,7 +9,7 @@ import * as uuid from "uuid";
 export async function GET() {
   try {
     const galleries = await prisma.gallery.findMany({
-      orderBy: { createdAt: "desc" },
+      orderBy: { id: "asc" },
     });
     return NextResponse.json(galleries);
   } catch (error) {

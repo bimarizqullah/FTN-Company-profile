@@ -3,14 +3,12 @@ import { verifyToken } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { writeFile } from "fs/promises";
 import path from "path";
-import * as uuid from "uuid";
-import Services from '../../../../../frontend/src/components/Home/Services/index';
 
 // GET semua services
 export async function GET() {
   try {
     const services = await prisma.service.findMany({
-      orderBy: { createdAt: "desc" },
+      orderBy: { id: "asc" },
     });
     return NextResponse.json(services);
   } catch (error) {
