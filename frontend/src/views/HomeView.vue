@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import companyService, { Slider, Service, Project, Management, Gallery } from '@/services/companyService'
 
 // Data refs
@@ -18,12 +18,67 @@ const projectsLoading = ref(true)
 const managementLoading = ref(true)
 const galleryLoading = ref(true)
 
+// Slider state
+const currentSlideIndex = ref(0)
+const isAutoPlaying = ref(true)
+const autoSlideInterval = ref<number | null>(null)
+const slideDuration = 5000 // 5 seconds
+
+// Slider functions
+const nextSlide = () => {
+  if (sliders.value.length > 1) {
+    currentSlideIndex.value = (currentSlideIndex.value + 1) % sliders.value.length
+  }
+}
+
+const previousSlide = () => {
+  if (sliders.value.length > 1) {
+    currentSlideIndex.value = currentSlideIndex.value === 0 
+      ? sliders.value.length - 1 
+      : currentSlideIndex.value - 1
+  }
+}
+
+const goToSlide = (index: number) => {
+  currentSlideIndex.value = index
+}
+
+const toggleAutoSlide = () => {
+  isAutoPlaying.value = !isAutoPlaying.value
+  if (isAutoPlaying.value) {
+    startAutoSlide()
+  } else {
+    stopAutoSlide()
+  }
+}
+
+const startAutoSlide = () => {
+  if (sliders.value.length > 1) {
+    stopAutoSlide() // Clear any existing interval
+    autoSlideInterval.value = window.setInterval(() => {
+      nextSlide()
+    }, slideDuration)
+  }
+}
+
+const stopAutoSlide = () => {
+  if (autoSlideInterval.value) {
+    clearInterval(autoSlideInterval.value)
+    autoSlideInterval.value = null
+  }
+}
+
 // Fetch data functions
 const fetchSliders = async () => {
   try {
     const data = await companyService.getSliders()
     sliders.value = data.filter(slider => slider.status === 'active')
     console.log('Sliders loaded:', sliders.value)
+    
+    // Start auto-slide if there are multiple slides
+    if (sliders.value.length > 1 && isAutoPlaying.value) {
+      startAutoSlide()
+    }
   } catch (error) {
     console.error('Error fetching sliders:', error)
   } finally {
@@ -95,83 +150,166 @@ onMounted(() => {
   fetchManagement()
   fetchGallery()
 })
+
+// Cleanup on unmount
+onUnmounted(() => {
+  stopAutoSlide()
+})
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Hero Section -->
-    <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <!-- Background Slider -->
-      <div class="absolute inset-0">
-        <div v-if="sliders.length > 0" class="relative w-full h-full">
-          <div v-for="(slider, index) in sliders.slice(0, 1)" :key="slider.id" class="absolute inset-0">
-            <img 
-              v-if="slider.imagePath"
-              :src="`http://localhost:3000${slider.imagePath}`"
-              :alt="slider.title"
-              class="w-full h-full object-cover"
-            />
-            <div v-else class="w-full h-full bg-gradient-to-br from-blue-600 to-blue-800"></div>
-            <div class="absolute inset-0 bg-black/50"></div>
-          </div>
-        </div>
-        <div v-else class="w-full h-full bg-gradient-to-br from-blue-600 to-blue-800">
-          <div class="absolute inset-0 bg-black/50"></div>
-        </div>
+    <!-- Hero Section with Left-Aligned Slider -->
+<!-- Hero Section with Left-Aligned Slider -->
+<section class="relative min-h-screen flex items-center overflow-hidden">
+  <!-- Background Slider -->
+  <div class="absolute inset-0">
+    <div v-if="sliders.length > 0" class="relative w-full h-full">
+      <div 
+        v-for="(slider, index) in sliders" 
+        :key="slider.id" 
+        class="absolute inset-0 transition-opacity duration-1000"
+        :class="{ 'opacity-100': currentSlideIndex === index, 'opacity-0': currentSlideIndex !== index }"
+      >
+        <img 
+          v-if="slider.imagePath"
+          :src="`http://localhost:3000${slider.imagePath}`"
+          :alt="slider.title"
+          class="w-full h-full object-cover"
+        />
+        <div v-else class="w-full h-full bg-gradient-to-br from-blue-600 to-blue-800"></div>
+        <div class="absolute inset-0 bg-black/50"></div>
+      </div>
+    </div>
+    <div v-else class="w-full h-full bg-gradient-to-br from-blue-600 to-blue-800">
+      <div class="absolute inset-0 bg-black/50"></div>
+    </div>
+  </div>
+  
+  <!-- Content Container - Left Aligned -->
+  <div class="relative z-10 w-full h-full flex items-center">
+    <div class="max-w-6xl mx-auto px-6 w-full">
+      <div v-if="loading" class="text-center py-20">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+        <p class="mt-4 text-gray-300">Memuat...</p>
       </div>
       
-      <!-- Content -->
-      <div class="relative z-10 max-w-4xl mx-auto px-6 text-center text-white">
-        <div v-if="loading" class="text-center py-20">
-          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-          <p class="mt-4 text-gray-300">Memuat...</p>
-        </div>
-        
-        <!-- Slider Content -->
-        <div v-else-if="sliders.length > 0" class="space-y-8">
-          <div v-for="(slider, index) in sliders.slice(0, 1)" :key="slider.id" class="max-w-4xl mx-auto">
-            <div class="bg-white/20 backdrop-blur-sm px-6 py-3 text-sm font-medium text-white mb-8 inline-block rounded-full" data-aos="fade-down" data-aos-delay="200">
+      <!-- Slider Content - Left Aligned -->
+      <div v-else-if="sliders.length > 0" class="relative">
+        <div 
+          v-for="(slider, index) in sliders" 
+          :key="slider.id" 
+          class="transition-all duration-1000"
+          :class="{ 'opacity-100 transform translate-y-0': currentSlideIndex === index, 'opacity-0 transform translate-y-4 absolute inset-0': currentSlideIndex !== index }"
+        >
+          <div class="text-left text-white max-w-3xl">
+            <div class="bg-white/20 backdrop-blur-sm px-6 py-3 text-base font-medium text-white mb-6 inline-block rounded-full" data-aos="fade-down" data-aos-delay="200">
               {{ slider.company || 'Fiber Teknologi Nusantara' }}
             </div>
-            <h1 class="text-4xl md:text-6xl font-bold mb-8" data-aos="fade-up" data-aos-delay="400">{{ slider.title || 'Membangun Masa Depan Digital Indonesia' }}</h1>
-            <p class="text-xl text-gray-200 max-w-4xl mx-auto mb-12" data-aos="fade-up" data-aos-delay="600">{{ slider.subtitle || 'Solusi teknologi terdepan untuk infrastruktur jaringan yang handal, cepat, dan aman' }}</p>
             
-            <div class="flex flex-col sm:flex-row gap-6 justify-center" data-aos="fade-up" data-aos-delay="800">
-              <router-link to="/contact" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight" data-aos="fade-up" data-aos-delay="400">
+              {{ slider.title || 'Membangun Masa Depan Digital Indonesia' }}
+            </h1>
+            
+            <p class="text-lg md:text-xl lg:text-2xl text-gray-200 mb-8 leading-relaxed max-w-2xl" data-aos="fade-up" data-aos-delay="600">
+              {{ slider.subtitle || 'Solusi teknologi terdepan untuk infrastruktur jaringan yang handal, cepat, dan aman' }}
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4" data-aos="fade-up" data-aos-delay="800">
+              <router-link to="/contact" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
                 Mulai Konsultasi
-                <svg class="ml-3 w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </router-link>
-              <router-link to="/services" class="inline-block border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105">
+              <router-link to="/services" class="inline-flex items-center justify-center border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105">
                 Lihat Layanan
               </router-link>
             </div>
           </div>
         </div>
+      </div>
+      
+      <!-- Fallback Content - Left Aligned -->
+      <div v-else class="text-left text-white max-w-3xl">
+        <div class="bg-white/20 backdrop-blur-sm px-6 py-3 text-base font-medium text-white mb-6 inline-block rounded-full" data-aos="fade-down" data-aos-delay="200">
+          Fiber Teknologi Nusantara
+        </div>
         
-        <!-- Fallback Content -->
-        <div v-else class="max-w-4xl mx-auto">
-          <div class="bg-white/20 backdrop-blur-sm px-6 py-3 text-sm font-medium text-white mb-8 inline-block rounded-full" data-aos="fade-down" data-aos-delay="200">
-            Fiber Teknologi Nusantara
-          </div>
-          <h1 class="text-4xl md:text-6xl font-bold mb-8" data-aos="fade-up" data-aos-delay="400">Membangun Masa Depan Digital Indonesia</h1>
-          <p class="text-xl text-gray-200 max-w-4xl mx-auto mb-12" data-aos="fade-up" data-aos-delay="600">Solusi teknologi terdepan untuk infrastruktur jaringan yang handal, cepat, dan aman</p>
-          
-          <div class="flex flex-col sm:flex-row gap-6 justify-center" data-aos="fade-up" data-aos-delay="800">
-            <router-link to="/contact" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
-              Mulai Konsultasi
-              <svg class="ml-3 w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </router-link>
-            <router-link to="/services" class="inline-block border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105">
-              Lihat Layanan
-            </router-link>
-          </div>
+        <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight" data-aos="fade-up" data-aos-delay="400">
+          Membangun Masa Depan Digital Indonesia
+        </h1>
+        
+        <p class="text-lg md:text-xl lg:text-2xl text-gray-200 mb-8 leading-relaxed max-w-2xl" data-aos="fade-up" data-aos-delay="600">
+          Solusi teknologi terdepan untuk infrastruktur jaringan yang handal, cepat, dan aman
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4" data-aos="fade-up" data-aos-delay="800">
+          <router-link to="/contact" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+            Mulai Konsultasi
+            <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </router-link>
+          <router-link to="/services" class="inline-flex items-center justify-center border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105">
+            Lihat Layanan
+          </router-link>
         </div>
       </div>
-    </section>
+    </div>
+  </div>
+
+  <!-- Navigation Dots -->
+  <div v-if="sliders.length > 1" class="absolute bottom-12 left-1/2 transform -translate-x-1/2 z-20">
+    <div class="flex space-x-4">
+      <button
+        v-for="(slider, index) in sliders"
+        :key="slider.id"
+        @click="goToSlide(index)"
+        class="w-4 h-4 rounded-full transition-all duration-300 hover:scale-125"
+        :class="currentSlideIndex === index ? 'bg-white shadow-lg' : 'bg-white/50 hover:bg-white/75'"
+      >
+        <span class="sr-only">Slide {{ index + 1 }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Navigation Arrows -->
+  <div v-if="sliders.length > 1" class="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-6 z-20 pointer-events-none">
+    <button
+      @click="previousSlide"
+      class="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all duration-300 hover:scale-110 pointer-events-auto"
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+    <button
+      @click="nextSlide"
+      class="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all duration-300 hover:scale-110 pointer-events-auto"
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Pause/Play Button -->
+  <div v-if="sliders.length > 1" class="absolute top-6 right-6 z-20">
+    <button
+      @click="toggleAutoSlide"
+      class="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all duration-300 hover:scale-110"
+    >
+      <svg v-if="isAutoPlaying" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6" />
+      </svg>
+      <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    </button>
+  </div>
+</section>
 
     <!-- About Section -->
     <section class="py-16 bg-white">
