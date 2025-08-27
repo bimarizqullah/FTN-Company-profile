@@ -1,0 +1,227 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Modern & Elegant Design System */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: #ffffff;
+    color: #1f2937;
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+@layer components {
+  /* Modern Typography */
+  .text-hero {
+    @apply text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight;
+  }
+
+  .text-subtitle {
+    @apply text-xl md:text-2xl text-slate-300 font-light leading-relaxed;
+  }
+
+  .text-body-large {
+    @apply text-lg md:text-xl text-gray-700 leading-relaxed;
+  }
+
+  .text-body {
+    @apply text-base md:text-lg text-gray-600 leading-relaxed;
+  }
+
+  .text-heading {
+    @apply text-3xl md:text-4xl font-bold text-gray-900 leading-tight;
+  }
+
+  .text-section-title {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight tracking-tight;
+  }
+
+  .text-card-title {
+    @apply text-xl md:text-2xl font-semibold text-gray-900 leading-tight;
+  }
+
+  /* Modern Buttons */
+  .btn-primary {
+    @apply inline-flex items-center px-8 py-4 text-base font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-105 shadow-lg rounded-xl;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center px-8 py-4 text-base font-medium text-gray-900 bg-white border-2 border-gray-300 hover:border-blue-500 hover:text-blue-600 transition-all duration-300 transform hover:scale-105 shadow-lg rounded-xl backdrop-blur-sm;
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center px-8 py-4 text-base font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg rounded-xl;
+  }
+
+  /* Modern Cards */
+  .card-modern {
+    @apply bg-white/80 backdrop-blur-sm border border-gray-200/50 p-8 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 rounded-2xl;
+  }
+
+  .card-feature {
+    @apply bg-white/90 backdrop-blur-sm border border-gray-200/50 p-8 text-center hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 rounded-2xl;
+  }
+
+  .card-document {
+    @apply bg-white/90 backdrop-blur-sm border border-gray-200/50 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-xl;
+  }
+
+  /* Modern Layout */
+  .section-spacing {
+    @apply py-24 md:py-32;
+  }
+
+  .container-modern {
+    @apply max-w-7xl mx-auto px-6 md:px-8;
+  }
+
+  .grid-modern {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12;
+  }
+
+  .grid-2-col {
+    @apply grid grid-cols-1 lg:grid-cols-2 gap-12 items-center;
+  }
+
+  /* Section Headers */
+  .section-header {
+    @apply text-center mb-20;
+  }
+
+  .section-header h2 {
+    @apply text-4xl md:text-5xl font-bold text-gray-900 mb-6 tracking-tight;
+  }
+
+  .section-header p {
+    @apply text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed;
+  }
+
+  /* Modern Images */
+  .image-modern {
+    @apply w-full h-auto object-cover rounded-xl shadow-lg;
+  }
+
+  .image-container {
+    @apply relative overflow-hidden rounded-xl shadow-lg;
+  }
+
+  .image-container img {
+    @apply w-full h-full object-cover transition-transform duration-700;
+  }
+
+  .image-container:hover img {
+    transform: scale(1.1);
+  }
+
+  /* Modern Badges */
+  .badge-modern {
+    @apply inline-flex items-center px-4 py-2 text-sm font-medium text-blue-700 bg-blue-100 rounded-full;
+  }
+
+  .badge-accent {
+    @apply inline-flex items-center px-4 py-2 text-sm font-medium text-purple-700 bg-purple-100 rounded-full;
+  }
+
+  /* Stats */
+  .stats-grid {
+    @apply grid grid-cols-2 md:grid-cols-4 gap-8 text-center;
+  }
+
+  .stat-item {
+    @apply text-center p-6;
+  }
+
+  .stat-number {
+    @apply text-4xl md:text-5xl font-bold text-blue-600 mb-2;
+  }
+
+  .stat-label {
+    @apply text-lg font-medium text-gray-600;
+  }
+
+  /* Team Members */
+  .team-member {
+    @apply text-center p-6;
+  }
+
+  .team-photo {
+    @apply w-32 h-32 rounded-full object-cover mx-auto mb-4 border-4 border-white shadow-xl;
+  }
+
+  /* Glass Morphism */
+  .glass {
+    @apply bg-white/20 backdrop-blur-lg border border-white/30 rounded-2xl;
+  }
+
+  /* Gradient Backgrounds */
+  .bg-gradient-modern {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .bg-gradient-hero {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #7c3aed 100%);
+  }
+
+  /* Modern Shadows */
+  .shadow-modern {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  .shadow-card {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Hover Effects */
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl;
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-300 hover:scale-105;
+  }
+
+  /* Layout */
+  .modern-layout {
+    @apply bg-gradient-to-br from-slate-50 to-white min-h-screen;
+  }
+
+  .modern-section {
+    @apply py-20 md:py-28;
+  }
+
+  .modern-section:nth-child(even) {
+    @apply bg-gradient-to-r from-blue-50/50 to-purple-50/50;
+  }
+
+  /* Loading & Errors */
+  .image-loading {
+    @apply animate-pulse bg-gray-200 rounded-xl;
+  }
+
+  .image-error {
+    @apply bg-gray-100 flex items-center justify-center text-gray-400 rounded-xl;
+  }
+
+  /* Social Links */
+  .social-link {
+    @apply w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-110 shadow-lg;
+  }
+
+  /* Footer Links */
+  .footer-link {
+    @apply text-gray-600 hover:text-blue-600 transition-all duration-300 font-medium hover:transform hover:translate-x-1;
+  }
+}
