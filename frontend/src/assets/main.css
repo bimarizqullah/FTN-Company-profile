@@ -16,10 +16,34 @@
     color: #1f2937;
     overflow-x: hidden;
     line-height: 1.6;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Dark mode styles */
+  :root.dark {
+    color-scheme: dark;
+  }
+
+  .dark body {
+    background: #0f172a;
+    color: #f8fafc;
   }
 
   * {
     box-sizing: border-box;
+  }
+
+  /* Smooth transitions for theme switching */
+  * {
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  }
+
+  /* Disable transitions for animations and transforms */
+  *[class*="animate-"],
+  *[class*="transition-transform"],
+  *[class*="hover:scale"],
+  *[class*="hover:rotate"] {
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.3s ease !important;
   }
 }
 
@@ -68,15 +92,15 @@
 
   /* Modern Cards */
   .card-modern {
-    @apply bg-white/80 backdrop-blur-sm border border-gray-200/50 p-8 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 rounded-2xl;
+    @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 p-8 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 rounded-2xl;
   }
 
   .card-feature {
-    @apply bg-white/90 backdrop-blur-sm border border-gray-200/50 p-8 text-center hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 rounded-2xl;
+    @apply bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 p-8 text-center hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 rounded-2xl;
   }
 
   .card-document {
-    @apply bg-white/90 backdrop-blur-sm border border-gray-200/50 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-xl;
+    @apply bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-xl;
   }
 
   /* Modern Layout */

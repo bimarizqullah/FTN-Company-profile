@@ -1,5 +1,5 @@
 <template>
-  <footer class="bg-gray-50 border-t border-gray-200">
+  <footer class="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-600 dark:border-gray-600">
     <!-- Main Footer -->
     <div class="max-w-6xl mx-auto px-6 py-12">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -13,7 +13,7 @@
               @error="handleImageError"
             />
           </div>
-          <p class="text-gray-600 mb-6 leading-relaxed max-w-lg">
+          <p class="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed max-w-lg">
             Perusahaan teknologi terdepan yang berfokus pada solusi fiber optik dan infrastruktur jaringan untuk masa depan digital Indonesia.
           </p>
           
@@ -44,40 +44,40 @@
 
         <!-- Quick Links -->
         <div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Tautan Cepat</h3>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Tautan Cepat</h3>
           <ul class="space-y-2">
             <li>
-              <router-link to="/" class="text-gray-600 hover:text-blue-600 transition-colors">
+              <router-link to="/" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors">
                 Beranda
               </router-link>
             </li>
             <li>
-              <router-link to="/about" class="text-gray-600 hover:text-blue-600 transition-colors">
+              <router-link to="/about" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors">
                 Tentang Kami
               </router-link>
             </li>
             <li>
-              <router-link to="/services" class="text-gray-600 hover:text-blue-600 transition-colors">
+              <router-link to="/services" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors">
                 Layanan
               </router-link>
             </li>
             <li>
-              <router-link to="/projects" class="text-gray-600 hover:text-blue-600 transition-colors">
+              <router-link to="/projects" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors">
                 Proyek
               </router-link>
             </li>
             <li>
-              <router-link to="/management" class="text-gray-600 hover:text-blue-600 transition-colors">
+              <router-link to="/management" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors">
                 Manajemen
               </router-link>
             </li>
             <li>
-              <router-link to="/gallery" class="text-gray-600 hover:text-blue-600 transition-colors">
+              <router-link to="/gallery" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors">
                 Galeri
               </router-link>
             </li>
             <li>
-              <router-link to="/contact" class="text-gray-600 hover:text-blue-600 transition-colors">
+              <router-link to="/contact" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors">
                 Kontak
               </router-link>
             </li>
@@ -86,7 +86,7 @@
 
         <!-- Contact Info -->
         <div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Kontak</h3>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Kontak</h3>
           <div class="space-y-3">
             <div class="flex items-start">
               <div class="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
@@ -96,8 +96,8 @@
                 </svg>
               </div>
               <div>
-                <p class="text-sm font-medium text-gray-900">Lokasi</p>
-                <p class="text-sm text-gray-600">Madiun, Jawa Timur</p>
+                <p class="text-sm font-medium text-gray-900 dark:text-white dark:text-white">Lokasi</p>
+                <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">Madiun, Jawa Timur</p>
               </div>
             </div>
             
@@ -108,8 +108,8 @@
                 </svg>
               </div>
               <div>
-                <p class="text-sm font-medium text-gray-900">Telepon</p>
-                <p class="text-sm text-gray-600">+62 351 123 456</p>
+                <p class="text-sm font-medium text-gray-900 dark:text-white dark:text-white">Telepon</p>
+                <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">+62 351 123 456</p>
               </div>
             </div>
             
@@ -120,8 +120,8 @@
                 </svg>
               </div>
               <div>
-                <p class="text-sm font-medium text-gray-900">Email</p>
-                <p class="text-sm text-gray-600">info@fiberteknologi.com</p>
+                <p class="text-sm font-medium text-gray-900 dark:text-white dark:text-white">Email</p>
+                <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">info@fiberteknologi.com</p>
               </div>
             </div>
           </div>
@@ -130,16 +130,16 @@
     </div>
 
     <!-- Bottom Footer -->
-    <div class="border-t border-gray-200 bg-white">
+    <div class="border-t border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 dark:bg-gray-800">
       <div class="max-w-6xl mx-auto px-6 py-4">
         <div class="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
-          <p class="text-sm text-gray-600">
+          <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
             &copy; {{ new Date().getFullYear() }} Fiber Teknologi Nusantara. Semua hak dilindungi.
           </p>
           <div class="flex space-x-6 text-sm">
-            <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">Kebijakan Privasi</a>
-            <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">Syarat & Ketentuan</a>
-            <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">Peta Situs</a>
+            <a href="#" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors">Kebijakan Privasi</a>
+            <a href="#" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors">Syarat & Ketentuan</a>
+            <a href="#" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors">Peta Situs</a>
           </div>
         </div>
       </div>

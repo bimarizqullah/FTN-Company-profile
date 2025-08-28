@@ -7,6 +7,7 @@ import AOS from 'aos'
 
 import App from './App.vue'
 import router from './router'
+import { useThemeStore } from './stores/theme'
 
 // Initialize AOS
 AOS.init({
@@ -19,8 +20,13 @@ AOS.init({
 })
 
 const app = createApp(App)
+const pinia = createPinia()
 
-app.use(createPinia())
+app.use(pinia)
 app.use(router)
+
+// Initialize theme after pinia is available
+const themeStore = useThemeStore()
+themeStore.initializeTheme()
 
 app.mount('#app')

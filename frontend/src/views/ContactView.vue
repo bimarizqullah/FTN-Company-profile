@@ -1,8 +1,11 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 dark:bg-gray-900">
     <!-- Hero Section -->
-    <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
-      <div class="max-w-4xl mx-auto px-6 text-center">
+    <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20 relative overflow-hidden">
+      <!-- Dots Tech Hero -->
+      <TechAnimations variant="dots" density="high" />
+      
+      <div class="max-w-4xl mx-auto px-6 text-center relative z-20">
         <h1 class="text-4xl md:text-5xl font-bold mb-6" data-aos="fade-up">
           Hubungi Kami
         </h1>
@@ -13,16 +16,19 @@
     </section>
 
     <!-- Contact Form & Info -->
-    <section class="py-16">
-      <div class="max-w-6xl mx-auto px-6">
+    <section class="py-16 relative overflow-hidden">
+      <!-- Minimal Dots for Contact -->
+      <TechAnimations variant="minimal" density="low" />
+      
+      <div class="max-w-6xl mx-auto px-6 relative z-20">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <!-- Contact Form -->
           <div data-aos="fade-right" data-aos-delay="200">
-            <h2 class="text-3xl font-bold text-gray-900 mb-6">Kirim Pesan</h2>
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">Kirim Pesan</h2>
             <form @submit.prevent="submitForm" class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+                  <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nama Lengkap</label>
                   <input 
                     type="text" 
                     id="name" 
@@ -32,7 +38,7 @@
                   />
                 </div>
                 <div>
-                  <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                  <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
                   <input 
                     type="email" 
                     id="email" 
@@ -44,7 +50,7 @@
               </div>
               
               <div>
-                <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Nomor Telepon</label>
+                <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nomor Telepon</label>
                 <input 
                   type="tel" 
                   id="phone" 
@@ -54,7 +60,7 @@
               </div>
               
               <div>
-                <label for="subject" class="block text-sm font-medium text-gray-700 mb-2">Subjek</label>
+                <label for="subject" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Subjek</label>
                 <input 
                   type="text" 
                   id="subject" 
@@ -65,7 +71,7 @@
               </div>
               
               <div>
-                <label for="message" class="block text-sm font-medium text-gray-700 mb-2">Pesan</label>
+                <label for="message" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Pesan</label>
                 <textarea 
                   id="message" 
                   v-model="form.message"
@@ -86,7 +92,7 @@
 
           <!-- Contact Information -->
           <div data-aos="fade-left" data-aos-delay="400">
-            <h2 class="text-3xl font-bold text-gray-900 mb-6">Informasi Kontak</h2>
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">Informasi Kontak</h2>
             
             <div class="space-y-6">
               <div class="flex items-start group">
@@ -97,8 +103,8 @@
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors duration-300">Alamat</h3>
-                  <p class="text-gray-600">Jl. Raya Madiun No. 123<br>Madiun, Jawa Timur 63100</p>
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-blue-600 transition-colors duration-300">Alamat</h3>
+                  <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300">Jl. Raya Madiun No. 123<br>Madiun, Jawa Timur 63100</p>
                 </div>
               </div>
               
@@ -109,8 +115,8 @@
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-1 group-hover:text-green-600 transition-colors duration-300">Telepon</h3>
-                  <p class="text-gray-600">+62 351 123 456<br>+62 351 123 457</p>
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-green-600 transition-colors duration-300">Telepon</h3>
+                  <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300">+62 351 123 456<br>+62 351 123 457</p>
                 </div>
               </div>
               
@@ -121,15 +127,15 @@
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-1 group-hover:text-purple-600 transition-colors duration-300">Email</h3>
-                  <p class="text-gray-600">info@fiberteknologi.com<br>support@fiberteknologi.com</p>
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-purple-600 transition-colors duration-300">Email</h3>
+                  <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300">info@fiberteknologi.com<br>support@fiberteknologi.com</p>
                 </div>
               </div>
             </div>
 
             <!-- Social Media -->
             <div class="mt-8">
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">Ikuti Kami</h3>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Ikuti Kami</h3>
               <div class="flex space-x-4">
                 <a href="#" class="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center justify-center text-white transition-all duration-300 transform hover:scale-110 hover:shadow-lg">
                   <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -159,11 +165,11 @@
     </section>
 
     <!-- Map Section -->
-    <section class="py-16 bg-white">
-      <div class="max-w-6xl mx-auto px-6">
+    <section class="py-16 bg-white dark:bg-gray-800 dark:bg-gray-800">
+      <div class="max-w-6xl mx-auto px-6 relative z-20">
         <div class="text-center mb-12" data-aos="fade-up">
-          <h2 class="text-3xl font-bold text-gray-900 mb-4">Lokasi Kami</h2>
-          <p class="text-gray-600">Kunjungi kantor kami untuk diskusi langsung</p>
+          <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">Lokasi Kami</h2>
+          <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300">Kunjungi kantor kami untuk diskusi langsung</p>
         </div>
         
         <div class="bg-gray-200 rounded-lg h-96 flex items-center justify-center" data-aos="zoom-in" data-aos-delay="200">
@@ -172,8 +178,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <p class="text-gray-600">Peta akan ditampilkan di sini</p>
-            <p class="text-sm text-gray-500 mt-2">Jl. Raya Madiun No. 123, Madiun, Jawa Timur</p>
+            <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300">Peta akan ditampilkan di sini</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Jl. Raya Madiun No. 123, Madiun, Jawa Timur</p>
           </div>
         </div>
       </div>
@@ -183,6 +189,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import TechAnimations from '@/components/TechAnimations.vue'
 
 const form = ref({
   name: '',

@@ -1,5 +1,5 @@
 <template>
-  <header class="bg-white shadow-sm sticky top-0 z-50">
+  <header class="bg-white dark:bg-gray-900 shadow-sm dark:shadow-gray-800/20 sticky top-0 z-50 transition-colors duration-200">
     <nav class="max-w-6xl mx-auto px-6">
       <div class="flex justify-between items-center h-16">
         <!-- Logo -->
@@ -21,11 +21,11 @@
               v-for="item in navigationItems" 
               :key="item.name"
               :to="item.href"
-              class="text-gray-700 hover:text-blue-600 font-medium transition-colors px-3 py-2 rounded-md"
+              class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors px-3 py-2 rounded-md"
               :class="[
                 $route.path === item.href 
-                  ? 'text-blue-600 bg-blue-50' 
-                  : 'hover:bg-gray-50'
+                  ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30' 
+                  : 'hover:bg-gray-50 dark:hover:bg-gray-800'
               ]"
             >
               {{ item.name }}
@@ -33,21 +33,23 @@
           </div>
         </div>
 
-        <!-- CTA Button -->
-        <div class="hidden md:block">
+        <!-- Theme Toggle & CTA Button -->
+        <div class="hidden md:flex items-center space-x-3">
+          <ThemeToggle />
           <router-link 
             to="/contact"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
           >
             Hubungi Kami
           </router-link>
         </div>
 
-        <!-- Mobile menu button -->
-        <div class="lg:hidden">
+        <!-- Mobile menu button & theme toggle -->
+        <div class="lg:hidden flex items-center space-x-2">
+          <ThemeToggle />
           <button
             @click="mobileMenuOpen = !mobileMenuOpen"
-            class="p-2 text-gray-600 hover:text-gray-900 transition-colors"
+            class="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
           >
             <span class="sr-only">Buka menu utama</span>
             <div class="w-6 h-6 flex flex-col justify-center items-center">
@@ -69,7 +71,7 @@
       </div>
 
       <!-- Mobile Navigation -->
-      <div v-show="mobileMenuOpen" class="lg:hidden border-t border-gray-100">
+      <div v-show="mobileMenuOpen" class="lg:hidden border-t border-gray-100 dark:border-gray-800">
         <div class="py-4 space-y-1">
           <router-link
             v-for="item in navigationItems"
@@ -78,8 +80,8 @@
             class="block px-4 py-2 text-base font-medium transition-colors"
             :class="[
               $route.path === item.href 
-                ? 'text-blue-600 bg-blue-50' 
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30' 
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
             ]"
             @click="mobileMenuOpen = false"
           >
@@ -87,7 +89,7 @@
           </router-link>
           <router-link
             to="/contact"
-            class="block mx-4 mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium text-center transition-colors"
+            class="block mx-4 mt-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium text-center transition-colors"
             @click="mobileMenuOpen = false"
           >
             Hubungi Kami
@@ -100,6 +102,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import ThemeToggle from './ThemeToggle.vue'
 
 const mobileMenuOpen = ref(false)
 
