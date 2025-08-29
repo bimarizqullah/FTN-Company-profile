@@ -1,15 +1,23 @@
 <template>
-  <footer class="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-600 dark:border-gray-600">
+  <footer class="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-600">
     <!-- Main Footer -->
     <div class="max-w-6xl mx-auto px-6 py-12">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         <!-- Company Info -->
         <div class="lg:col-span-2">
           <div class="flex items-center mb-4">
+            <!-- Light Mode Logo -->
             <img 
               src="/src/assets/logo.svg" 
               alt="Fiber Teknologi Nusantara" 
-              class="h-8 w-auto mr-3"
+              class="h-8 w-auto mr-3 block dark:hidden"
+              @error="handleImageError"
+            />
+            <!-- Dark Mode Logo -->
+            <img 
+              src="/src/assets/logo-light.svg" 
+              alt="Fiber Teknologi Nusantara" 
+              class="h-8 w-auto mr-3 hidden dark:block"
               @error="handleImageError"
             />
           </div>
@@ -96,8 +104,8 @@
                 </svg>
               </div>
               <div>
-                <p class="text-sm font-medium text-gray-900 dark:text-white dark:text-white">Lokasi</p>
-                <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">Madiun, Jawa Timur</p>
+                <p class="text-sm font-medium text-gray-900 dark:text-white">Lokasi</p>
+                <p class="text-sm text-gray-600 dark:text-gray-300">Madiun, Jawa Timur</p>
               </div>
             </div>
             
@@ -108,8 +116,8 @@
                 </svg>
               </div>
               <div>
-                <p class="text-sm font-medium text-gray-900 dark:text-white dark:text-white">Telepon</p>
-                <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">+62 351 123 456</p>
+                <p class="text-sm font-medium text-gray-900 dark:text-white">Telepon</p>
+                <p class="text-sm text-gray-600 dark:text-gray-300">+62 351 123 456</p>
               </div>
             </div>
             
@@ -120,8 +128,8 @@
                 </svg>
               </div>
               <div>
-                <p class="text-sm font-medium text-gray-900 dark:text-white dark:text-white">Email</p>
-                <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">info@fiberteknologi.com</p>
+                <p class="text-sm font-medium text-gray-900 dark:text-white">Email</p>
+                <p class="text-sm text-gray-600 dark:text-gray-300">info@fiberteknologi.com</p>
               </div>
             </div>
           </div>
@@ -130,10 +138,10 @@
     </div>
 
     <!-- Bottom Footer -->
-    <div class="border-t border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 dark:bg-gray-800">
+    <div class="border-t border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800">
       <div class="max-w-6xl mx-auto px-6 py-4">
         <div class="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
-          <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
+          <p class="text-sm text-gray-600 dark:text-gray-300">
             &copy; {{ new Date().getFullYear() }} Fiber Teknologi Nusantara. Semua hak dilindungi.
           </p>
           <div class="flex space-x-6 text-sm">

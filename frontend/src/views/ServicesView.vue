@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900 dark:bg-gray-900">
     <!-- Hero Section -->
-    <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20 relative overflow-hidden">
+    <section class="bg-gradient-to-r from-blue-700 to-blue-900 dark:from-blue-800 dark:to-blue-950 text-white py-20 relative overflow-hidden">
       <!-- Floating Dots Hero -->
       <TechAnimations variant="dots" density="high" />
       
@@ -9,7 +9,7 @@
         <h1 class="text-4xl md:text-5xl font-bold mb-6" data-aos="fade-up">
           Layanan Kami
         </h1>
-        <p class="text-xl text-blue-100 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="200">
+        <p class="text-xl text-blue-100 dark:text-blue-200 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="200">
           Solusi lengkap untuk kebutuhan teknologi dan infrastruktur jaringan Anda.
         </p>
       </div>
@@ -142,6 +142,35 @@
         </div>
       </div>
     </div>
+
+    <!-- CTA Section -->
+    <section class="py-16 bg-blue-600 dark:bg-blue-900 text-white">
+      <div class="max-w-4xl mx-auto px-6 text-center">
+        <h2 class="text-3xl font-bold mb-4" data-aos="fade-up">
+          Siap Menggunakan Layanan Kami?
+        </h2>
+        <p class="text-blue-100 dark:text-blue-200 mb-8 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="200">
+          Mari kita diskusikan bagaimana layanan kami dapat membantu mewujudkan visi teknologi Anda.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center" data-aos="fade-up" data-aos-delay="400">
+          <router-link 
+            to="/contact" 
+            class="inline-block bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+          >
+            Hubungi Kami
+          </router-link>
+          <router-link 
+            to="/projects" 
+            class="inline-block border-2 border-white dark:border-gray-300 text-white dark:text-gray-200 hover:bg-white dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105"
+          >
+            Lihat Proyek
+          </router-link>
+        </div>
+      </div>
+    </section>
+
+    <!-- Scroll to Top Button -->
+    <ScrollToTop />
   </div>
 </template>
 
@@ -149,6 +178,7 @@
 import { ref, onMounted } from 'vue'
 import companyService, { Service } from '@/services/companyService'
 import TechAnimations from '@/components/TechAnimations.vue'
+import ScrollToTop from '@/components/ScrollToTop.vue'
 
 const services = ref<Service[]>([])
 const selectedService = ref<Service | null>(null)
