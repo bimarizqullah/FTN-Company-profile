@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900 dark:bg-gray-900">
     <!-- Hero Section -->
-    <section class="bg-gradient-to-r from-blue-700 to-blue-900 dark:from-blue-800 dark:to-blue-950 text-white py-20 relative overflow-hidden">
+    <section class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white py-20 relative overflow-hidden">
       <!-- Floating Dots Hero -->
       <TechAnimations variant="dots" density="high" />
       
@@ -9,7 +9,7 @@
         <h1 class="text-4xl md:text-5xl font-bold mb-6" data-aos="fade-up">
           Layanan Kami
         </h1>
-        <p class="text-xl text-blue-100 dark:text-blue-200 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="200">
+        <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="200">
           Solusi lengkap untuk kebutuhan teknologi dan infrastruktur jaringan Anda.
         </p>
       </div>
@@ -194,8 +194,6 @@ const fetchServices = async () => {
     loading.value = false
   }
 }
-
-
 
 const showServiceDetail = (service: Service) => {
   selectedService.value = service

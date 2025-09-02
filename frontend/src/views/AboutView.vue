@@ -1,22 +1,16 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900 dark:bg-gray-900">
     <!-- Hero Section -->
-    <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white py-20 relative overflow-hidden">
       <!-- Mixed Dots and Polygons Background -->
       <TechAnimations variant="mixed" density="high" />
       
-      <!-- Background -->
-      <div class="absolute inset-0 bg-gradient-to-br from-blue-700 to-blue-900 dark:from-blue-800 dark:to-blue-950">
-        <div class="absolute inset-0 bg-black/50 dark:bg-black/60"></div>
-      </div>
-      
-      <!-- Content -->
-      <div class="relative z-20 max-w-4xl mx-auto px-6 text-center text-white">
-        <div class="bg-white/20 backdrop-blur-sm px-6 py-3 text-sm font-medium text-white mb-8 inline-block rounded-full" data-aos="fade-down" data-aos-delay="200">
+      <div class="max-w-4xl mx-auto px-6 text-center relative z-20">
+        <div class="bg-blue-100 dark:bg-blue-900/30 px-6 py-3 text-sm font-medium text-blue-600 dark:text-blue-400 mb-8 inline-block rounded-full" data-aos="fade-down" data-aos-delay="200">
           Tentang Kami
         </div>
         <h1 class="text-4xl md:text-6xl font-bold mb-8" data-aos="fade-up" data-aos-delay="400">Fiber Teknologi Nusantara</h1>
-        <p class="text-xl text-gray-200 max-w-4xl mx-auto mb-12" data-aos="fade-up" data-aos-delay="600">
+        <p class="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto mb-12" data-aos="fade-up" data-aos-delay="600">
           Perusahaan teknologi terdepan yang berfokus pada solusi fiber optik dan infrastruktur jaringan untuk masa depan digital Indonesia.
         </p>
         
@@ -27,7 +21,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
           </router-link>
-          <router-link to="/services" class="inline-block border-2 border-white text-white hover:bg-white dark:bg-gray-800 hover:text-blue-600 px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105">
+          <router-link to="/services" class="inline-block border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105">
             Lihat Layanan
           </router-link>
         </div>
