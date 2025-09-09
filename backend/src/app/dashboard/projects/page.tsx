@@ -6,7 +6,7 @@ import DashboardHeader from '@/app/components/admin-dashboard/DashboardHeader'
 import Sidebar from '@/app/components/admin-dashboard/Sidebar'
 import LoadingSpinner from '@/app/components/admin-dashboard/LoadingSpinner'
 import Image from 'next/image'
-import { toast } from 'react-hot-toast'
+import { SweetAlerts } from '@/lib/sweetAlert'
 import ProjectModal from '@/app/components/admin-dashboard/ProjectModal'
 import ConfirmModal from '@/app/components/admin-dashboard/ConfirmModal'
 import {
@@ -65,7 +65,10 @@ export default function ProjectsPage() {
             const data = await res.json()
             setProjects(data)
         } catch {
-            toast.error('Gagal memuat project')
+            SweetAlerts.error.simple(
+                'Gagal Memuat Data',
+                'Terjadi kesalahan saat memuat data project. Silakan coba lagi.'
+            )
         } finally {
             setLoading(false)
         }
@@ -75,12 +78,40 @@ export default function ProjectsPage() {
         if (user) fetchProjects()
     }, [user])
 
-    const handleDeleteClick = (id: number) => {
-        setDeleteProjectId(id)
-        setIsConfirmOpen(true)
+    const handleDeleteClick = async (id: number) => {
+        const project = projects.find(p => p.id === id)
+        const projectName = project?.name || 'project ini'
+        
+        const result = await SweetAlerts.confirm.delete(projectName)
+        
+        if (result.isConfirmed) {
+            // Show loading
+            SweetAlerts.loading.show('Menghapus Project...', 'Sedang menghapus project')
+            
+            try {
+                const res = await fetch(`/api/project/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                })
+                if (!res.ok) throw new Error('Delete gagal')
+                
+                // Show success
+                SweetAlerts.toast.success(`Project "${projectName}" berhasil dihapus`)
+                fetchProjects()
+            } catch (error) {
+                SweetAlerts.error.withDetails(
+                    'Gagal Menghapus Project',
+                    'Terjadi kesalahan saat menghapus project.',
+                    error instanceof Error ? error.message : 'Unknown error'
+                )
+            }
+        }
     }
 
     const handleDeleteConfirm = async () => {
+        // This function is no longer needed but kept for compatibility
         if (!deleteProjectId) return
         try {
             const res = await fetch(`/api/project/${deleteProjectId}`, {
@@ -90,10 +121,10 @@ export default function ProjectsPage() {
                 }
             })
             if (!res.ok) throw new Error('Delete gagal')
-            toast.success('Project berhasil dihapus')
+            SweetAlerts.toast.success('Project berhasil dihapus')
             fetchProjects()
         } catch {
-            toast.error('Gagal hapus project')
+            SweetAlerts.toast.error('Gagal hapus project')
         } finally {
             setIsConfirmOpen(false)
             setDeleteProjectId(null)

@@ -202,13 +202,6 @@ export default function Sidebar() {
       group: 'Content Management',
     },
     {
-      id: 'contacts',
-      label: 'Contact',
-      icon: <DocumentTextIcon className="w-5 h-5" />,
-      href: '/dashboard/contact',
-      group: 'Contact Management',
-    },
-    {
       id: 'offices',
       label: 'Office',
       icon: <BuildingOffice2Icon className="w-5 h-5" />,
@@ -216,10 +209,17 @@ export default function Sidebar() {
       group: 'Contact Management',
     },
     {
+      id: 'contacts',
+      label: 'Contact',
+      icon: <DocumentTextIcon className="w-5 h-5" />,
+      href: '/dashboard/contact',
+      group: 'Contact Management',
+    },
+    {
       id: 'settings',
       label: 'Settings',
       icon: <Cog6ToothIcon className="w-5 h-5" />,
-      href: '/settings',
+      href: '/dashboard/settings',
       group: 'Configuration',
     },
     {

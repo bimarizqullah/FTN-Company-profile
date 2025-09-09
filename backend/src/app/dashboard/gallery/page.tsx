@@ -6,7 +6,7 @@ import DashboardHeader from '@/app/components/admin-dashboard/DashboardHeader'
 import Sidebar from '@/app/components/admin-dashboard/Sidebar'
 import LoadingSpinner from '@/app/components/admin-dashboard/LoadingSpinner'
 import Image from 'next/image'
-import { toast } from 'react-hot-toast'
+import { SweetAlerts } from '@/lib/sweetAlert'
 import GalleryModal from '@/app/components/admin-dashboard/GalleryModal'
 import ConfirmModal from '@/app/components/admin-dashboard/ConfirmModal'
 import {
@@ -67,7 +67,10 @@ export default function GalleryPage() {
       const data = await res.json()
       setGallery(data)
     } catch {
-      toast.error('Gagal memuat gallery')
+      SweetAlerts.error.simple(
+        'Gagal Memuat Data',
+        'Terjadi kesalahan saat memuat data gallery. Silakan coba lagi.'
+      )
     } finally {
       setLoading(false)
     }
@@ -78,12 +81,40 @@ export default function GalleryPage() {
   }, [user])
 
   // Delete gallery
-  const handleDeleteClick = (id: number) => {
-    setDeleteGalleryId(id)
-    setIsConfirmOpen(true)
+  const handleDeleteClick = async (id: number) => {
+    const galleryItem = gallery.find(g => g.id === id)
+    const galleryName = galleryItem?.description || 'foto ini'
+    
+    const result = await SweetAlerts.confirm.delete(galleryName)
+    
+    if (result.isConfirmed) {
+      // Show loading
+      SweetAlerts.loading.show('Menghapus Foto...', 'Sedang menghapus foto dari gallery')
+      
+      try {
+        const res = await fetch(`/api/gallery/${id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        })
+        if (!res.ok) throw new Error('Delete gagal')
+        
+        // Show success
+        SweetAlerts.toast.success(`Foto "${galleryName}" berhasil dihapus`)
+        fetchGallery()
+      } catch (error) {
+        SweetAlerts.error.withDetails(
+          'Gagal Menghapus Foto',
+          'Terjadi kesalahan saat menghapus foto dari gallery.',
+          error instanceof Error ? error.message : 'Unknown error'
+        )
+      }
+    }
   }
 
   const handleDeleteConfirm = async () => {
+    // This function is no longer needed but kept for compatibility
     if (!deleteGalleryId) return
     try {
       const res = await fetch(`/api/gallery/${deleteGalleryId}`, {
@@ -93,10 +124,10 @@ export default function GalleryPage() {
         }
       })
       if (!res.ok) throw new Error('Delete gagal')
-      toast.success('Gallery berhasil dihapus')
+      SweetAlerts.toast.success('Gallery berhasil dihapus')
       fetchGallery()
     } catch {
-      toast.error('Gagal hapus gallery')
+      SweetAlerts.toast.error('Gagal hapus gallery')
     } finally {
       setIsConfirmOpen(false)
       setDeleteGalleryId(null)
@@ -105,21 +136,43 @@ export default function GalleryPage() {
 
   // Toggle status
   const handleToggleStatus = async (id: number, newStatus: boolean) => {
-    try {
-      const status = newStatus ? 'active' : 'inactive'
-      const res = await fetch(`/api/gallery/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status })
-      })
-      if (!res.ok) throw new Error('Gagal update status')
-      toast.success('Status gallery diperbarui')
-      fetchGallery()
-    } catch {
-      toast.error('Gagal update status gallery')
+    const galleryItem = gallery.find(g => g.id === id)
+    const galleryName = galleryItem?.description || 'foto ini'
+    const statusText = newStatus ? 'mengaktifkan' : 'menonaktifkan'
+    
+    const result = await SweetAlerts.confirm.action(
+      `${newStatus ? 'Aktifkan' : 'Nonaktifkan'} Foto?`,
+      `Apakah Anda yakin ingin ${statusText} "${galleryName}"?`,
+      `Ya, ${newStatus ? 'Aktifkan' : 'Nonaktifkan'}!`
+    )
+    
+    if (result.isConfirmed) {
+      // Show loading
+      SweetAlerts.loading.show('Memperbarui Status...', `Sedang ${statusText} foto`)
+      
+      try {
+        const status = newStatus ? 'active' : 'inactive'
+        const res = await fetch(`/api/gallery/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status })
+        })
+        if (!res.ok) throw new Error('Gagal update status')
+        
+        // Close loading and show success toast
+        SweetAlerts.toast.success(
+          `Status "${galleryName}" berhasil ${newStatus ? 'diaktifkan' : 'dinonaktifkan'}`
+        )
+        fetchGallery()
+      } catch (error) {
+        SweetAlerts.error.simple(
+          'Gagal Memperbarui Status',
+          `Terjadi kesalahan saat ${statusText} foto.`
+        )
+      }
     }
   }
 

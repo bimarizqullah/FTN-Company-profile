@@ -6,7 +6,7 @@ import DashboardHeader from '@/app/components/admin-dashboard/DashboardHeader'
 import Sidebar from '@/app/components/admin-dashboard/Sidebar'
 import LoadingSpinner from '@/app/components/admin-dashboard/LoadingSpinner'
 import Image from 'next/image'
-import { toast } from 'react-hot-toast'
+import { SweetAlerts } from '@/lib/sweetAlert'
 import ServicesModal from '@/app/components/admin-dashboard/ServicesModal'
 import ConfirmModal from '@/app/components/admin-dashboard/ConfirmModal'
 import {
@@ -68,7 +68,10 @@ export default function ServicesPage() {
             const data = await res.json()
             setServices(data)
         } catch {
-            toast.error('Gagal memuat layanan')
+            SweetAlerts.error.simple(
+                'Gagal Memuat Data',
+                'Terjadi kesalahan saat memuat data layanan. Silakan coba lagi.'
+            )
         } finally {
             setLoading(false)
         }
@@ -78,13 +81,41 @@ export default function ServicesPage() {
         if (user) fetchServices()
     }, [user])
 
-    // Delete slider
-    const handleDeleteClick = (id: number) => {
-        setDeleteServicesId(id)
-        setIsConfirmOpen(true)
+    // Delete service
+    const handleDeleteClick = async (id: number) => {
+        const service = services.find(s => s.id === id)
+        const serviceName = service?.name || 'layanan ini'
+        
+        const result = await SweetAlerts.confirm.delete(serviceName)
+        
+        if (result.isConfirmed) {
+            // Show loading
+            SweetAlerts.loading.show('Menghapus Layanan...', 'Sedang menghapus layanan')
+            
+            try {
+                const res = await fetch(`/api/services/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                })
+                if (!res.ok) throw new Error('Delete gagal')
+                
+                // Show success
+                SweetAlerts.toast.success(`Layanan "${serviceName}" berhasil dihapus`)
+                fetchServices()
+            } catch (error) {
+                SweetAlerts.error.withDetails(
+                    'Gagal Menghapus Layanan',
+                    'Terjadi kesalahan saat menghapus layanan.',
+                    error instanceof Error ? error.message : 'Unknown error'
+                )
+            }
+        }
     }
 
     const handleDeleteConfirm = async () => {
+        // This function is no longer needed but kept for compatibility
         if (!deleteServicesId) return
         try {
             const res = await fetch(`/api/services/${deleteServicesId}`, {
@@ -94,10 +125,10 @@ export default function ServicesPage() {
                 }
             })
             if (!res.ok) throw new Error('Delete gagal')
-            toast.success('Services berhasil dihapus')
+            SweetAlerts.toast.success('Services berhasil dihapus')
             fetchServices()
         } catch {
-            toast.error('Gagal hapus slider')
+            SweetAlerts.toast.error('Gagal hapus layanan')
         } finally {
             setIsConfirmOpen(false)
             setDeleteServicesId(null)
@@ -106,21 +137,43 @@ export default function ServicesPage() {
 
     // Toggle status
     const handleToggleStatus = async (id: number, newStatus: boolean) => {
-        try {
-            const status = newStatus ? 'active' : 'inactive'
-            const res = await fetch(`/api/services/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ status })
-            })
-            if (!res.ok) throw new Error('Gagal update status')
-            toast.success('Status slider diperbarui')
-            fetchServices()
-        } catch {
-            toast.error('Gagal update status layanan')
+        const service = services.find(s => s.id === id)
+        const serviceName = service?.name || 'layanan ini'
+        const statusText = newStatus ? 'mengaktifkan' : 'menonaktifkan'
+        
+        const result = await SweetAlerts.confirm.action(
+            `${newStatus ? 'Aktifkan' : 'Nonaktifkan'} Layanan?`,
+            `Apakah Anda yakin ingin ${statusText} "${serviceName}"?`,
+            `Ya, ${newStatus ? 'Aktifkan' : 'Nonaktifkan'}!`
+        )
+        
+        if (result.isConfirmed) {
+            // Show loading
+            SweetAlerts.loading.show('Memperbarui Status...', `Sedang ${statusText} layanan`)
+            
+            try {
+                const status = newStatus ? 'active' : 'inactive'
+                const res = await fetch(`/api/services/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status })
+                })
+                if (!res.ok) throw new Error('Gagal update status')
+                
+                // Close loading and show success toast
+                SweetAlerts.toast.success(
+                    `Status "${serviceName}" berhasil ${newStatus ? 'diaktifkan' : 'dinonaktifkan'}`
+                )
+                fetchServices()
+            } catch (error) {
+                SweetAlerts.error.simple(
+                    'Gagal Memperbarui Status',
+                    `Terjadi kesalahan saat ${statusText} layanan.`
+                )
+            }
         }
     }
 

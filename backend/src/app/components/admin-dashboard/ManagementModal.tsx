@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
-import { toast } from 'react-hot-toast'
+import { SweetAlerts } from '@/lib/sweetAlert'
 import { 
   XMarkIcon, 
   PhotoIcon, 
@@ -78,17 +78,20 @@ export default function ManagementModal({
 
   const handleFile = (file: File) => {
     if (!file.type.startsWith('image/')) {
-      toast.error('File harus berupa gambar')
+      SweetAlerts.warning.validation('File harus berupa gambar (PNG, JPG, WEBP)')
       return
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Ukuran file maksimal 5MB')
+      SweetAlerts.warning.validation('Ukuran file maksimal 5MB')
       return
     }
     setSelectedFile(file)
     const reader = new FileReader()
     reader.onload = e => setPreviewUrl(e.target?.result as string)
     reader.readAsDataURL(file)
+    
+    // Show success toast for file selection
+    SweetAlerts.toast.success('Foto berhasil dipilih')
   }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,33 +102,60 @@ export default function ManagementModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    // Validation with SweetAlert2
     if (!name.trim()) {
-      toast.error('Nama wajib diisi')
+      SweetAlerts.warning.validation('Nama lengkap wajib diisi')
+      return
+    }
+    
+    if (name.trim().length < 2) {
+      SweetAlerts.warning.validation('Nama harus minimal 2 karakter')
       return
     }
     
     if (!position.trim()) {
-      toast.error('Posisi/Jabatan wajib diisi')
+      SweetAlerts.warning.validation('Posisi/Jabatan wajib diisi')
+      return
+    }
+
+    if (position.trim().length < 3) {
+      SweetAlerts.warning.validation('Posisi/Jabatan harus minimal 3 karakter')
       return
     }
 
     if (!management && !selectedFile) {
-      toast.error('Silakan pilih foto profil')
+      SweetAlerts.warning.validation('Silakan pilih foto profil untuk anggota baru')
       return
     }
 
+    // Confirmation before submit
+    const action = management ? 'memperbarui' : 'menambahkan'
+    const actionTitle = management ? 'Perbarui Data Management?' : 'Tambah Anggota Management?'
+    const confirmResult = await SweetAlerts.confirm.action(
+      actionTitle,
+      `Apakah Anda yakin ingin ${action} data ${name}?`,
+      `Ya, ${management ? 'Perbarui' : 'Tambahkan'}!`
+    )
+
+    if (!confirmResult.isConfirmed) return
+
     setLoading(true)
+    
+    // Show loading with progress
+    SweetAlerts.loading.show(
+      management ? 'Memperbarui Data...' : 'Menambahkan Anggota...',
+      `Sedang ${action} data management`
+    )
+    
     try {
       const formData = new FormData()
-      formData.append('name', name)
-      formData.append('position', position)
+      formData.append('name', name.trim())
+      formData.append('position', position.trim())
       formData.append('status', status)
       if (selectedFile) formData.append('file', selectedFile)
 
       const url = management ? `/api/management/${management.id}` : `/api/management/upload`
       const method = management ? 'PUT' : 'POST'
-
-      console.log('Mengirim permintaan:', { url, method, formData: Object.fromEntries(formData) }) // Debugging
 
       const res = await fetch(url, {
         method,
@@ -134,8 +164,6 @@ export default function ManagementModal({
         },
         body: formData
       })
-
-      console.log('Respons status:', res.status) // Debugging
 
       let errorMessage = 'Gagal menyimpan data'
       if (!res.ok) {
@@ -152,12 +180,24 @@ export default function ManagementModal({
       }
 
       const data = await res.json()
-      console.log('Respons data:', data) // Debugging
-      toast.success(data.message || (management ? 'Data management berhasil diperbarui' : 'Data management berhasil ditambahkan'))
+      
+      // Show success message
+      if (management) {
+        await SweetAlerts.custom.managementUpdated(name)
+      } else {
+        await SweetAlerts.custom.managementCreated(name)
+      }
+      
       onSuccess()
       onClose()
+      
     } catch (error) {
-      toast.error('Gagal menyimpan data management')
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+      SweetAlerts.error.withDetails(
+        management ? 'Gagal Memperbarui Data' : 'Gagal Menambahkan Anggota',
+        `Terjadi kesalahan saat ${action} data management.`,
+        errorMsg
+      )
       console.error('Error:', error)
     } finally {
       setLoading(false)

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
-import Swal from 'sweetalert2'
+import { SweetAlerts } from '@/lib/sweetAlert'
 
 export type FormField = {
   name: string;
@@ -153,26 +153,25 @@ async function handleSubmit(e: React.FormEvent) {
       hasToken: !!token
     });
 
-    // ✅ PERBAIKAN 4: Konfirmasi dengan error handling
-    let confirm;
-    try {
-      confirm = await Swal.fire({
-        title: 'Yakin ingin menyimpan perubahan?',
-        text: 'Perubahan akan diterapkan ke data pengguna.',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Ya, simpan!',
-        cancelButtonText: 'Batal',
-      });
-    } catch (swalError) {
-      console.error('SweetAlert error:', swalError);
-      // Fallback to native confirm if SweetAlert fails
-      confirm = { isConfirmed: window.confirm('Yakin ingin menyimpan perubahan?') };
-    }
+    // ✅ PERBAIKAN 4: Konfirmasi dengan SweetAlert utility
+    const isCreate = config.submitMethod === 'POST';
+    const actionText = isCreate ? 'membuat' : 'memperbarui';
+    const confirmTitle = isCreate ? 'Buat Data Baru?' : 'Perbarui Data?';
+    const confirmText = `Apakah Anda yakin ingin ${actionText} data ini?`;
+    const confirmButtonText = isCreate ? 'Ya, Buat!' : 'Ya, Perbarui!';
+    
+    const confirm = await SweetAlerts.confirm.action(
+      confirmTitle,
+      confirmText,
+      confirmButtonText
+    );
 
     if (!confirm.isConfirmed) return;
 
-    // ✅ PERBAIKAN 5: Enhanced request dengan better error handling
+    // ✅ PERBAIKAN 5: Enhanced request dengan loading state
+    const loadingText = isCreate ? 'Membuat Data...' : 'Memperbarui Data...';
+    SweetAlerts.loading.show(loadingText, `Sedang ${actionText} data`);
+    
     console.log('Sending request to:', config.submitUrl);
     
     const response = await axios({
@@ -188,10 +187,11 @@ async function handleSubmit(e: React.FormEvent) {
 
     console.log('Response received:', response.data);
     
-    onSuccess(config.submitMethod === 'PUT' || config.submitMethod === 'PATCH' 
+    const successMessage = config.submitMethod === 'PUT' || config.submitMethod === 'PATCH' 
       ? 'Data berhasil diperbarui!' 
-      : 'Data berhasil dibuat!'
-    );
+      : 'Data berhasil dibuat!';
+      
+    onSuccess(successMessage);
     
   } catch (err: any) {
     // ✅ PERBAIKAN 6: Enhanced error handling dan logging

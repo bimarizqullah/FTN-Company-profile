@@ -31,7 +31,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'Akun Anda tidak aktif. Hubungi administrator.' }, { status: 403 });
     }
 
-    if (!comparePassword(password, user.password)) {
+    const isPasswordValid = await comparePassword(password, user.password);
+    if (!isPasswordValid) {
       return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
     }
 

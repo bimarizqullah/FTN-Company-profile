@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import Swal from "sweetalert2";
+import { SweetAlerts } from "@/lib/sweetAlert";
 
 type Contact = {
   id: number;
@@ -46,25 +46,27 @@ export default function ContactList() {
       }
       const data = await res.json();
       setContacts(data);
-    } catch (err: any) {
-      setError(err.message || "Gagal memuat kontak");
-      console.error("Fetch contacts error:", err);
-    }
+      } catch (err: any) {
+        const errorMessage = err.message || "Gagal memuat kontak";
+        setError(errorMessage);
+        SweetAlerts.error.simple(
+          "Gagal Memuat Data",
+          "Terjadi kesalahan saat memuat data kontak. Silakan coba lagi."
+        );
+        console.error("Fetch contacts error:", err);
+      }
   }
 
   async function handleDelete(id: number) {
-    const result = await Swal.fire({
-      title: "Yakin ingin menghapus?",
-      text: "Data kontak akan dihapus secara permanen.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Ya, hapus!",
-      cancelButtonText: "Batal",
-    });
+    const contact = contacts.find(c => c.id === id);
+    const contactName = contact?.name || "kontak ini";
+    
+    const result = await SweetAlerts.confirm.delete(contactName);
 
     if (result.isConfirmed) {
+      // Show loading
+      SweetAlerts.loading.show("Menghapus Kontak...", "Sedang menghapus data kontak");
+      
       try {
         const token = localStorage.getItem("token");
         await axios.delete(`/api/contact/${id}`, {
@@ -74,19 +76,14 @@ export default function ContactList() {
         });
         await fetchContacts();
 
-        Swal.fire({
-          title: "Berhasil!",
-          text: "Kontak berhasil dihapus.",
-          icon: "success",
-          timer: 2000,
-          showConfirmButton: false,
-        });
+        // Show success
+        SweetAlerts.toast.success(`Kontak "${contactName}" berhasil dihapus`);
       } catch (err: any) {
-        Swal.fire({
-          title: "Gagal!",
-          text: err.response?.data?.message || "Gagal menghapus kontak",
-          icon: "error",
-        });
+        SweetAlerts.error.withDetails(
+          "Gagal Menghapus Kontak",
+          "Terjadi kesalahan saat menghapus kontak.",
+          err.response?.data?.message || "Unknown error"
+        );
       }
     }
   }

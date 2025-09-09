@@ -1,12 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/db'
-import { verifyToken } from '@/lib/auth'
+import { authMiddleware } from '@/middlewares/authMiddleware'
+import { permissionMiddleware } from '@/middlewares/permissionMiddleware'
+import { PERMISSIONS } from '@/constants/permissions'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
 import { status_enum } from '@prisma/client'
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  console.log('Incoming params:', params)
+  // Check authentication
+  const authResponse = await authMiddleware(req);
+  if (authResponse) return authResponse;
+
+  // Check permissions
+  const permissionResponse = await permissionMiddleware(req, [PERMISSIONS.MANAGEMENT_READ]);
+  if (permissionResponse) return permissionResponse;
 
   try {
     const management = await prisma.management.findUnique({
@@ -15,19 +23,33 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     })
 
     if (!management) {
-      console.log(`No management found with id ${params.id}`)
-      return NextResponse.json({ message: 'Data tidak ditemukan' }, { status: 404 })
+      return NextResponse.json({ 
+        success: false,
+        message: 'Data management tidak ditemukan' 
+      }, { status: 404 })
     }
 
     return NextResponse.json({ success: true, data: management })
   } catch (error) {
-    console.error('GET error:', error)
-    return NextResponse.json({ message: 'Server error', details: error }, { status: 500 })
+    console.error('Management GET error:', error)
+    return NextResponse.json({ 
+      success: false,
+      message: 'Gagal mengambil data management',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
   }
 }
 
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+  // Check authentication
+  const authResponse = await authMiddleware(req);
+  if (authResponse) return authResponse;
+
+  // Check permissions
+  const permissionResponse = await permissionMiddleware(req, [PERMISSIONS.MANAGEMENT_UPDATE]);
+  if (permissionResponse) return permissionResponse;
+
   try {
     const formData = await req.formData()
     const name = formData.get('name')?.toString() || ''
@@ -36,7 +58,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     const file = formData.get('file') as File | null
 
     if (!name || !position) {
-      return NextResponse.json({ message: 'Nama dan posisi wajib diisi' }, { status: 400 })
+      return NextResponse.json({ 
+        success: false,
+        message: 'Nama dan posisi wajib diisi' 
+      }, { status: 400 })
     }
 
     let imagePath: string | undefined = undefined
@@ -64,28 +89,48 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     return NextResponse.json({ success: true, data: updated })
   } catch (error) {
-    console.error('Update error:', error)
-    return NextResponse.json({ message: 'Gagal update data', details: error }, { status: 500 })
+    console.error('Management update error:', error)
+    return NextResponse.json({ 
+      success: false,
+      message: 'Gagal update data management',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
   }
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const authHeader = req.headers.get('authorization')
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
-    }
+  // Check authentication
+  const authResponse = await authMiddleware(req);
+  if (authResponse) return authResponse;
 
-    const token = authHeader.split(' ')[1]
-    const decoded = verifyToken(token)
-    if (!decoded || typeof decoded === 'string') {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+  // Check permissions
+  const permissionResponse = await permissionMiddleware(req, [PERMISSIONS.MANAGEMENT_DELETE]);
+  if (permissionResponse) return permissionResponse;
+
+  try {
+    // Check if management exists
+    const existing = await prisma.management.findUnique({
+      where: { id: Number(params.id) }
+    });
+
+    if (!existing) {
+      return NextResponse.json({ 
+        success: false,
+        message: 'Data management tidak ditemukan' 
+      }, { status: 404 });
     }
 
     await prisma.management.delete({ where: { id: Number(params.id) } })
-    return NextResponse.json({ success: true, message: 'Data berhasil dihapus' })
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Data management berhasil dihapus' 
+    })
   } catch (error) {
-    console.error('DELETE error:', error)
-    return NextResponse.json({ message: 'Server error', details: error }, { status: 500 })
+    console.error('Management DELETE error:', error)
+    return NextResponse.json({ 
+      success: false,
+      message: 'Gagal menghapus data management',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
   }
 }

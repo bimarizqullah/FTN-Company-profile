@@ -6,7 +6,7 @@ import DashboardHeader from '@/app/components/admin-dashboard/DashboardHeader'
 import Sidebar from '@/app/components/admin-dashboard/Sidebar'
 import LoadingSpinner from '@/app/components/admin-dashboard/LoadingSpinner'
 import Image from 'next/image'
-import { toast } from 'react-hot-toast'
+import { SweetAlerts } from '@/lib/sweetAlert'
 import ManagementModal from '@/app/components/admin-dashboard/ManagementModal'
 import ConfirmModal from '@/app/components/admin-dashboard/ConfirmModal'
 import {
@@ -72,7 +72,10 @@ export default function ManagementPage() {
       const response = await res.json()
       setManagement(response.data || [])
     } catch (error) {
-      toast.error('Gagal memuat data management')
+      SweetAlerts.error.simple(
+        'Gagal Memuat Data',
+        'Terjadi kesalahan saat memuat data management. Silakan coba lagi.'
+      )
     } finally {
       setLoading(false)
     }
@@ -83,12 +86,45 @@ export default function ManagementPage() {
   }, [user])
 
   // Delete management
-  const handleDeleteClick = (id: number) => {
-    setDeleteManagementId(id)
-    setIsConfirmOpen(true)
+  const handleDeleteClick = async (id: number) => {
+    const member = management.find(m => m.id === id)
+    const memberName = member?.name || 'anggota ini'
+    
+    const result = await SweetAlerts.confirm.delete(memberName)
+    
+    if (result.isConfirmed) {
+      // Show loading
+      SweetAlerts.loading.show('Menghapus Data...', 'Sedang menghapus data management')
+      
+      try {
+        const res = await fetch(`/api/management/${id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        })
+        
+        if (!res.ok) {
+          const errorData = await res.json()
+          throw new Error(errorData.message || 'Delete gagal')
+        }
+        
+        // Close loading and show success
+        await SweetAlerts.custom.managementDeleted(memberName)
+        fetchManagement()
+        
+      } catch (error) {
+        SweetAlerts.error.withDetails(
+          'Gagal Menghapus Data',
+          'Terjadi kesalahan saat menghapus data management.',
+          error instanceof Error ? error.message : 'Unknown error'
+        )
+      }
+    }
   }
 
   const handleDeleteConfirm = async () => {
+    // This function is no longer needed but kept for compatibility
     if (!deleteManagementId) return
     try {
       const res = await fetch(`/api/management/${deleteManagementId}`, {
@@ -101,10 +137,10 @@ export default function ManagementPage() {
         const errorData = await res.json()
         throw new Error(errorData.message || 'Delete gagal')
       }
-      toast.success('Data management berhasil dihapus')
+      SweetAlerts.toast.success('Data management berhasil dihapus')
       fetchManagement()
     } catch (error) {
-      toast.error('Gagal hapus data management')
+      SweetAlerts.toast.error('Gagal hapus data management')
     } finally {
       setIsConfirmOpen(false)
       setDeleteManagementId(null)
@@ -113,29 +149,53 @@ export default function ManagementPage() {
 
   // Toggle status
   const handleToggleStatus = async (id: number, newStatus: boolean) => {
-    try {
-      const status = newStatus ? 'active' : 'inactive'
-      const formData = new FormData()
-      formData.append('status', status)
-      formData.append('name', management.find(m => m.id === id).name)
-      formData.append('position', management.find(m => m.id === id).position)
-      formData.append('imagePath', management.find(m => m.id === id).imagePath)
+    const member = management.find(m => m.id === id)
+    const memberName = member?.name || 'anggota ini'
+    const statusText = newStatus ? 'mengaktifkan' : 'menonaktifkan'
+    
+    const result = await SweetAlerts.confirm.action(
+      `${newStatus ? 'Aktifkan' : 'Nonaktifkan'} Anggota?`,
+      `Apakah Anda yakin ingin ${statusText} ${memberName}?`,
+      `Ya, ${newStatus ? 'Aktifkan' : 'Nonaktifkan'}!`
+    )
+    
+    if (result.isConfirmed) {
+      // Show loading
+      SweetAlerts.loading.show('Memperbarui Status...', `Sedang ${statusText} anggota management`)
+      
+      try {
+        const status = newStatus ? 'active' : 'inactive'
+        const formData = new FormData()
+        formData.append('status', status)
+        formData.append('name', member?.name || '')
+        formData.append('position', member?.position || '')
+        formData.append('imagePath', member?.imagePath || '')
 
-      const res = await fetch(`/api/management/${id}`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        },
-        body: formData
-      })
-      if (!res.ok) {
-        const errorData = await res.json()
-        throw new Error(errorData.message || 'Gagal update status')
+        const res = await fetch(`/api/management/${id}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          },
+          body: formData
+        })
+        
+        if (!res.ok) {
+          const errorData = await res.json()
+          throw new Error(errorData.message || 'Gagal update status')
+        }
+        
+        // Close loading and show success
+        SweetAlerts.toast.success(
+          `Status ${memberName} berhasil ${newStatus ? 'diaktifkan' : 'dinonaktifkan'}`
+        )
+        fetchManagement()
+        
+      } catch (error) {
+        SweetAlerts.error.simple(
+          'Gagal Memperbarui Status',
+          `Terjadi kesalahan saat ${statusText} anggota management.`
+        )
       }
-      toast.success('Status management diperbarui')
-      fetchManagement()
-    } catch (error) {
-      toast.error('Gagal update status management')
     }
   }
 
@@ -144,6 +204,7 @@ export default function ManagementPage() {
     setSelectedManagement(managementItem || null)
     setIsModalOpen(true)
   }
+
 
   if (!user) return <LoadingSpinner />
 
@@ -328,6 +389,7 @@ export default function ManagementPage() {
           message="Apakah Anda yakin ingin menghapus data management ini?"
         />
       )}
+
     </div>
   )
 }

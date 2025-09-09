@@ -52,7 +52,7 @@ async function main() {
   });
 
   // Seed data untuk User
-  const hashedPassword = await hash('password123', 10); // Hash password
+  const hashedPassword = await hash('admin123', 10); // Hash password
   const adminUser = await prisma.user.create({
     data: {
       name: 'Admin User',

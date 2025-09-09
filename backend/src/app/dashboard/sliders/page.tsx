@@ -6,7 +6,7 @@ import DashboardHeader from '@/app/components/admin-dashboard/DashboardHeader'
 import Sidebar from '@/app/components/admin-dashboard/Sidebar'
 import LoadingSpinner from '@/app/components/admin-dashboard/LoadingSpinner'
 import Image from 'next/image'
-import { toast } from 'react-hot-toast'
+import { SweetAlerts } from '@/lib/sweetAlert'
 import SlidersModal from '@/app/components/admin-dashboard/SlidersModal'
 import ConfirmModal from '@/app/components/admin-dashboard/ConfirmModal'
 import {
@@ -75,7 +75,10 @@ export default function SlidersPage() {
       setSliders(data)
     } catch (error) {
       console.error('Fetch sliders error:', error)
-      toast.error('Gagal memuat sliders')
+      SweetAlerts.error.simple(
+        'Gagal Memuat Data',
+        'Terjadi kesalahan saat memuat data slider. Silakan coba lagi.'
+      )
       // Jangan kosongkan state jika fetch gagal, gunakan state sebelumnya
       // State akan tetap mempertahankan data lama
     } finally {
@@ -89,55 +92,117 @@ export default function SlidersPage() {
 
   // Toggle status
   const handleToggleStatus = async (id: number, currentStatus: 'active' | 'inactive') => {
+    const slider = sliders.find(s => s.id === id)
+    const sliderName = slider?.title || 'slider ini'
     const newStatus = currentStatus === 'active' ? 'inactive' : 'active'
-    // Simpan state sebelumnya untuk rollback
-    const previousSliders = [...sliders]
-
-    // Optimistic update: Ubah status lokal
-    setSliders(prev =>
-      prev.map(slider =>
-        slider.id === id ? { ...slider, status: newStatus } : slider
-      )
+    const statusText = newStatus === 'active' ? 'mengaktifkan' : 'menonaktifkan'
+    
+    const result = await SweetAlerts.confirm.action(
+      `${newStatus === 'active' ? 'Aktifkan' : 'Nonaktifkan'} Slider?`,
+      `Apakah Anda yakin ingin ${statusText} "${sliderName}"?`,
+      `Ya, ${newStatus === 'active' ? 'Aktifkan' : 'Nonaktifkan'}!`
     )
+    
+    if (result.isConfirmed) {
+      // Simpan state sebelumnya untuk rollback
+      const previousSliders = [...sliders]
 
-    try {
-      const res = await fetch(`/api/sliders/${id}`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status: newStatus })
-      })
-
-      if (!res.ok) {
-        const errorData = await res.json()
-        throw new Error(errorData.message || 'Gagal update status')
-      }
-
-      const updatedSlider = await res.json() // Ambil data slider yang diperbarui dari respons
-      // Update state dengan data dari API untuk memastikan konsistensi
+      // Optimistic update: Ubah status lokal
       setSliders(prev =>
         prev.map(slider =>
-          slider.id === id ? updatedSlider.data : slider
+          slider.id === id ? { ...slider, status: newStatus } : slider
         )
       )
-      toast.success('Status slider diperbarui')
-    } catch (error) {
-      console.error('Toggle status error:', error)
-      toast.error('Gagal update status slider')
-      // Rollback ke state sebelumnya jika gagal
-      setSliders(previousSliders)
+
+      // Show loading
+      SweetAlerts.loading.show('Memperbarui Status...', `Sedang ${statusText} slider`)
+
+      try {
+        const res = await fetch(`/api/sliders/${id}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status: newStatus })
+        })
+
+        if (!res.ok) {
+          const errorData = await res.json()
+          throw new Error(errorData.message || 'Gagal update status')
+        }
+
+        const updatedSlider = await res.json() // Ambil data slider yang diperbarui dari respons
+        // Update state dengan data dari API untuk memastikan konsistensi
+        setSliders(prev =>
+          prev.map(slider =>
+            slider.id === id ? updatedSlider.data : slider
+          )
+        )
+        
+        // Close loading and show success toast
+        SweetAlerts.toast.success(
+          `Status "${sliderName}" berhasil ${newStatus === 'active' ? 'diaktifkan' : 'dinonaktifkan'}`
+        )
+      } catch (error) {
+        console.error('Toggle status error:', error)
+        SweetAlerts.error.simple(
+          'Gagal Memperbarui Status',
+          `Terjadi kesalahan saat ${statusText} slider.`
+        )
+        // Rollback ke state sebelumnya jika gagal
+        setSliders(previousSliders)
+      }
     }
   }
 
   // Delete slider
-  const handleDeleteClick = (id: number) => {
-    setDeleteSliderId(id)
-    setIsConfirmOpen(true)
+  const handleDeleteClick = async (id: number) => {
+    const slider = sliders.find(s => s.id === id)
+    const sliderName = slider?.title || 'slider ini'
+    
+    const result = await SweetAlerts.confirm.delete(sliderName)
+    
+    if (result.isConfirmed) {
+      const previousSliders = [...sliders]
+      
+      // Show loading
+      SweetAlerts.loading.show('Menghapus Data...', 'Sedang menghapus slider')
+      
+      // Optimistic update: Hapus dari UI segera
+      setSliders(prev => prev.filter(slider => slider.id !== id))
+
+      try {
+        const res = await fetch(`/api/sliders/${id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`
+          }
+        })
+        if (!res.ok) {
+          const errorData = await res.json()
+          throw new Error(errorData.message || 'Gagal menghapus slider')
+        }
+        
+        // Show success
+        SweetAlerts.toast.success(`Slider "${sliderName}" berhasil dihapus`)
+      } catch (error) {
+        console.error('Delete slider error:', error)
+        SweetAlerts.error.withDetails(
+          'Gagal Menghapus Data',
+          'Terjadi kesalahan saat menghapus slider.',
+          error instanceof Error ? error.message : 'Unknown error'
+        )
+        // Rollback jika gagal
+        setSliders(previousSliders)
+        // Sinkronkan lagi dengan database
+        await fetchSliders()
+      }
+    }
   }
 
   const handleDeleteConfirm = async () => {
+    // This function is no longer needed but kept for compatibility
     if (!deleteSliderId) return
     const previousSliders = [...sliders]
     // Optimistic update: Hapus dari UI segera
@@ -154,10 +219,10 @@ export default function SlidersPage() {
         const errorData = await res.json()
         throw new Error(errorData.message || 'Gagal menghapus slider')
       }
-      toast.success('Slider berhasil dihapus')
+      SweetAlerts.toast.success('Slider berhasil dihapus')
     } catch (error) {
       console.error('Delete slider error:', error)
-      toast.error('Gagal hapus slider')
+      SweetAlerts.toast.error('Gagal hapus slider')
       // Rollback jika gagal
       setSliders(previousSliders)
       // Sinkronkan lagi dengan database
