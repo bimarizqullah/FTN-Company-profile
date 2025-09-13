@@ -26,7 +26,7 @@
         >
           <div class="relative overflow-hidden rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 gsap-card">
             <img 
-              :src="`http://localhost:3000${item.imagePath}`" 
+              :src="`${UPLOAD_BASE_URL}${item.imagePath}`" 
               :alt="item.title || `Galeri ${item.id}`"
               class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
             />
@@ -54,6 +54,7 @@
 
 <script setup lang="ts">
 import { type Gallery } from '@/services/companyService'
+import { UPLOAD_BASE_URL } from '@/services/api'
 
 interface Props {
   gallery: Gallery[]

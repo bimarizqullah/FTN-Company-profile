@@ -43,7 +43,7 @@
                 <div class="aspect-w-16 aspect-h-10">
                   <img 
                     v-if="service.imagePath"
-                    :src="`http://localhost:3000${service.imagePath}`" 
+                    :src="`${UPLOAD_BASE_URL}${service.imagePath}`" 
                     :alt="service.name"
                     class="w-full h-52 object-cover group-hover:scale-110 transition-transform duration-700"
                   />
@@ -128,7 +128,7 @@
           
           <div v-if="selectedService.imagePath" class="mb-6">
             <img 
-              :src="`http://localhost:3000${selectedService.imagePath}`" 
+              :src="`${UPLOAD_BASE_URL}${selectedService.imagePath}`" 
               :alt="selectedService.name"
               class="w-full h-64 object-cover rounded-lg"
             />
@@ -177,6 +177,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import companyService, { type Service } from '@/services/companyService'
+import { UPLOAD_BASE_URL } from '@/services/api'
 import TechAnimations from '@/components/TechAnimations.vue'
 import ScrollToTop from '@/components/ScrollToTop.vue'
 
