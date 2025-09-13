@@ -49,7 +49,7 @@
                 <div class="aspect-w-16 aspect-h-10">
                   <img 
                     v-if="project.imagePath"
-                    :src="`http://localhost:3000${project.imagePath}`" 
+                    :src="`${UPLOAD_BASE_URL}${project.imagePath}`" 
                     :alt="project.name"
                     class="w-full h-52 object-cover group-hover:scale-110 transition-transform duration-700"
                   />
@@ -216,7 +216,7 @@
           <div class="relative">
             <img 
               v-if="selectedProject.imagePath"
-              :src="`http://localhost:3000${selectedProject.imagePath}`" 
+              :src="`${UPLOAD_BASE_URL}${selectedProject.imagePath}`" 
               :alt="selectedProject.name"
               class="w-full h-64 object-cover"
             />
@@ -304,7 +304,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import companyService, { Project } from '@/services/companyService'
+import companyService, { type Project } from '@/services/companyService'
+import { UPLOAD_BASE_URL } from '@/services/api'
 import TechAnimations from '@/components/TechAnimations.vue'
 import ScrollToTop from '@/components/ScrollToTop.vue'
 

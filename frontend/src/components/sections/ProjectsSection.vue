@@ -27,7 +27,7 @@
           <!-- Project Image -->
           <div class="image-container h-48">
             <img 
-              :src="`http://localhost:3000${project.imagePath}`" 
+              :src="`${UPLOAD_BASE_URL}${project.imagePath}`" 
               :alt="project.name"
             />
           </div>
@@ -70,7 +70,8 @@
 </template>
 
 <script setup lang="ts">
-import { Project } from '@/services/companyService'
+import { type Project } from '@/services/companyService'
+import { UPLOAD_BASE_URL } from '@/services/api'
 
 interface Props {
   projects: Project[]

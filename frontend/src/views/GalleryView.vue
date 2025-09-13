@@ -41,7 +41,7 @@
               <div class="relative overflow-hidden aspect-square">
                 <img 
                   v-if="item.imagePath"
-                  :src="`http://localhost:3000${item.imagePath}`" 
+                  :src="`${UPLOAD_BASE_URL}${item.imagePath}`" 
                   :alt="item.description || 'Gallery Image'"
                   class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
                 />
@@ -124,7 +124,7 @@
         <!-- Image Container with Overlay Description -->
         <div class="relative max-w-5xl w-full">
           <img 
-            :src="`http://localhost:3000${selectedImage.imagePath}`" 
+            :src="`${UPLOAD_BASE_URL}${selectedImage.imagePath}`" 
             :alt="selectedImage.description || 'Gallery Image'"
             class="w-full h-auto max-h-[85vh] object-contain rounded-2xl shadow-2xl"
           />
@@ -189,7 +189,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import companyService, { Gallery } from '@/services/companyService'
+import companyService, { type Gallery } from '@/services/companyService'
+import { UPLOAD_BASE_URL } from '@/services/api'
 import TechAnimations from '@/components/TechAnimations.vue'
 import ScrollToTop from '@/components/ScrollToTop.vue'
 

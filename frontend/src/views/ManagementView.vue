@@ -48,7 +48,7 @@
                     <div class="aspect-square">
                       <img 
                         v-if="member.imagePath"
-                        :src="`http://localhost:3000${member.imagePath}`" 
+                        :src="`${UPLOAD_BASE_URL}${member.imagePath}`" 
                         :alt="member.name"
                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
@@ -200,7 +200,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import companyService, { Management } from '@/services/companyService'
+import companyService, { type Management } from '@/services/companyService'
+import { UPLOAD_BASE_URL } from '@/services/api'
 import TechAnimations from '@/components/TechAnimations.vue'
 import ScrollToTop from '@/components/ScrollToTop.vue'
 

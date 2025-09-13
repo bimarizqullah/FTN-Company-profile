@@ -26,7 +26,7 @@
           <div class="h-64 bg-gradient-to-br from-blue-50 to-blue-100 relative overflow-hidden">
             <img 
               v-if="member.imagePath"
-              :src="`http://localhost:3000${member.imagePath}`" 
+              :src="`${UPLOAD_BASE_URL}${member.imagePath}`" 
               :alt="member.name"
               class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             />
@@ -57,7 +57,8 @@
 </template>
 
 <script setup lang="ts">
-import { Management } from '@/services/companyService'
+import { type Management } from '@/services/companyService'
+import { UPLOAD_BASE_URL } from '@/services/api'
 
 interface Props {
   management: Management[]

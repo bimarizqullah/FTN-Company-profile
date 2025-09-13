@@ -26,7 +26,7 @@
           <div class="image-container h-48">
             <img 
               v-if="service.imagePath"
-              :src="`http://localhost:3000${service.imagePath}`" 
+              :src="`${UPLOAD_BASE_URL}${service.imagePath}`" 
               :alt="service.name"
             />
           </div>
@@ -59,7 +59,8 @@
 </template>
 
 <script setup lang="ts">
-import { Service } from '@/services/companyService'
+import { type Service } from '@/services/companyService'
+import { UPLOAD_BASE_URL } from '@/services/api'
 
 interface Props {
   services: Service[]

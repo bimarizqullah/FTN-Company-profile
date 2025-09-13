@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import companyService, { Slider, Service, Project, Management, Gallery } from '@/services/companyService'
+import companyService, { type Slider, type Service, type Project, type Management, type Gallery } from '@/services/companyService'
+import { UPLOAD_BASE_URL } from '@/services/api'
 import TechAnimations from '@/components/TechAnimations.vue'
 import ScrollToTop from '@/components/ScrollToTop.vue'
 
@@ -224,7 +225,7 @@ onUnmounted(() => {
       >
         <img 
           v-if="slider.imagePath"
-          :src="`http://localhost:3000${slider.imagePath}`"
+          :src="`${UPLOAD_BASE_URL}${slider.imagePath}`"
           :alt="slider.title"
           class="w-full h-full object-cover"
         />
@@ -1082,7 +1083,7 @@ onUnmounted(() => {
           <div class="relative">
             <img 
               v-if="selectedProject.imagePath"
-              :src="`http://localhost:3000${selectedProject.imagePath}`" 
+              :src="`${UPLOAD_BASE_URL}${selectedProject.imagePath}`" 
               :alt="selectedProject.name"
               class="w-full h-64 object-cover"
             />
