@@ -200,7 +200,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import companyService, { Management } from '@/services/companyService'
+import companyService, { type Management } from '@/services/companyService'
 import TechAnimations from '@/components/TechAnimations.vue'
 import ScrollToTop from '@/components/ScrollToTop.vue'
 

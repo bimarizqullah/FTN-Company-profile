@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import companyService, { Slider, Service, Project, Management, Gallery } from '@/services/companyService'
+import companyService, { type Slider, type Service, type Project, type Management, type Gallery } from '@/services/companyService'
 import TechAnimations from '@/components/TechAnimations.vue'
 import ScrollToTop from '@/components/ScrollToTop.vue'
 

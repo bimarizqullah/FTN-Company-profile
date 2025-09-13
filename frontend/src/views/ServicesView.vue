@@ -29,7 +29,7 @@
           <div 
             v-for="(service, index) in services" 
             :key="service.id"
-            :id="service.id"
+            :id="service.id.toString()"
             class="group cursor-pointer"
             :data-aos="'fade-up'"
             :data-aos-delay="(index + 1) * 100"
@@ -176,7 +176,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import companyService, { Service } from '@/services/companyService'
+import companyService, { type Service } from '@/services/companyService'
 import TechAnimations from '@/components/TechAnimations.vue'
 import ScrollToTop from '@/components/ScrollToTop.vue'
 

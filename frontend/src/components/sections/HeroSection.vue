@@ -150,7 +150,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { Slider } from '@/services/companyService'
+import { type Slider } from '@/services/companyService'
 
 interface Props {
   sliders: Slider[]
@@ -160,7 +160,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const currentSlide = ref(0)
-let slideInterval: NodeJS.Timeout | null = null
+let slideInterval: number | null = null
 
 const nextSlide = () => {
   console.log('Next slide clicked, current:', currentSlide.value, 'total:', props.sliders.length)

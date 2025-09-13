@@ -189,7 +189,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import companyService, { Gallery } from '@/services/companyService'
+import companyService, { type Gallery } from '@/services/companyService'
 import TechAnimations from '@/components/TechAnimations.vue'
 import ScrollToTop from '@/components/ScrollToTop.vue'
 

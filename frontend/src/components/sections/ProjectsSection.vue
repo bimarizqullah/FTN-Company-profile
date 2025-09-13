@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { Project } from '@/services/companyService'
+import { type Project } from '@/services/companyService'
 
 interface Props {
   projects: Project[]

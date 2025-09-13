@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { Gallery } from '@/services/companyService'
+import { type Gallery } from '@/services/companyService'
 
 interface Props {
   gallery: Gallery[]

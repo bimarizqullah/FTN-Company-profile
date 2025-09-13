@@ -139,9 +139,9 @@ class CompanyService {
     return response.data
   }
 
-  async getProjectById(id: string): Promise<Project> {
+  async getProjectById(id: string | number): Promise<Project> {
     const response = await api.get(`/project/${id}`)
-    return response.data
+    return response.data.data || response.data
   }
 
   // Contact
@@ -168,16 +168,6 @@ class CompanyService {
 
   async getContactById(id: number): Promise<Contact> {
     const response = await api.get(`/contact/${id}`)
-    return response.data.data || response.data
-  }
-
-  async getProjects(): Promise<Project[]> {
-    const response = await api.get('/project')
-    return response.data.data || response.data
-  }
-
-  async getProjectById(id: number): Promise<Project> {
-    const response = await api.get(`/project/${id}`)
     return response.data.data || response.data
   }
 

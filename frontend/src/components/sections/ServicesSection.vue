@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { Service } from '@/services/companyService'
+import { type Service } from '@/services/companyService'
 
 interface Props {
   services: Service[]

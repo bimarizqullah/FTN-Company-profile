@@ -57,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { Management } from '@/services/companyService'
+import { type Management } from '@/services/companyService'
 
 interface Props {
   management: Management[]
