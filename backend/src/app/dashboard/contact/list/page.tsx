@@ -122,6 +122,12 @@ export default function ContactList() {
                 Kembali
               </button>
               <button
+                onClick={() => router.push("/dashboard/messages")}
+                className="px-4 py-2 text-purple-600 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
+              >
+                Lihat Messages
+              </button>
+              <button
                 onClick={() => router.push("/dashboard/contact/create")}
                 className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
               >
@@ -137,26 +143,26 @@ export default function ContactList() {
           </div>
         )}
 
-        <div className="w-full overflow-x-auto">
+        <div className="w-full">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Office
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                   Position
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
                   Email
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
                   WhatsApp
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Aksi
                 </th>
               </tr>
@@ -164,22 +170,48 @@ export default function ContactList() {
             <tbody className="text-black bg-white divide-y divide-gray-200">
               {contacts.map((contact) => (
                 <tr key={contact.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap w-1/6">{contact.office.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap w-1/6">{contact.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap w-1/6">{contact.position}</td>
-                  <td className="px-6 py-4 whitespace-nowrap w-1/6">{contact.email}</td>
-                  <td className="px-6 py-4 whitespace-nowrap w-1/6">{contact.whatsapp}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium w-1/6">
-                    <div className="flex space-x-2">
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">{contact.office.name}</div>
+                  </td>
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">{contact.name}</div>
+                      {/* Show position on mobile */}
+                      <div className="text-sm text-gray-500 sm:hidden mt-1">
+                        <strong>Posisi:</strong> {contact.position}
+                      </div>
+                      {/* Show email on mobile */}
+                      <div className="text-sm text-gray-500 sm:hidden">
+                        <strong>Email:</strong> {contact.email}
+                      </div>
+                      {/* Show WhatsApp on mobile */}
+                      {contact.whatsapp && (
+                        <div className="text-sm text-gray-500 sm:hidden">
+                          <strong>WhatsApp:</strong> {contact.whatsapp}
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                    <div className="text-sm text-gray-900">{contact.position}</div>
+                  </td>
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                    <div className="text-sm text-gray-900">{contact.email}</div>
+                  </td>
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
+                    <div className="text-sm text-gray-900">{contact.whatsapp}</div>
+                  </td>
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-2">
                       <button
                         onClick={() => router.push(`/dashboard/contact/edit/${contact.id}`)}
-                        className="px-3 py-1 text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
+                        className="px-3 py-1 text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors text-xs"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDelete(contact.id)}
-                        className="px-3 py-1 text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors"
+                        className="px-3 py-1 text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors text-xs"
                       >
                         Hapus
                       </button>
@@ -214,9 +246,6 @@ export default function ContactList() {
         )}
       </div>
 
-      <div className="text-center">
-        <p className="text-xs text-gray-400">© 2025 Admin Dashboard. Hak cipta dilindungi.</p>
-      </div>
     </>
   );
 }

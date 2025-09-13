@@ -34,6 +34,13 @@ export async function GET() {
     });
     const galleryChange = getChange(totalGalleries, galleriesLastMonth);
 
+    // === Total Messages ===
+    const totalMessages = await prisma.message.count();
+    const messagesLastMonth = await prisma.message.count({
+      where: { createdAt: { lt: firstDayOfCurrentMonth } },
+    });
+    const messageChange = getChange(totalMessages, messagesLastMonth);
+
     const summary = [
       {
         title: 'Total Users',
@@ -42,7 +49,7 @@ export async function GET() {
         changeType: userChange.changeType,
         bgColor: 'bg-blue-100',
         iconColor: 'text-blue-600',
-        icon: '<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" /></svg>',
+        iconType: 'users',
       },
       {
         title: 'Total Projects',
@@ -51,7 +58,7 @@ export async function GET() {
         changeType: projectChange.changeType,
         bgColor: 'bg-green-100',
         iconColor: 'text-green-600',
-        icon: '<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c1.104 0 2-.896 2-2s-.896-2-2-2-2 .896-2 2 .896 2 2 2zm0 2c-1.105 0-2 .895-2 2v6h4v-6c0-1.105-.895-2-2-2z" /></svg>',
+        iconType: 'folder',
       },
       {
         title: 'Total Services',
@@ -60,7 +67,7 @@ export async function GET() {
         changeType: serviceChange.changeType,
         bgColor: 'bg-yellow-100',
         iconColor: 'text-yellow-600',
-        icon: '<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" /></svg>',
+        iconType: 'wrench-screwdriver',
       },
       {
         title: 'Total Galleries',
@@ -69,7 +76,16 @@ export async function GET() {
         changeType: galleryChange.changeType,
         bgColor: 'bg-purple-100',
         iconColor: 'text-purple-600',
-        icon: '<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4-4 4 4M20 8l-4 4-4-4" /></svg>',
+        iconType: 'photo',
+      },
+      {
+        title: 'Total Messages',
+        value: totalMessages.toLocaleString('en-US'),
+        change: messageChange.change,
+        changeType: messageChange.changeType,
+        bgColor: 'bg-indigo-100',
+        iconColor: 'text-indigo-600',
+        iconType: 'chat-bubble-left-right',
       },
     ];
 

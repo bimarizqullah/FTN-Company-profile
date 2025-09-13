@@ -6,8 +6,8 @@ interface DashboardHeaderProps {
 
 export default function DashboardHeader({ onLogout }: DashboardHeaderProps) {
   return (
-    <header className="bg-white border-b border-gray-200/60 sticky top-0 z-30">
-      <div className="mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <header className="bg-white border-b border-gray-200/60 sticky top-0 z-30 w-full">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 sm:gap-4">
               <img src="/asset/logo.png" alt="Logo" className="w-10 h-10 object-contain" />

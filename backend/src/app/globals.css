@@ -20,7 +20,19 @@
 }
 
 body {
-  background: var(--background);
+  background: #f9fafb; /* bg-gray-50 */
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+}
+
+html {
+  background: #f9fafb; /* bg-gray-50 */
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
 }

@@ -241,6 +241,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import companyService, { Contact, Office } from '@/services/companyService'
+import contactService from '@/services/contactService'
 import TechAnimations from '@/components/TechAnimations.vue'
 import ScrollToTop from '@/components/ScrollToTop.vue'
 
@@ -285,30 +286,17 @@ const submitForm = async () => {
   try {
     isSubmitting.value = true
     
-    // Prepare form data
+    // Prepare form data sesuai dengan yang diharapkan backend
     const formData = {
       name: form.value.name,
       email: form.value.email,
-      phone: form.value.phone,
+      phone: form.value.phone || undefined,
       subject: form.value.subject,
-      message: form.value.message,
-      to: 'bmchy11@gmail.com' // Target email
+      message: form.value.message
     }
     
-    // Option 1: Send via your backend API
-    const response = await fetch('/api/contact/send-email', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData)
-    })
-    
-    if (!response.ok) {
-      throw new Error('Gagal mengirim pesan')
-    }
-    
-    const result = await response.json()
+    // Kirim ke backend API menggunakan service
+    const response = await contactService.sendMessage(formData)
     
     // Success notification
     alert('✅ Pesan berhasil dikirim! Kami akan segera menghubungi Anda.')
@@ -322,22 +310,23 @@ const submitForm = async () => {
       message: ''
     }
     
-  } catch (error) {
-    console.error('Error sending email:', error)
+  } catch (error: any) {
+    console.error('Error sending message:', error)
     
-    // Fallback: Open default email client
-    const emailSubject = encodeURIComponent(form.value.subject || 'Pesan dari Website')
-    const emailBody = encodeURIComponent(
-      `Nama: ${form.value.name}\n` +
-      `Email: ${form.value.email}\n` +
-      `Telepon: ${form.value.phone || 'Tidak ada'}\n\n` +
-      `Pesan:\n${form.value.message}`
-    )
+    // Tampilkan error message yang lebih spesifik
+    let errorMessage = 'Gagal mengirim pesan. Silakan coba lagi.'
     
-    const mailtoLink = `mailto:bmchy11@gmail.com?subject=${emailSubject}&body=${emailBody}`
-    window.open(mailtoLink, '_blank')
+    if (error.response?.data?.message) {
+      errorMessage = error.response.data.message
+    } else if (error.response?.status === 400) {
+      errorMessage = 'Data yang dikirim tidak valid. Pastikan semua field wajib diisi.'
+    } else if (error.response?.status === 500) {
+      errorMessage = 'Terjadi kesalahan server. Silakan coba lagi nanti.'
+    } else if (error.code === 'NETWORK_ERROR' || !error.response) {
+      errorMessage = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.'
+    }
     
-    alert('⚠️ Sistem email sedang bermasalah. Email client Anda akan terbuka untuk mengirim pesan.')
+    alert(`❌ ${errorMessage}`)
     
   } finally {
     isSubmitting.value = false

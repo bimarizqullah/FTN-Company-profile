@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import React from 'react'
 import { ROLES } from '@/constants/roles'
+import { useUnreadMessages } from '@/app/hooks/useUnreadMessages'
+import NotificationBadge from './NotificationBadge'
+import ImageWithFallback from './ImageWithFallback'
 import {
   HomeIcon,
   UsersIcon,
@@ -21,7 +24,8 @@ import {
   UserIcon,
   ExclamationTriangleIcon,
   ArrowLeftOnRectangleIcon,
-  ChevronLeftIcon
+  ChevronLeftIcon,
+  ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline'
 
 interface User {
@@ -54,6 +58,9 @@ export default function Sidebar() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const pathname = usePathname()
+  
+  // Hook untuk mendapatkan jumlah pesan yang belum dibaca
+  const { unreadCount } = useUnreadMessages()
 
   const fetchUserProfile = async () => {
     try {
@@ -216,6 +223,13 @@ export default function Sidebar() {
       group: 'Contact Management',
     },
     {
+      id: 'messages',
+      label: 'Messages',
+      icon: <ChatBubbleLeftRightIcon className="w-5 h-5" />,
+      href: '/dashboard/messages',
+      group: 'Contact Management',
+    },
+    {
       id: 'settings',
       label: 'Settings',
       icon: <Cog6ToothIcon className="w-5 h-5" />,
@@ -309,11 +323,25 @@ export default function Sidebar() {
                       }`}
                       title={isCollapsed ? item.label : ''}
                     >
-                      <div className={`flex-shrink-0 ${isActive ? 'text-cyan-600' : 'text-gray-400'}`}>
+                      <div className={`flex-shrink-0 relative ${isActive ? 'text-cyan-600' : 'text-gray-400'}`}>
                         {item.icon}
+                        {/* Badge notifikasi untuk Messages (collapsed mode) */}
+                        {item.id === 'messages' && unreadCount > 0 && isCollapsed && (
+                          <NotificationBadge 
+                            count={unreadCount} 
+                            className="absolute -top-1 -right-1 text-[10px] min-w-[16px] h-4"
+                          />
+                        )}
                       </div>
                       {!isCollapsed && (
                         <span className="font-medium text-sm">{item.label}</span>
+                      )}
+                      {/* Badge notifikasi untuk Messages */}
+                      {item.id === 'messages' && unreadCount > 0 && (
+                        <NotificationBadge 
+                          count={unreadCount} 
+                          className="ml-auto"
+                        />
                       )}
                     </button>
                   </li>
@@ -353,19 +381,12 @@ export default function Sidebar() {
                 </div>
               ) : user ? (
                 <>
-                  {user.imagePath ? (
-                    <img 
-                      src={user.imagePath} 
-                      alt={user.name}
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-medium">
-                        {getInitials(user.name)}
-                      </span>
-                    </div>
-                  )}
+                  <ImageWithFallback
+                    src={user.imagePath}
+                    alt={user.name}
+                    fallbackText={getInitials(user.name)}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
                     <p className="text-xs text-gray-500 truncate">{user.email}</p>

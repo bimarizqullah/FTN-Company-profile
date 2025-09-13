@@ -6,6 +6,7 @@ import axios from 'axios';
 import { getInitials } from '@/lib/utils';
 import Swal from 'sweetalert2';
 import { ROLES } from '@/constants/roles';
+import ImageWithFallback from '@/app/components/admin-dashboard/ImageWithFallback';
 
 type Role = {
   id: number;
@@ -165,17 +166,12 @@ export default function UserList() {
                 <tr key={`${u.id}`} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap w-1/6">
                     <div className="flex items-center">
-                      {u.imagePath ? (
-                        <img
-                          src={u.imagePath}
-                          alt={u.name}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center">
-                          <span className="text-white text-sm font-medium">{getInitials(u.name)}</span>
-                        </div>
-                      )}
+                      <ImageWithFallback
+                        src={u.imagePath}
+                        alt={u.name}
+                        fallbackText={getInitials(u.name)}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap w-1/4">
@@ -245,9 +241,6 @@ export default function UserList() {
         )}
       </div>
 
-      <div className="text-center">
-        <p className="text-xs text-gray-400">© 2025 Admin Dashboard. Hak cipta dilindungi.</p>
-      </div>
     </>
   );
 }

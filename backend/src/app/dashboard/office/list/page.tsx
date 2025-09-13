@@ -89,7 +89,7 @@ export default function OfficeList() {
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 w-full">
         <div className="px-6 py-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -136,23 +136,23 @@ export default function OfficeList() {
           </div>
         )}
 
-        <div className="w-full overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
+        <div className="w-full overflow-hidden">
+          <table className="w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/3">
                   Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell w-1/4">
                   Address
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell w-1/6">
                   Phone
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell w-1/6">
                   Email
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
                   Aksi
                 </th>
               </tr>
@@ -160,21 +160,43 @@ export default function OfficeList() {
             <tbody className="text-black bg-white divide-y divide-gray-200">
               {offices.map((office) => (
                 <tr key={office.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap w-1/4">{office.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap w-1/4">{office.address}</td>
-                  <td className="px-6 py-4 whitespace-nowrap w-1/6">{office.phone}</td>
-                  <td className="px-6 py-4 whitespace-nowrap w-1/6">{office.email}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium w-1/6">
-                    <div className="flex space-x-2">
+                  <td className="px-3 sm:px-6 py-4 w-1/3">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900 break-words">{office.name}</div>
+                      {/* Show address on mobile */}
+                      <div className="text-sm text-gray-500 sm:hidden mt-1">
+                        <strong>Alamat:</strong> {office.address}
+                      </div>
+                      {/* Show phone on mobile */}
+                      <div className="text-sm text-gray-500 sm:hidden">
+                        <strong>Telepon:</strong> {office.phone}
+                      </div>
+                      {/* Show email on mobile */}
+                      <div className="text-sm text-gray-500 sm:hidden">
+                        <strong>Email:</strong> {office.email}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-3 sm:px-6 py-4 hidden sm:table-cell w-1/4">
+                    <div className="text-sm text-gray-900 break-words">{office.address}</div>
+                  </td>
+                  <td className="px-3 sm:px-6 py-4 hidden md:table-cell w-1/6">
+                    <div className="text-sm text-gray-900 break-words">{office.phone}</div>
+                  </td>
+                  <td className="px-3 sm:px-6 py-4 hidden lg:table-cell w-1/6">
+                    <div className="text-sm text-gray-900 break-words">{office.email}</div>
+                  </td>
+                  <td className="px-3 sm:px-6 py-4 text-sm font-medium w-1/6">
+                    <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-2">
                       <button
                         onClick={() => router.push(`/dashboard/office/edit/${office.id}`)}
-                        className="px-3 py-1 text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
+                        className="px-3 py-1 text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors text-xs"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDelete(office.id)}
-                        className="px-3 py-1 text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors"
+                        className="px-3 py-1 text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors text-xs"
                       >
                         Hapus
                       </button>
@@ -209,9 +231,6 @@ export default function OfficeList() {
         )}
       </div>
 
-      <div className="text-center">
-        <p className="text-xs text-gray-400">© 2025 Admin Dashboard. Hak cipta dilindungi.</p>
-      </div>
     </>
   );
 }

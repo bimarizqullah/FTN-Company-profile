@@ -1,6 +1,8 @@
 // components/WelcomeCard.tsx
 'use client'
 
+import ImageWithFallback from './ImageWithFallback'
+
 interface User {
   imagePath: string
   name: string
@@ -18,9 +20,10 @@ export default function WelcomeCard({ user }: WelcomeCardProps) {
     <div className="bg-white rounded-xl border border-gray-200/60 p-6 mb-6">
       <div className="flex items-center gap-4">
         <div className="w-12 h-12 rounded-xl overflow-hidden shadow-sm">
-          <img
+          <ImageWithFallback
             src={user.imagePath}
             alt={user.name}
+            fallbackText={user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
             className="w-full h-full object-cover"
           />
         </div>

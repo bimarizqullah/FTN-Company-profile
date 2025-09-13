@@ -7,6 +7,7 @@ import Sidebar from '@/app/components/admin-dashboard/Sidebar'
 import LoadingSpinner from '@/app/components/admin-dashboard/LoadingSpinner'
 import Image from 'next/image'
 import { toast } from 'react-hot-toast'
+import ImageWithFallback from '@/app/components/admin-dashboard/ImageWithFallback'
 import {
   UserIcon,
   EnvelopeIcon,
@@ -224,21 +225,12 @@ export default function ProfilePage() {
               <div className="xl:col-span-1">
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
                   <div className="relative inline-block mb-6">
-                    {user.imagePath ? (
-                      <Image
-                        src={user.imagePath}
-                        alt={user.name}
-                        width={120}
-                        height={120}
-                        className="w-30 h-30 rounded-full object-cover border-4 border-gray-100"
-                      />
-                    ) : (
-                      <div className="w-30 h-30 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center border-4 border-gray-100">
-                        <span className="text-white text-3xl font-bold">
-                          {getInitials(user.name)}
-                        </span>
-                      </div>
-                    )}
+                    <ImageWithFallback
+                      src={user.imagePath}
+                      alt={user.name}
+                      fallbackText={getInitials(user.name)}
+                      className="w-30 h-30 rounded-full object-cover border-4 border-gray-100"
+                    />
                     
                     <label className="absolute bottom-2 right-2 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-700 transition-colors shadow-lg">
                       <CameraIcon className="w-5 h-5 text-white" />

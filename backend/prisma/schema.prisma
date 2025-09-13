@@ -41,6 +41,9 @@ model User {
   languages  Language[] @relation("LanguageCreatedBy")
   offices    Office[]   @relation("OfficeCreatedBy")
   contacts    Contact[]   @relation("ContactCreatedBy")
+  backups    Backup[]   @relation("BackupCreatedBy")
+  cacheLogs  CacheLog[] @relation("CacheLogClearedBy")
+  restoreLogs RestoreLog[] @relation("RestoreLogRestoredBy")
 }
 
 model Slider {
@@ -180,4 +183,57 @@ model Contact {
   user       User      @relation("ContactCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
   office     Office    @relation(fields: [officeId], references: [id], onDelete: Cascade)
   @@index([officeId])
+}
+
+model Message {
+  id         Int       @id @default(autoincrement())
+  name       String    // Nama pengirim
+  email      String    // Email pengirim
+  phone      String?   // Nomor telepon pengirim
+  subject    String    // Subjek pesan
+  message    String    // Isi pesan
+  isRead     Boolean   @default(false) // Status sudah dibaca atau belum
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Backup {
+  id          Int       @id @default(autoincrement())
+  filename    String    // Nama file backup
+  backupType  String    // full, partial, selective
+  tables      Json      @default("[]") // Array of table names for partial/selective backup
+  includeData Boolean   @default(true) // Include data in backup
+  includeSchema Boolean  @default(true) // Include schema in backup
+  description String?   // Deskripsi backup
+  fileSize    Int       // Ukuran file dalam bytes
+  status      String    @default("completed") // completed, failed, in_progress
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdBy   Int
+  user        User      @relation("BackupCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+  restoreLogs RestoreLog[]
+}
+
+model CacheLog {
+  id           Int       @id @default(autoincrement())
+  cacheType    String    // all, database, session, file, memory, redis
+  clearedItems Json      @default("[]") // Array of cleared items
+  totalCleared Int       @default(0) // Total number of items cleared
+  description  String?   // Deskripsi aktivitas clear cache
+  createdAt    DateTime  @default(now())
+  clearedBy    Int
+  user         User      @relation("CacheLogClearedBy", fields: [clearedBy], references: [id], onDelete: Cascade)
+}
+
+model RestoreLog {
+  id            Int       @id @default(autoincrement())
+  backupId      Int       // Foreign key ke Backup
+  status        String    @default("in_progress") // in_progress, completed, failed
+  errorMessage  String?   // Pesan error jika restore gagal
+  description   String?   // Deskripsi restore
+  createdAt     DateTime  @default(now())
+  completedAt   DateTime? // Waktu selesai restore
+  restoredBy    Int
+  user          User      @relation("RestoreLogRestoredBy", fields: [restoredBy], references: [id], onDelete: Cascade)
+  backup        Backup    @relation(fields: [backupId], references: [id], onDelete: Cascade)
 }

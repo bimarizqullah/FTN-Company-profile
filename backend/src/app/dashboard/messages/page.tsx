@@ -4,15 +4,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import DashboardHeader from "@/app/components/admin-dashboard/DashboardHeader";
 import Sidebar from "@/app/components/admin-dashboard/Sidebar";
-import StatsGrid from "@/app/components/admin-dashboard/StatsGrid";
-import ContactList from "./list/page";
+import MessageList from "./list/page";
 
 type AuthUser = {
   email: string;
   roles: string[];
 };
 
-export default function ContactPage() {
+export default function MessagesPage() {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const router = useRouter();
 
@@ -59,8 +58,7 @@ export default function ContactPage() {
         <div className="flex-1 flex flex-col lg:pl-64 w-full">
           <DashboardHeader onLogout={handleLogout} />
           <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-            <StatsGrid />
-            <ContactList />
+            <MessageList />
           </main>
         </div>
       </div>

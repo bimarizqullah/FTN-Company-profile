@@ -2,20 +2,38 @@
 
 import StatsCard from './StatsCard'
 import { useEffect, useState } from 'react'
-
-// Fungsi bantu untuk mengubah string SVG menjadi React element
-function parseSvg(svgString: string) {
-  return <span dangerouslySetInnerHTML={{ __html: svgString }} />
-}
+import { 
+  UsersIcon,
+  FolderIcon,
+  WrenchScrewdriverIcon,
+  PhotoIcon,
+  ChatBubbleLeftRightIcon
+} from '@heroicons/react/24/outline'
 
 interface StatItem {
   title: string
   value: string
-  change: string
-  changeType: 'positive' | 'negative' | 'neutral'
-  icon: string
+  iconType: string
   bgColor: string
   iconColor: string
+}
+
+// Fungsi untuk mendapatkan icon berdasarkan iconType
+function getIcon(iconType: string) {
+  switch (iconType) {
+    case 'users':
+      return <UsersIcon className="w-6 h-6" />
+    case 'folder':
+      return <FolderIcon className="w-6 h-6" />
+    case 'wrench-screwdriver':
+      return <WrenchScrewdriverIcon className="w-6 h-6" />
+    case 'photo':
+      return <PhotoIcon className="w-6 h-6" />
+    case 'chat-bubble-left-right':
+      return <ChatBubbleLeftRightIcon className="w-6 h-6" />
+    default:
+      return <UsersIcon className="w-6 h-6" />
+  }
 }
 
 export default function StatsGrid() {
@@ -39,7 +57,7 @@ export default function StatsGrid() {
   }, [])
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-6">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 mb-6">
       {loading ? (
         Array.from({ length: 4 }).map((_, idx) => (
           <div key={idx} className="h-[100px] bg-gray-100 rounded-xl animate-pulse" />
@@ -50,9 +68,9 @@ export default function StatsGrid() {
             key={index}
             title={stat.title}
             value={stat.value}
-            change={stat.change}
-            changeType={stat.changeType === 'neutral' ? 'positive' : stat.changeType} // fallback to positive for neutral style
-            icon={parseSvg(stat.icon)}
+            icon={getIcon(stat.iconType)}
+            bgColor={stat.bgColor}
+            iconColor={stat.iconColor}
           />
         ))
       )}

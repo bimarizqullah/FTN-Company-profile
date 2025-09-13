@@ -53,12 +53,12 @@ export default function OfficePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex flex-col lg:flex-row">
+    <div className="min-h-screen w-full bg-gray-50">
+      <div className="flex flex-col lg:flex-row w-full">
         <Sidebar />
-        <div className="flex-1 flex flex-col lg:pl-64">
+        <div className="flex-1 flex flex-col lg:pl-64 w-full">
           <DashboardHeader onLogout={handleLogout} />
-          <main className="max-w-8xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
             <StatsGrid />
             <OfficeList />
           </main>
