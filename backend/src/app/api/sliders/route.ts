@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
       include: { user: true },
     });
 
-    return NextResponse.json({ success: true, data: sliders });
+    return NextResponse.json(sliders);
   } catch (error) {
     console.error('Sliders GET error:', error);
     return NextResponse.json({ 

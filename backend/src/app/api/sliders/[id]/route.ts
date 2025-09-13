@@ -40,7 +40,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         }
 
         // ✅ Kembalikan data slider jika berhasil ditemukan
-        return NextResponse.json(slider, { status: 200 });
+        return NextResponse.json({ success: true, data: slider }, { status: 200 });
     } catch (error) {
         console.error("GET Slider by ID Error:", error); // Logging error yang lebih spesifik
         return NextResponse.json({ message: "Internal Server Error while fetching slider" }, { status: 500 });

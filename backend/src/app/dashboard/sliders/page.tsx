@@ -6,7 +6,7 @@ import DashboardHeader from '@/app/components/admin-dashboard/DashboardHeader'
 import Sidebar from '@/app/components/admin-dashboard/Sidebar'
 import LoadingSpinner from '@/app/components/admin-dashboard/LoadingSpinner'
 import Image from 'next/image'
-import { SweetAlerts } from '@/lib/sweetAlert'
+import { SweetAlerts, closeSweetAlert } from '@/lib/sweetAlert'
 import SlidersModal from '@/app/components/admin-dashboard/SlidersModal'
 import ConfirmModal from '@/app/components/admin-dashboard/ConfirmModal'
 import {
@@ -132,20 +132,22 @@ export default function SlidersPage() {
           throw new Error(errorData.message || 'Gagal update status')
         }
 
-        const updatedSlider = await res.json() // Ambil data slider yang diperbarui dari respons
+        const response = await res.json() // Ambil data slider yang diperbarui dari respons
         // Update state dengan data dari API untuk memastikan konsistensi
         setSliders(prev =>
           prev.map(slider =>
-            slider.id === id ? updatedSlider.data : slider
+            slider.id === id ? response.data : slider
           )
         )
         
         // Close loading and show success toast
+        closeSweetAlert()
         SweetAlerts.toast.success(
           `Status "${sliderName}" berhasil ${newStatus === 'active' ? 'diaktifkan' : 'dinonaktifkan'}`
         )
       } catch (error) {
         console.error('Toggle status error:', error)
+        closeSweetAlert()
         SweetAlerts.error.simple(
           'Gagal Memperbarui Status',
           `Terjadi kesalahan saat ${statusText} slider.`
@@ -185,9 +187,11 @@ export default function SlidersPage() {
         }
         
         // Show success
+        closeSweetAlert()
         SweetAlerts.toast.success(`Slider "${sliderName}" berhasil dihapus`)
       } catch (error) {
         console.error('Delete slider error:', error)
+        closeSweetAlert()
         SweetAlerts.error.withDetails(
           'Gagal Menghapus Data',
           'Terjadi kesalahan saat menghapus slider.',
@@ -219,9 +223,11 @@ export default function SlidersPage() {
         const errorData = await res.json()
         throw new Error(errorData.message || 'Gagal menghapus slider')
       }
+      closeSweetAlert()
       SweetAlerts.toast.success('Slider berhasil dihapus')
     } catch (error) {
       console.error('Delete slider error:', error)
+      closeSweetAlert()
       SweetAlerts.toast.error('Gagal hapus slider')
       // Rollback jika gagal
       setSliders(previousSliders)

@@ -249,8 +249,9 @@ export default function ProjectsPage() {
                                         <li>• Gunakan gambar berkualitas tinggi dan sesuai konteks</li>
                                         <li>• Masukkan deskripsi singkat tapi informatif</li>
                                         <li>• Pastikan lokasi proyek ditulis dengan benar</li>
-                                        <li>• Atur urutan tampil sesuai kronologi atau prioritas</li>
+                                        <li>• Atur tanggal mulai dan selesai untuk timeline yang jelas</li>
                                         <li>• Gunakan status untuk mengelola visibilitas publik</li>
+                                        <li>• Timeline membantu tracking progress proyek</li>
                                     </ul>
                                 </div>
                             </div>

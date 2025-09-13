@@ -32,9 +32,9 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired atau tidak valid
+      // Token expired atau tidak valid - untuk frontend publik, cukup hapus token
       localStorage.removeItem('token')
-      window.location.href = '/login'
+      localStorage.removeItem('user')
     }
     return Promise.reject(error)
   }

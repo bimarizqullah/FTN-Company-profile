@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
-import { toast } from 'react-hot-toast'
+import { SweetAlerts, closeSweetAlert } from '@/lib/sweetAlert'
 import { 
   XMarkIcon, 
   CloudArrowUpIcon
@@ -18,6 +18,8 @@ interface ProjectModalProps {
     description: string
     location: string
     status: string
+    startDate?: string
+    endDate?: string
   } | null
   onSuccess: () => void
 }
@@ -33,6 +35,8 @@ export default function ProjectModal({
   const [description, setDescription] = useState('')
   const [location, setLocation] = useState('')
   const [status, setStatus] = useState('ongoing')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string>('')
   const [dragActive, setDragActive] = useState(false)
@@ -44,12 +48,16 @@ export default function ProjectModal({
       setDescription(project.description || '')
       setLocation(project.location || '')
       setStatus(project.status || 'ongoing')
+      setStartDate(project.startDate ? new Date(project.startDate).toISOString().split('T')[0] : '')
+      setEndDate(project.endDate ? new Date(project.endDate).toISOString().split('T')[0] : '')
       setPreviewUrl(project.imagePath)
     } else {
       setName('')
       setDescription('')
       setLocation('')
       setStatus('ongoing')
+      setStartDate('')
+      setEndDate('')
       setPreviewUrl('')
       setSelectedFile(null)
     }
@@ -75,8 +83,14 @@ export default function ProjectModal({
   }
 
   const handleFile = (file: File) => {
-    if (!file.type.startsWith('image/')) return toast.error('File harus berupa gambar')
-    if (file.size > 5 * 1024 * 1024) return toast.error('Ukuran file maksimal 5MB')
+    if (!file.type.startsWith('image/')) {
+      SweetAlerts.error.simple('File Tidak Valid', 'File harus berupa gambar')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      SweetAlerts.error.simple('File Terlalu Besar', 'Ukuran file maksimal 5MB')
+      return
+    }
     setSelectedFile(file)
     const reader = new FileReader()
     reader.onload = e => setPreviewUrl(e.target?.result as string)
@@ -90,14 +104,28 @@ export default function ProjectModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!project && !selectedFile) return toast.error('Silakan upload gambar proyek')
+    if (!project && !selectedFile) {
+      SweetAlerts.error.simple('Gambar Wajib', 'Silakan upload gambar proyek')
+      return
+    }
+    
+    // Validasi tanggal
+    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+      SweetAlerts.error.simple('Tanggal Tidak Valid', 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai')
+      return
+    }
+    
     setLoading(true)
+    SweetAlerts.loading.show('Menyimpan Project...', 'Sedang memproses data project')
+    
     try {
       const formData = new FormData()
       formData.append('name', name)
       formData.append('description', description)
       formData.append('location', location)
       formData.append('status', status)
+      if (startDate) formData.append('startDate', startDate)
+      if (endDate) formData.append('endDate', endDate)
       if (selectedFile) formData.append('file', selectedFile)
 
       const url = project ? `/api/project/${project.id}` : `/api/project`
@@ -111,12 +139,19 @@ export default function ProjectModal({
         body: formData
       })
 
-      if (!res.ok) throw new Error()
-      toast.success(project ? 'Proyek berhasil diperbarui' : 'Proyek berhasil ditambahkan')
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.message || 'Failed to save project')
+      }
+      
+      closeSweetAlert()
+      SweetAlerts.toast.success(project ? 'Proyek berhasil diperbarui' : 'Proyek berhasil ditambahkan')
       onSuccess()
       onClose()
-    } catch {
-      toast.error('Gagal menyimpan proyek')
+    } catch (error) {
+      closeSweetAlert()
+      SweetAlerts.error.simple('Gagal Menyimpan', 'Gagal menyimpan proyek')
+      console.error(error)
     } finally {
       setLoading(false)
     }
@@ -206,6 +241,28 @@ export default function ProjectModal({
                 maxLength={80}
               />
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Tanggal Mulai</label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-black focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">Tanggal dimulainya proyek (opsional)</p>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Tanggal Selesai</label>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-black focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">Tanggal selesainya proyek (opsional)</p>
+              </div>
+            </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Status <span className="text-red-500">*</span></label>
               <select
@@ -220,6 +277,55 @@ export default function ProjectModal({
               </select>
             </div>
           </div>
+
+          {/* Preview Timeline */}
+          {(startDate || endDate) && (
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-100">
+              <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Timeline Proyek
+              </h4>
+              <div className="space-y-2">
+                {startDate && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-gray-600">Mulai:</span>
+                    <span className="font-medium text-gray-900">
+                      {new Date(startDate).toLocaleDateString('id-ID', { 
+                        day: 'numeric', 
+                        month: 'long', 
+                        year: 'numeric' 
+                      })}
+                    </span>
+                  </div>
+                )}
+                {endDate && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <span className="text-gray-600">Selesai:</span>
+                    <span className="font-medium text-gray-900">
+                      {new Date(endDate).toLocaleDateString('id-ID', { 
+                        day: 'numeric', 
+                        month: 'long', 
+                        year: 'numeric' 
+                      })}
+                    </span>
+                  </div>
+                )}
+                {startDate && endDate && (
+                  <div className="flex items-center gap-2 text-sm pt-2 border-t border-blue-200">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <span className="text-gray-600">Durasi:</span>
+                    <span className="font-medium text-blue-600">
+                      {Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24))} hari
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </form>
 
         <div className="flex justify-end gap-3 p-6 border-t border-gray-100 bg-gray-50">

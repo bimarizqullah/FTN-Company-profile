@@ -58,6 +58,8 @@ export interface Project {
   location: string
   description: string
   imagePath: string
+  startDate?: string
+  endDate?: string
   status: string
   createdAt: string
   updatedAt: string
@@ -94,13 +96,13 @@ export interface Office {
 class CompanyService {
   // Sliders untuk homepage
   async getSliders(): Promise<Slider[]> {
-    const response = await api.get('/sliders')
+    const response = await api.get('/public/sliders')
     return response.data
   }
 
   // Services
   async getServices(): Promise<Service[]> {
-    const response = await api.get('/services')
+    const response = await api.get('/public/services')
     return response.data
   }
 
@@ -111,8 +113,8 @@ class CompanyService {
 
   // Management
   async getManagement(): Promise<Management[]> {
-    const response = await api.get('/management')
-    return response.data.data || response.data
+    const response = await api.get('/public/management')
+    return response.data
   }
 
   async getManagementById(id: string): Promise<Management> {
@@ -122,7 +124,7 @@ class CompanyService {
 
   // Gallery
   async getGallery(): Promise<Gallery[]> {
-    const response = await api.get('/gallery')
+    const response = await api.get('/public/gallery')
     return response.data
   }
 
@@ -133,7 +135,7 @@ class CompanyService {
 
   // Projects
   async getProjects(): Promise<Project[]> {
-    const response = await api.get('/project')
+    const response = await api.get('/public/projects')
     return response.data
   }
 

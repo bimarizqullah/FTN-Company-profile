@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
-import { toast } from 'react-hot-toast'
+import { SweetAlerts, closeSweetAlert } from '@/lib/sweetAlert'
 import { 
   XMarkIcon, 
   PhotoIcon, 
@@ -82,11 +82,11 @@ export default function SlidersModal({
 
   const handleFile = (file: File) => {
     if (!file.type.startsWith('image/')) {
-      toast.error('File harus berupa gambar')
+      SweetAlerts.error.simple('File Tidak Valid', 'File harus berupa gambar')
       return
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Ukuran file maksimal 5MB')
+      SweetAlerts.error.simple('File Terlalu Besar', 'Ukuran file maksimal 5MB')
       return
     }
     setSelectedFile(file)
@@ -104,11 +104,12 @@ export default function SlidersModal({
     e.preventDefault()
     
     if (!slider && !selectedFile) {
-      toast.error('Silakan pilih gambar untuk slider')
+      SweetAlerts.error.simple('Gambar Wajib', 'Silakan pilih gambar untuk slider')
       return
     }
 
     setLoading(true)
+    SweetAlerts.loading.show('Menyimpan Slider...', 'Sedang memproses data slider')
     try {
       const formData = new FormData()
       formData.append('title', title)
@@ -138,14 +139,15 @@ export default function SlidersModal({
         const errorData = await res.json();
         throw new Error(errorData.message || 'Failed to save slider');
       }
-      toast.success(slider ? 'Slider berhasil diperbarui' : 'Slider berhasil ditambahkan')
+      SweetAlerts.toast.success(slider ? 'Slider berhasil diperbarui' : 'Slider berhasil ditambahkan')
       onSuccess()
       onClose()
     } catch (error) {
-      toast.error('Gagal menyimpan slider')
+      SweetAlerts.error.simple('Gagal Menyimpan', 'Gagal menyimpan slider')
       console.error(error);
     } finally {
       setLoading(false)
+      closeSweetAlert()
     }
   }
 

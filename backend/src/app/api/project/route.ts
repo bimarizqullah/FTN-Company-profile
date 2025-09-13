@@ -38,6 +38,8 @@ export async function POST(req: NextRequest) {
     const name = formData.get("name")?.toString() || "";
     const location = formData.get("location")?.toString() || "";
     const description = formData.get("description")?.toString() || "";
+    const startDate = formData.get("startDate")?.toString();
+    const endDate = formData.get("endDate")?.toString();
     const statusInput = formData.get("status")?.toString() || "ongoing";
 
     // Validasi status sesuai enum
@@ -64,6 +66,8 @@ export async function POST(req: NextRequest) {
         name,
         location,
         description,
+        startDate: startDate ? new Date(startDate) : null,
+        endDate: endDate ? new Date(endDate) : null,
         createdBy: Number(decoded.userId),
       },
     });

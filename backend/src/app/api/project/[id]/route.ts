@@ -44,6 +44,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         name: body.name || undefined,
         description: body.description || undefined,
         location: body.location || undefined,
+        startDate: body.startDate ? new Date(body.startDate) : undefined,
+        endDate: body.endDate ? new Date(body.endDate) : undefined,
         status: body.status && Object.values(project_status_enum).includes(body.status) ? body.status : undefined,
       };
     } else if (contentType.includes("multipart/form-data")) {
@@ -52,6 +54,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       updateData.name = formData.get("name")?.toString() || undefined;
       updateData.description = formData.get("description")?.toString() || undefined;
       updateData.location = formData.get("location")?.toString() || undefined;
+      
+      const startDate = formData.get("startDate")?.toString();
+      const endDate = formData.get("endDate")?.toString();
+      updateData.startDate = startDate ? new Date(startDate) : undefined;
+      updateData.endDate = endDate ? new Date(endDate) : undefined;
 
       const statusInput = formData.get("status")?.toString();
       if (statusInput && Object.values(project_status_enum).includes(statusInput as project_status_enum)) {
