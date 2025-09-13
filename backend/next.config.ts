@@ -11,6 +11,13 @@ const nextConfig: NextConfig = {
     // your project has type errors.
     ignoreBuildErrors: true,
   },
+  // Konfigurasi untuk static files
+  images: {
+    domains: ['localhost'],
+    unoptimized: true,
+  },
+  // Konfigurasi untuk serving static files
+  // Static files akan di-serve melalui API route /api/uploads/[...path]
   async headers() {
     return [
       {
@@ -21,6 +28,14 @@ const nextConfig: NextConfig = {
           { key: "Access-Control-Allow-Origin", value: "*" },
           { key: "Access-Control-Allow-Methods", value: "GET,DELETE,PATCH,POST,PUT" },
           { key: "Access-Control-Allow-Headers", value: "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" },
+        ]
+      },
+      {
+        // Headers untuk static files
+        source: "/uploads/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          { key: "Access-Control-Allow-Origin", value: "*" },
         ]
       }
     ]
