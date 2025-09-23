@@ -137,17 +137,29 @@ export default function SlidersModal({
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || 'Failed to save slider');
+        const message = errorData?.message || 'Failed to save slider';
+        if (res.status === 400) {
+          // Tutup loading dulu agar alert tidak langsung tertutup
+          closeSweetAlert()
+          // Tampilkan alert spesifik jika mencapai batas maksimal slider aktif
+          await SweetAlerts.error.simple('Batas Slider Tercapai', message)
+          return;
+        }
+        throw new Error(message);
       }
+      // Tutup loading sebelum menampilkan toast sukses
+      closeSweetAlert()
       SweetAlerts.toast.success(slider ? 'Slider berhasil diperbarui' : 'Slider berhasil ditambahkan')
       onSuccess()
       onClose()
     } catch (error) {
+      // Tutup loading sebelum menampilkan alert error umum
+      closeSweetAlert()
+      // Jika bukan 400 (sudah ditangani di atas), tampilkan alert umum
       SweetAlerts.error.simple('Gagal Menyimpan', 'Gagal menyimpan slider')
       console.error(error);
     } finally {
       setLoading(false)
-      closeSweetAlert()
     }
   }
 

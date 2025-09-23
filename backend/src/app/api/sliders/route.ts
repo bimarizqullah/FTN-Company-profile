@@ -7,6 +7,7 @@ import { writeFile } from "fs/promises";
 import path from "path";
 import * as uuid from "uuid";
 import { status_enum } from "@prisma/client";
+import { verifyToken } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   // Check authentication
@@ -88,8 +89,30 @@ export async function POST(req: NextRequest) {
     await mkdir(uploadsDir, { recursive: true });
     await writeFile(filePath, buffer);
 
-    // Get user ID from headers (set by authMiddleware)
-    const userId = req.headers.get('x-user-id');
+    // Ambil userId langsung dari token Authorization untuk mencegah header hilang
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ 
+        success: false,
+        message: "Unauthorized: No token provided" 
+      }, { status: 401 });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = verifyToken(token);
+    if (!decoded || typeof decoded === "string") {
+      return NextResponse.json({ 
+        success: false,
+        message: "Unauthorized: Invalid token" 
+      }, { status: 401 });
+    }
+    const userId = Number((decoded as any).userId);
+    if (!userId || Number.isNaN(userId)) {
+      return NextResponse.json({ 
+        success: false,
+        message: "Unauthorized: Invalid user id in token" 
+      }, { status: 401 });
+    }
 
     const slider = await prisma.slider.create({
       data: {
@@ -98,7 +121,7 @@ export async function POST(req: NextRequest) {
         title,
         subtitle,
         tagline,
-        createdBy: Number(userId),
+        createdBy: userId,
       },
     });
 
