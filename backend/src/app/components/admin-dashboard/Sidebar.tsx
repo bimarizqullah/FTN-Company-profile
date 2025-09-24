@@ -19,6 +19,7 @@ import {
   Squares2X2Icon,
   BriefcaseIcon,
   DocumentTextIcon,
+  NewspaperIcon,
   BuildingOffice2Icon,
   Cog6ToothIcon,
   UserIcon,
@@ -199,6 +200,13 @@ export default function Sidebar() {
       label: 'Services',
       icon: <BriefcaseIcon className="w-5 h-5" />,
       href: '/dashboard/services',
+      group: 'Content Management',
+    },
+    {
+      id: 'news',
+      label: 'News',
+      icon: <NewspaperIcon className="w-5 h-5" />,
+      href: '/dashboard/news',
       group: 'Content Management',
     },
     {

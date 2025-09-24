@@ -302,9 +302,9 @@ export default function SlidersModal({
                 placeholder="Pesan singkat atau call-to-action"
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
                 required
-                maxLength={100}
+                maxLength={300}
               />
-              <p className="text-xs text-gray-500 mt-1">{tagline.length}/100 karakter</p>
+              <p className="text-xs text-gray-500 mt-1">{tagline.length}/300 karakter</p>
             </div>
 
             {/* Status */}

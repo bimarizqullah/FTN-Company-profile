@@ -128,6 +128,7 @@ const navigationItems = [
   { name: 'Proyek', href: '/projects' },
   { name: 'Manajemen', href: '/management' },
   { name: 'Galeri', href: '/gallery' },
+  { name: 'Berita', href: '/news' },
   { name: 'Kontak', href: '/contact' }
 ]
 

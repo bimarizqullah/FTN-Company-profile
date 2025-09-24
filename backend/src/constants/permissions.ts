@@ -101,6 +101,13 @@ export const PERMISSIONS = {
   CONTENT_MANAGE: 'content:manage',
   CONTENT_PUBLISH: 'content:publish',
   CONTENT_MODERATE: 'content:moderate'
+  ,
+  // News permissions
+  NEWS_CREATE: 'news:create',
+  NEWS_READ: 'news:read',
+  NEWS_UPDATE: 'news:update',
+  NEWS_DELETE: 'news:delete',
+  NEWS_LIST: 'news:list'
 } as const;
 
 // Helper type for type safety
@@ -141,7 +148,12 @@ export const PERMISSION_GROUPS = {
     PERMISSIONS.PROJECT_READ,
     PERMISSIONS.PROJECT_UPDATE,
     PERMISSIONS.PROJECT_DELETE,
-    PERMISSIONS.PROJECT_LIST
+    PERMISSIONS.PROJECT_LIST,
+    PERMISSIONS.NEWS_CREATE,
+    PERMISSIONS.NEWS_READ,
+    PERMISSIONS.NEWS_UPDATE,
+    PERMISSIONS.NEWS_DELETE,
+    PERMISSIONS.NEWS_LIST
   ],
 
   CONTACT_OFFICE_MANAGEMENT: [

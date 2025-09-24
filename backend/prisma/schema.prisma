@@ -28,7 +28,7 @@ model User {
   imagePath  String?
   name       String
   email      String    @unique
-  password   String
+  password   String    @db.VarChar(100)
   status     status_enum @default(active)
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
@@ -44,12 +44,13 @@ model User {
   backups    Backup[]   @relation("BackupCreatedBy")
   cacheLogs  CacheLog[] @relation("CacheLogClearedBy")
   restoreLogs RestoreLog[] @relation("RestoreLogRestoredBy")
+  news       News[]     @relation("NewsCreatedBy")
 }
 
 model Slider {
   id         Int         @id @default(autoincrement())
   imagePath  String
-  tagline    String?     
+  tagline    String?     @db.VarChar(300)
   title      String?     
   subtitle   String?     
   status     status_enum @default(active)
@@ -106,6 +107,23 @@ model Management {
   updatedAt  DateTime  @updatedAt
   createdBy  Int
   user       User      @relation("ManagementCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+}
+
+model News {
+  id          Int         @id @default(autoincrement())
+  title       String
+  slug        String      @unique
+  content     String
+  imagePath   String?
+  sourceName  String?
+  sourceLink  String?
+  status      status_enum @default(active)
+  publishedAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  createdBy   Int
+  user        User        @relation("NewsCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+  @@index([status, publishedAt])
 }
 
 model Language {

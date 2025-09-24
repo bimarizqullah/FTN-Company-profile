@@ -8,6 +8,7 @@ import AOS from 'aos'
 import App from './App.vue'
 import router from './router'
 import { useThemeStore } from './stores/theme'
+import { useNewsStore } from './stores/news'
 
 // Initialize AOS
 AOS.init({
@@ -28,5 +29,9 @@ app.use(router)
 // Initialize theme after pinia is available
 const themeStore = useThemeStore()
 themeStore.initializeTheme()
+
+// Prefetch news globally, so available on all pages
+const newsStore = useNewsStore()
+newsStore.fetchNews().catch(() => {})
 
 app.mount('#app')
