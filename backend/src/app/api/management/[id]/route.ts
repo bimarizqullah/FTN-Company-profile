@@ -74,7 +74,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       await mkdir(uploadsDir, { recursive: true })
       const filePath = path.join(uploadsDir, filename)
       await writeFile(filePath, buffer)
-      imagePath = `/uploads/management/${filename}`
+      imagePath = `/api/uploads/management/${filename}`
     }
 
     const updated = await prisma.management.update({

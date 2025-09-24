@@ -60,7 +60,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         const filePath = path.join(process.cwd(), "public", "uploads", "services", fileName);
         await mkdir(path.dirname(filePath), { recursive: true });
         await writeFile(filePath, buffer);
-        updateData.imagePath = `/uploads/services/${fileName}`;
+        updateData.imagePath = `/api/uploads/services/${fileName}`;
       }
     } 
     else {
@@ -92,7 +92,9 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
     // Delete file
     if (Services.imagePath) {
-      const fullPath = path.join(process.cwd(), "public", Services.imagePath);
+      // Convert API path to physical path
+      const physicalPath = Services.imagePath.replace('/api/uploads', '/uploads');
+      const fullPath = path.join(process.cwd(), "public", physicalPath);
       try {
         await unlink(fullPath);
       } catch (err) {

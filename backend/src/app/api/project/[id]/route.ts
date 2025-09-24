@@ -72,7 +72,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         const filePath = path.join(process.cwd(), "public", "uploads", "projects", fileName);
         await mkdir(path.dirname(filePath), { recursive: true });
         await writeFile(filePath, buffer);
-        updateData.imagePath = `/uploads/projects/${fileName}`;
+        updateData.imagePath = `/api/uploads/projects/${fileName}`;
       }
     } else {
       return NextResponse.json({ message: "Unsupported Content-Type" }, { status: 400 });
@@ -102,7 +102,9 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     await prisma.project.delete({ where: { id: Number(params.id) } });
 
     if (project.imagePath) {
-      const fullPath = path.join(process.cwd(), "public", project.imagePath);
+      // Convert API path to physical path
+      const physicalPath = project.imagePath.replace('/api/uploads', '/uploads');
+      const fullPath = path.join(process.cwd(), "public", physicalPath);
       try {
         await unlink(fullPath);
       } catch (err) {

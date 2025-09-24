@@ -4,7 +4,10 @@ import axios from 'axios'
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
 
 // Base URL untuk uploads/images (melalui API route)
-export const UPLOAD_BASE_URL = import.meta.env.VITE_UPLOAD_BASE_URL || 'http://localhost:3000/api/uploads'
+export const UPLOAD_BASE_URL = import.meta.env.VITE_UPLOAD_BASE_URL || 'http://localhost:3000/'
+
+// Export API_BASE_URL untuk digunakan di service lain jika diperlukan
+export { API_BASE_URL }
 
 // Membuat instance axios dengan konfigurasi default
 const api = axios.create({

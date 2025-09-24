@@ -605,7 +605,7 @@ onUnmounted(() => {
               <div class="relative w-full h-full overflow-hidden">
                 <img 
                   v-if="item.imagePath"
-                  :src="`http://localhost:3000${item.imagePath}`" 
+                  :src="`${UPLOAD_BASE_URL}${item.imagePath}`" 
                   :alt="item.description || 'Gallery Image'"
                   class="w-full h-full object-cover group-hover:scale-125 transition-transform duration-1000 ease-out"
                 />
@@ -686,7 +686,7 @@ onUnmounted(() => {
                 <div class="aspect-w-16 aspect-h-10">
                   <img 
                     v-if="service.imagePath"
-                    :src="`http://localhost:3000${service.imagePath}`" 
+                    :src="`${UPLOAD_BASE_URL}${service.imagePath}`" 
                     :alt="service.name"
                     class="w-full h-52 object-cover group-hover:scale-110 transition-transform duration-700"
                   />
@@ -791,7 +791,7 @@ onUnmounted(() => {
               <div class="relative overflow-hidden">
                 <img 
                   v-if="project.imagePath"
-                  :src="`http://localhost:3000${project.imagePath}`" 
+                  :src="`${UPLOAD_BASE_URL}${project.imagePath}`" 
                   :alt="project.name"
                   class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
                 />
@@ -904,7 +904,7 @@ onUnmounted(() => {
                   <div class="aspect-square">
                     <img 
                       v-if="member.imagePath"
-                      :src="`http://localhost:3000${member.imagePath}`" 
+                      :src="`${UPLOAD_BASE_URL}${member.imagePath}`" 
                       :alt="member.name"
                       class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
@@ -1001,7 +1001,7 @@ onUnmounted(() => {
           
           <div v-if="selectedService.imagePath" class="mb-6">
             <img 
-              :src="`http://localhost:3000${selectedService.imagePath}`" 
+              :src="`${UPLOAD_BASE_URL}${selectedService.imagePath}`" 
               :alt="selectedService.name"
               class="w-full h-64 object-cover rounded-lg"
             />
@@ -1032,7 +1032,7 @@ onUnmounted(() => {
         <!-- Image Container with Overlay Description -->
         <div class="relative max-w-5xl w-full">
           <img 
-            :src="`http://localhost:3000${selectedGallery.imagePath}`" 
+            :src="`${UPLOAD_BASE_URL}${selectedGallery.imagePath}`" 
             :alt="selectedGallery.description || 'Gallery Image'"
             class="w-full h-auto max-h-[85vh] object-contain rounded-2xl shadow-2xl"
           />

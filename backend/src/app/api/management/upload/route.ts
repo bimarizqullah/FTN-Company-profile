@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
           name,
           position,
           status: statusInput,
-          ...(filename && { imagePath: `/uploads/management/${filename}` }),
+          ...(filename && { imagePath: `/api/uploads/management/${filename}` }),
         },
       })
 
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     } else {
       const newManagement = await prisma.management.create({
         data: {
-          imagePath: `/uploads/management/${filename}`,
+          imagePath: `/api/uploads/management/${filename}`,
           name,
           position,
           status: statusInput,

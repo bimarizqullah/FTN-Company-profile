@@ -74,7 +74,23 @@ src/
 3. **Setup environment variables**
    Buat file `.env` di root folder frontend:
    ```env
+   # Backend API Base URL
    VITE_API_BASE_URL=http://localhost:3000/api
+   
+   # Upload/Images Base URL  
+   VITE_UPLOAD_BASE_URL=http://localhost:3000/api/uploads
+   ```
+   
+   **Untuk development dengan IP berbeda:**
+   ```env
+   VITE_API_BASE_URL=http://192.168.1.18:3000/api
+   VITE_UPLOAD_BASE_URL=http://192.168.1.18:3000/api/uploads
+   ```
+   
+   **Untuk production:**
+   ```env
+   VITE_API_BASE_URL=https://yourdomain.com/api
+   VITE_UPLOAD_BASE_URL=https://yourdomain.com/api/uploads
    ```
 
 4. **Jalankan development server**
@@ -89,7 +105,21 @@ src/
 
 ## Konfigurasi API
 
-Frontend ini terhubung dengan backend API yang berjalan di `http://localhost:3000`. Pastikan backend sudah berjalan sebelum menggunakan frontend.
+Frontend ini menggunakan konfigurasi API yang terpusat di `src/services/api.ts`. Semua endpoint menggunakan variabel environment yang dapat dikonfigurasi melalui file `.env`.
+
+### Konfigurasi Environment Variables
+
+- `VITE_API_BASE_URL`: Base URL untuk API backend (default: `http://localhost:3000/api`)
+- `VITE_UPLOAD_BASE_URL`: Base URL untuk upload/gambar (default: `http://localhost:3000/api/uploads`)
+
+### Keuntungan Konfigurasi Terpusat
+
+- **Mudah diubah**: Hanya perlu mengubah di satu tempat (`src/services/api.ts`)
+- **Environment-aware**: Dapat menggunakan URL berbeda untuk development, staging, dan production
+- **Konsisten**: Semua service menggunakan konfigurasi yang sama
+- **Maintainable**: Perubahan alamat IP/domain hanya perlu update environment variables
+
+Pastikan backend sudah berjalan sebelum menggunakan frontend.
 
 ### Endpoint yang Digunakan
 
@@ -215,9 +245,19 @@ app.use(cors({
 
 ### API Connection Error
 
-1. Pastikan backend berjalan di `http://localhost:3000`
-2. Check network tab di browser developer tools
-3. Verify API endpoint di `src/services/api.ts`
+1. Pastikan backend berjalan di URL yang benar
+2. Check environment variables di file `.env`:
+   ```bash
+   # Pastikan URL backend sesuai dengan yang berjalan
+   VITE_API_BASE_URL=http://localhost:3000/api
+   VITE_UPLOAD_BASE_URL=http://localhost:3000/api/uploads
+   ```
+3. Check network tab di browser developer tools
+4. Verify API endpoint di `src/services/api.ts`
+5. Restart development server setelah mengubah environment variables:
+   ```bash
+   npm run dev
+   ```
 
 ### Build Error
 

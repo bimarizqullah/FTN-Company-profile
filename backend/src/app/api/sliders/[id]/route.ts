@@ -110,7 +110,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       await mkdir(uploadsDir, { recursive: true });
       const filePath = path.join(uploadsDir, filename);
       await writeFile(filePath, buffer);
-      imagePath = `/uploads/sliders/${filename}`;
+      imagePath = `/api/uploads/sliders/${filename}`;
     }
 
     // Build the update data dynamically
@@ -182,7 +182,9 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
         // 🗑️ Hapus file gambar dari direktori public/uploads/sliders
         if (sliderToDelete.imagePath) {
-            const fullImagePath = path.join(process.cwd(), "public", sliderToDelete.imagePath);
+            // Convert API path to physical path
+            const physicalPath = sliderToDelete.imagePath.replace('/api/uploads', '/uploads');
+            const fullImagePath = path.join(process.cwd(), "public", physicalPath);
             try {
                 await unlink(fullImagePath); // Hapus file secara fisik
                 console.log(`[DELETE] Deleted image file: ${fullImagePath}`);

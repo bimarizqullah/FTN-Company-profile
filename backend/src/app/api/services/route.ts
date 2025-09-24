@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
 
     const Services = await prisma.service.create({
       data: {
-        imagePath: `/uploads/services/${filename}`,
+        imagePath: `/api/uploads/services/${filename}`,
         name,
         description,
         createdBy: Number(decoded.userId),

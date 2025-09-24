@@ -76,7 +76,7 @@
               </svg>
             </div>
             <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 group-hover:text-blue-600 transition-colors duration-300">Visi</h3>
-            <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300">
+            <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300 text-justify">
               Menjadi perusahaan penyedia infrastruktur yang handal dan berstandar tinggi, serta berperan aktif dalam mewujudkan transformasi digital kota menuju Smart City yang modern, efisien, dan berkelanjutan.
             </p>
           </div>

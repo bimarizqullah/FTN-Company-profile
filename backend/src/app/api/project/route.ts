@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
 
     const project = await prisma.project.create({
       data: {
-        imagePath: `/uploads/projects/${filename}`,
+        imagePath: `/api/uploads/projects/${filename}`,
         status,
         name,
         location,

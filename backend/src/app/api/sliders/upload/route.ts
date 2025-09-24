@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
     const slider = await prisma.slider.create({
       data: {
-        imagePath: `/uploads/sliders/${filename}`,
+        imagePath: `/api/uploads/sliders/${filename}`,
         status: statusInput as status_enum,
         title,
         subtitle,

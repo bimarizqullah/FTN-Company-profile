@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
 
     const slider = await prisma.slider.create({
       data: {
-        imagePath: `/uploads/sliders/${fileName}`,
+        imagePath: `/api/uploads/sliders/${fileName}`,
         status,
         title,
         subtitle,

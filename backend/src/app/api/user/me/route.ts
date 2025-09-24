@@ -71,7 +71,7 @@ export async function PATCH(req: NextRequest) {
     const filename = `${Date.now()}-${file.name}`;
     const filePath = path.join(process.cwd(), 'public/uploads', filename);
     await writeFile(filePath, buffer);
-    imagePath = `/uploads/${filename}`;
+    imagePath = `/api/uploads/${filename}`;
   }
 
   const updateData: { name?: string; imagePath?: string } = {};

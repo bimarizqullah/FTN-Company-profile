@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
 
     const gallery = await prisma.gallery.create({
       data: {
-        imagePath: `/uploads/gallery/${fileName}`,
+        imagePath: `/api/uploads/gallery/${fileName}`,
         description,
         createdBy: Number(decoded.userId),
       },
