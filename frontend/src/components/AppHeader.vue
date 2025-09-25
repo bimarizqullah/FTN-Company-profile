@@ -123,12 +123,12 @@ const mobileMenuOpen = ref(false)
 
 const navigationItems = [
   { name: 'Beranda', href: '/' },
+  { name: 'Berita', href: '/news' },
   { name: 'Tentang Kami', href: '/about' },
   { name: 'Layanan', href: '/services' },
   { name: 'Proyek', href: '/projects' },
   { name: 'Manajemen', href: '/management' },
   { name: 'Galeri', href: '/gallery' },
-  { name: 'Berita', href: '/news' },
   { name: 'Kontak', href: '/contact' }
 ]
 

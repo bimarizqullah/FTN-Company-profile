@@ -216,8 +216,15 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Konten <span className="text-red-500">*</span></label>
-              <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="Tulis konten berita di sini" className="w-full min-h-40 border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black" required />
-              <p className="text-xs text-gray-500 mt-1">{content.length} karakter</p>
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Tulis konten berita di sini"
+                className="w-full min-h-40 border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
+                maxLength={1500}
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">{content.length}/1500 karakter</p>
             </div>
 
             <div>
