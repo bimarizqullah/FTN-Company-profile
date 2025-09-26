@@ -409,7 +409,7 @@ onUnmounted(() => {
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div data-aos="fade-right" data-aos-delay="200">
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-white mb-6">Fiber Teknologi Nusantara</h3>
-            <div class="space-y-4 text-gray-600 dark:text-gray-300 leading-relaxed">
+            <div class="text-justify space-y-4 text-gray-600 dark:text-gray-300 leading-relaxed">
               <p>
                 Perusahaan teknologi terdepan yang berfokus pada solusi fiber optik dan infrastruktur jaringan untuk masa depan digital Indonesia.
               </p>
