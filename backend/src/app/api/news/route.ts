@@ -17,6 +17,8 @@ export async function GET(req: NextRequest) {
         slug: true,
         content: true,
         imagePath: true,
+        videoPath: true,
+        youtubeUrl: true,
         sourceName: true,
         sourceLink: true,
         status: true,
@@ -42,18 +44,21 @@ export async function POST(req: NextRequest) {
     const title = formData.get('title')?.toString() || ''
     const slug = formData.get('slug')?.toString() || ''
     const content = formData.get('content')?.toString() || ''
+    const youtubeUrl = formData.get('youtubeUrl')?.toString() || undefined
     const sourceName = formData.get('sourceName')?.toString() || undefined
     const sourceLink = formData.get('sourceLink')?.toString() || undefined
     const status = (formData.get('status')?.toString() || 'active') as 'active' | 'inactive'
     const publishedAtStr = formData.get('publishedAt')?.toString()
     const publishedAt = publishedAtStr ? new Date(publishedAtStr) : null
     const file = formData.get('image') as File | null
+    const video = formData.get('video') as File | null
 
     if (!title.trim() || !slug.trim() || !content.trim()) {
       return NextResponse.json({ message: 'Title, slug, dan content wajib diisi' }, { status: 400 })
     }
 
     let imagePath: string | undefined
+    let videoPath: string | undefined
     if (file && file.size > 0) {
       const bytes = await file.arrayBuffer()
       const buffer = Buffer.from(bytes)
@@ -63,6 +68,20 @@ export async function POST(req: NextRequest) {
       const filePath = path.join(uploadsDir, fileName)
       await writeFile(filePath, buffer)
       imagePath = `/uploads/news/${fileName}`
+    }
+
+    if (video && video.size > 0) {
+      if (video.size > 200 * 1024 * 1024) {
+        return NextResponse.json({ message: 'Ukuran video maksimal 200MB' }, { status: 400 })
+      }
+      const bytes = await video.arrayBuffer()
+      const buffer = Buffer.from(bytes)
+      const fileName = `${Date.now()}-${video.name.replace(/\s+/g, '_')}`
+      const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'news')
+      await mkdir(uploadsDir, { recursive: true })
+      const filePath = path.join(uploadsDir, fileName)
+      await writeFile(filePath, buffer)
+      videoPath = `/uploads/news/${fileName}`
     }
 
     // Ambil userId dari token
@@ -83,6 +102,8 @@ export async function POST(req: NextRequest) {
         slug,
         content,
         imagePath,
+        videoPath,
+        youtubeUrl,
         status: status as any,
         sourceName,
         sourceLink,

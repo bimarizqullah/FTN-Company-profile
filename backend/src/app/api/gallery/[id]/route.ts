@@ -48,6 +48,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       updateData.description = formData.get("description")?.toString() || undefined;
 
       if (imageFile) {
+        const mime = imageFile.type || ''
+        if (!(mime.startsWith('image/') || mime.startsWith('video/'))) {
+          return NextResponse.json({ message: 'File harus berupa gambar atau video' }, { status: 400 })
+        }
         const bytes = await imageFile.arrayBuffer();
         const buffer = Buffer.from(bytes);
         const fileName = `${crypto.randomUUID()}${path.extname(imageFile.name)}`;

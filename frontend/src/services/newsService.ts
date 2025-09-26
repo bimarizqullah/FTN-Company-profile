@@ -6,6 +6,8 @@ export interface News {
   slug: string
   content: string
   imagePath?: string
+  videoPath?: string
+  youtubeUrl?: string
   sourceName?: string
   sourceLink?: string
   status: 'active' | 'inactive'

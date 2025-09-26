@@ -40,9 +40,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "File is required" }, { status: 400 });
     }
 
+    // Validasi tipe file: izinkan image/* dan video/*
+    const mime = file.type || ''
+    if (!(mime.startsWith('image/') || mime.startsWith('video/'))) {
+      return NextResponse.json({ message: "File harus berupa gambar atau video" }, { status: 400 });
+    }
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const fileName = `${uuid.v4()}-${file.name}`;
+    const fileName = `${uuid.v4()}-${file.name.replace(/\s+/g, '_')}`;
     const filePath = path.join(process.cwd(), "public", "uploads", "gallery", fileName);
     await writeFile(filePath, buffer);
 

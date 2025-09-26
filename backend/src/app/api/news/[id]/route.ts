@@ -42,8 +42,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     const publishedAtStr = formData.get('publishedAt')?.toString()
     const publishedAt = publishedAtStr ? new Date(publishedAtStr) : undefined
     const file = formData.get('image') as File | null
+    const video = formData.get('video') as File | null
+    const youtubeUrl = formData.get('youtubeUrl')?.toString()
 
     let imagePath = existing.imagePath || undefined
+    let videoPath = existing.videoPath || undefined
     if (file && file.size > 0) {
       const bytes = await file.arrayBuffer()
       const buffer = Buffer.from(bytes)
@@ -59,6 +62,23 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       imagePath = `/uploads/news/${fileName}`
     }
 
+    if (video && video.size > 0) {
+      if (video.size > 200 * 1024 * 1024) {
+        return NextResponse.json({ message: 'Ukuran video maksimal 200MB' }, { status: 400 })
+      }
+      const bytes = await video.arrayBuffer()
+      const buffer = Buffer.from(bytes)
+      const fileName = `${Date.now()}-${video.name.replace(/\s+/g, '_')}`
+      const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'news')
+      await mkdir(uploadsDir, { recursive: true })
+      const filePath = path.join(uploadsDir, fileName)
+      await writeFile(filePath, buffer)
+      if (existing.videoPath) {
+        try { await unlink(path.join(process.cwd(), 'public', existing.videoPath)) } catch {}
+      }
+      videoPath = `/uploads/news/${fileName}`
+    }
+
     const updated = await prisma.news.update({
       where: { id },
       data: {
@@ -66,6 +86,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         slug: slug ?? existing.slug,
         content: content ?? existing.content,
         imagePath,
+        videoPath,
+        youtubeUrl: youtubeUrl ?? existing.youtubeUrl,
         sourceName: sourceName ?? existing.sourceName,
         sourceLink: sourceLink ?? existing.sourceLink,
         status: (status ?? existing.status) as any,

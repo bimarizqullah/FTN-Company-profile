@@ -113,10 +113,12 @@ model News {
   id          Int         @id @default(autoincrement())
   title       String
   slug        String      @unique
-  content     String
+  content     String      @db.LongText
   imagePath   String?
+  videoPath   String?
   sourceName  String?
   sourceLink  String?
+  youtubeUrl  String?     @db.VarChar(255)
   status      status_enum @default(active)
   publishedAt DateTime?
   createdAt   DateTime    @default(now())

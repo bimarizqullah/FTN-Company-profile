@@ -24,6 +24,16 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+function extractYoutubeId(url: string): string | null {
+  const match = url.match(/(?:v=|\.be\/|embed\/)([A-Za-z0-9_-]{6,})/)
+  return match?.[1] || null
+}
+
+function embedUrl(url: string): string {
+  const id = extractYoutubeId(url)
+  return id ? `https://www.youtube.com/embed/${id}` : ''
+}
 </script>
 
 <template>
@@ -51,7 +61,20 @@ onMounted(async () => {
           <span v-else>{{ item.sourceName }}</span>
         </span>
       </div>
-      <img v-if="item.imagePath" :src="`${NEWS_IMAGE_BASE}${item.imagePath}`" class="w-full max-h-[460px] object-cover rounded-xl shadow mb-8" />
+      <!-- Prioritas tampilkan YouTube jika ada -->
+      <div v-if="item.youtubeUrl" class="w-full aspect-video rounded-xl overflow-hidden shadow mb-8">
+        <iframe
+          class="w-full h-full"
+          :src="embedUrl(item.youtubeUrl)"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
+      </div>
+      <!-- Jika tidak ada YouTube, tampilkan video upload jika ada -->
+      <video v-else-if="item.videoPath" :src="`${NEWS_IMAGE_BASE}${item.videoPath}`" class="w-full max-h-[460px] object-cover rounded-xl shadow mb-8" controls />
+      <!-- Jika tidak ada video, fallback ke gambar -->
+      <img v-else-if="item.imagePath" :src="`${NEWS_IMAGE_BASE}${item.imagePath}`" class="w-full max-h-[460px] object-cover rounded-xl shadow mb-8" />
       <div class="article-content text-gray-800 dark:text-gray-200 text-justify space-y-5 leading-8 tracking-normal">
         <p v-for="(p, idx) in (item.content || '').split(/\n+/)" :key="idx">{{ p }}</p>
       </div>

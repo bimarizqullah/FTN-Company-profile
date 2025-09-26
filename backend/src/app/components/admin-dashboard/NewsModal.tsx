@@ -11,6 +11,8 @@ interface NewsItem {
   slug: string
   content: string
   imagePath?: string
+  videoPath?: string
+  youtubeUrl?: string
   status: 'active' | 'inactive'
   publishedAt?: string
   sourceName?: string
@@ -34,7 +36,10 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
   const [sourceName, setSourceName] = useState<string>('')
   const [sourceLink, setSourceLink] = useState<string>('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [selectedVideo, setSelectedVideo] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string>('')
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string>('')
+  const [youtubeUrl, setYoutubeUrl] = useState<string>('')
   const [dragActive, setDragActive] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -48,7 +53,10 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
       setSourceName(news.sourceName || '')
       setSourceLink(news.sourceLink || '')
       setPreviewUrl(news.imagePath || '')
+      setVideoPreviewUrl(news.videoPath || '')
+      setYoutubeUrl(news.youtubeUrl || '')
       setSelectedFile(null)
+      setSelectedVideo(null)
     } else {
       setStatus('active')
       setTitle('')
@@ -58,7 +66,10 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
       setSourceName('')
       setSourceLink('')
       setPreviewUrl('')
+      setVideoPreviewUrl('')
+      setYoutubeUrl('')
       setSelectedFile(null)
+      setSelectedVideo(null)
     }
   }, [news])
 
@@ -77,9 +88,27 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
     reader.readAsDataURL(file)
   }
 
+  const handleVideo = (file: File) => {
+    if (!file.type.startsWith('video/')) {
+      SweetAlerts.error.simple('File Tidak Valid', 'File harus berupa video')
+      return
+    }
+    if (file.size > 200 * 1024 * 1024) {
+      SweetAlerts.error.simple('File Terlalu Besar', 'Ukuran video maksimal 200MB')
+      return
+    }
+    setSelectedVideo(file)
+    setVideoPreviewUrl(URL.createObjectURL(file))
+  }
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) handleFile(file)
+  }
+
+  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) handleVideo(file)
   }
 
   const handleDrag = (e: React.DragEvent) => {
@@ -106,8 +135,8 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title.trim() || !content.trim() || (!news && !selectedFile)) {
-      SweetAlerts.warning.validation('Judul, konten, dan gambar wajib diisi')
+    if (!title.trim() || !content.trim()) {
+      SweetAlerts.warning.validation('Judul dan konten wajib diisi')
       return
     }
 
@@ -123,6 +152,8 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
       if (sourceLink) formData.append('sourceLink', sourceLink)
       if (publishedAt) formData.append('publishedAt', new Date(publishedAt).toISOString())
       if (selectedFile) formData.append('image', selectedFile)
+      if (selectedVideo) formData.append('video', selectedVideo)
+      if (youtubeUrl) formData.append('youtubeUrl', youtubeUrl)
 
       const url = news ? `/api/news/${news.id}` : `/api/news`
       const method = news ? 'PUT' : 'POST'
@@ -268,15 +299,62 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
             <p className="text-xs text-gray-500 mt-1">{sourceLink.length}/512 karakter</p>
           </div>
           </div>
+          {/* Video Upload */}
+          <div className="space-y-3">
+            <label className="block text-sm font-semibold text-gray-700">Video (opsional)</label>
+            <div className="rounded-2xl border border-gray-300 bg-gray-50 p-4">
+              <div className="flex items-center gap-4">
+                <input type="file" accept="video/*" onChange={handleVideoSelect} className="block w-full text-sm text-gray-700" />
+              </div>
+              <div className="mt-3">
+                {videoPreviewUrl ? (
+                  <video src={videoPreviewUrl} className="w-full rounded-lg" controls />
+                ) : news?.videoPath ? (
+                  <video src={news.videoPath} className="w-full rounded-lg" controls />
+                ) : (
+                  <p className="text-sm text-gray-500">Belum ada video</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* YouTube URL */}
+          <div className="grid gap-2">
+            <label className="block text-sm font-semibold text-gray-700">Link YouTube (opsional)</label>
+            <input
+              value={youtubeUrl}
+              onChange={(e) => setYoutubeUrl(e.target.value)}
+              placeholder="https://www.youtube.com/watch?v=... atau https://youtu.be/..."
+              className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
+              maxLength={255}
+            />
+            {youtubeUrl && (
+              <div className="aspect-video w-full overflow-hidden rounded-lg border border-gray-200">
+                <iframe
+                  className="w-full h-full"
+                  src={(() => {
+                    const m = youtubeUrl.match(/(?:v=|\.be\/)([A-Za-z0-9_-]{6,})/)
+                    const id = m?.[1] || ''
+                    return id ? `https://www.youtube.com/embed/${id}` : ''
+                  })()}
+                  frameBorder={0}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              </div>
+            )}
+          </div>
+
         </form>
 
         {/* Footer */}
         <div className="flex justify-end gap-3 p-6 border-t border-gray-100 bg-gray-50">
           <button type="button" onClick={onClose} disabled={loading} className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-all disabled:opacity-50">Batal</button>
-          <button onClick={handleSubmit} disabled={loading || !title || !content || (!news && !selectedFile)} className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium hover:from-blue-700 hover:to-blue-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+          <button onClick={handleSubmit} disabled={loading || !title || !content} className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium hover:from-blue-700 hover:to-blue-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
             {loading ? (<><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /><span>Menyimpan...</span></>) : (<span>{news ? 'Perbarui Berita' : 'Tambah Berita'}</span>)}
           </button>
         </div>
+
       </div>
     </div>
   )

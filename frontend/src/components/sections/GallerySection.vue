@@ -25,12 +25,26 @@
           @click="$router.push('/gallery')"
         >
           <div class="relative overflow-hidden rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 gsap-card">
-            <img 
-              :src="`${UPLOAD_BASE_URL}${item.imagePath}`" 
-              :alt="item.title || `Galeri ${item.id}`"
-              class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-            />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+            <template v-if="item.imagePath">
+              <video
+                v-if="isVideo(item.imagePath)"
+                :src="`${UPLOAD_BASE_URL}${item.imagePath}`"
+                class="w-full h-64 object-cover"
+                muted
+                loop
+                preload="metadata"
+                playsinline
+                @mouseenter="(e) => (e.target as HTMLVideoElement).play()"
+                @mouseleave="(e) => { const v = e.target as HTMLVideoElement; v.pause(); v.currentTime = 0 }"
+              />
+              <img
+                v-else
+                :src="`${UPLOAD_BASE_URL}${item.imagePath}`" 
+                :alt="item.title || `Galeri ${item.id}`"
+                class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+            </template>
+            <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
               <div class="p-6 text-white">
                 <h3 class="text-lg font-bold mb-2">{{ item.title || `Galeri ${item.id}` }}</h3>
                 <p v-if="item.description" class="text-sm text-gray-200">{{ item.description }}</p>
@@ -62,6 +76,11 @@ interface Props {
 }
 
 defineProps<Props>()
+
+function isVideo(path: string): boolean {
+  const lower = (path || '').toLowerCase()
+  return ['.mp4', '.webm', '.ogg', '.mov', '.mkv'].some(ext => lower.endsWith(ext))
+}
 </script>
 
 

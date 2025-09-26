@@ -15,6 +15,8 @@ export async function GET(req: NextRequest) {
         slug: true,
         content: true,
         imagePath: true,
+        videoPath: true,
+        youtubeUrl: true,
         sourceName: true,
         sourceLink: true,
         publishedAt: true,
