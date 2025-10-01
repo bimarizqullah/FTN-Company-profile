@@ -108,7 +108,7 @@
         </div>
 
         <!-- Contact Info (from API) -->
-        <div class="lg:col-span-2">
+        <div class="lg:col-span-8">
           <ContactInfo />
         </div>
       </div>

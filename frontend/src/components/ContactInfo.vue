@@ -34,7 +34,7 @@ const hasData = computed(() => offices.value.length > 0 || contacts.value.length
     <div v-if="loading" class="text-gray-600 dark:text-gray-300">Memuat...</div>
     <div v-else>
       <div v-if="!hasData" class="text-sm text-gray-500 dark:text-gray-400">Data kontak belum tersedia.</div>
-      <div v-else class="space-y-6">
+      <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div v-for="(o, idx) in offices" :key="o.id" class="space-y-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 md:p-6 shadow-sm">
           <p class="text-sm font-semibold text-gray-900 dark:text-white px-1 flex items-center gap-3">
             <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-blue-600 text-white text-xs">{{ idx + 1 }}</span>
