@@ -18,6 +18,10 @@ onMounted(async () => {
 function goDetail(slug: string) {
   router.push({ name: 'news-detail', params: { slug } })
 }
+
+function fixImageUrl(url: string): string {
+  return url.replace('//uploads', '/api/uploads')
+}
 </script>
 
 <template>
@@ -34,7 +38,7 @@ function goDetail(slug: string) {
       >
         <img
           v-if="n.imagePath"
-          :src="`${NEWS_IMAGE_BASE}${n.imagePath}`"
+          :src="fixImageUrl(`${NEWS_IMAGE_BASE}${n.imagePath}`)"
           class="w-full h-44 object-cover"
         />
         <div class="p-4">

@@ -10,14 +10,14 @@
             <img 
               src="/src/assets/logo.svg" 
               alt="Fiber Teknologi Nusantara" 
-              class="h-8 w-auto mr-3 block dark:hidden"
+              class="h-[120px] w-auto mr-3 block dark:hidden"
               @error="handleImageError"
             />
             <!-- Dark Mode Logo -->
             <img 
               src="/src/assets/logo-light.svg" 
               alt="Fiber Teknologi Nusantara" 
-              class="h-8 w-auto mr-3 hidden dark:block"
+              class="h-[120px] w-auto mr-3 hidden dark:block"
               @error="handleImageError"
             />
           </div>
@@ -97,7 +97,7 @@
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Berita Terbaru</h3>
           <ul class="space-y-3 text-sm">
             <li v-for="n in items.slice(0,3)" :key="n.id" class="flex gap-3 items-start">
-              <img v-if="n.imagePath" :src="`${NEWS_IMAGE_BASE}${n.imagePath}`" class="w-12 h-12 object-cover rounded" />
+              <img v-if="n.imagePath" :src="fixImageUrl(`${NEWS_IMAGE_BASE}${n.imagePath}`)" class="w-12 h-12 object-cover rounded" />
               <div>
                 <router-link :to="`/news/${n.slug}`" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 line-clamp-2">{{ n.title }}</router-link>
                 <div class="text-xs text-gray-500">{{ n.publishedAt ? new Date(n.publishedAt).toLocaleDateString() : '-' }}</div>
@@ -141,6 +141,10 @@ import ContactInfo from '@/components/ContactInfo.vue'
 const handleImageError = (event: Event) => {
   const target = event.target as HTMLImageElement
   target.style.display = 'none'
+}
+
+function fixImageUrl(url: string): string {
+  return url.replace('//uploads', '/api/uploads')
 }
 
 const newsStore = useNewsStore()

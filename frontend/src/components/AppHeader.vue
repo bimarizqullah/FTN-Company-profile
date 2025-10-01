@@ -7,16 +7,16 @@
           <router-link to="/" class="flex items-center">
             <!-- Light Mode Logo -->
             <img 
-              src="/src/assets/logo.svg" 
+              src="/src/assets/logo-header.svg" 
               alt="Fiber Teknologi Nusantara" 
-              class="h-7 w-auto block dark:hidden transition-all duration-300"
+              class="h-10 w-auto block dark:hidden transition-all duration-300"
               @error="handleImageError"
             />
             <!-- Dark Mode Logo -->
             <img 
-              src="/src/assets/logo-light.svg" 
+              src="/src/assets/logo-header.svg" 
               alt="Fiber Teknologi Nusantara" 
-              class="h-7 w-auto hidden dark:block transition-all duration-300"
+              class="h-10 w-auto hidden dark:block transition-all duration-300"
               @error="handleImageError"
             />
           </router-link>

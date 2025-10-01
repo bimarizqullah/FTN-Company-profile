@@ -34,6 +34,10 @@ function embedUrl(url: string): string {
   const id = extractYoutubeId(url)
   return id ? `https://www.youtube.com/embed/${id}` : ''
 }
+
+function fixImageUrl(url: string): string {
+  return url.replace('//uploads', '/api/uploads')
+}
 </script>
 
 <template>
@@ -72,9 +76,9 @@ function embedUrl(url: string): string {
         ></iframe>
       </div>
       <!-- Jika tidak ada YouTube, tampilkan video upload jika ada -->
-      <video v-else-if="item.videoPath" :src="`${NEWS_IMAGE_BASE}${item.videoPath}`" class="w-full max-h-[460px] object-cover rounded-xl shadow mb-8" controls />
+      <video v-else-if="item.videoPath" :src="fixImageUrl(`${NEWS_IMAGE_BASE}${item.videoPath}`)" class="w-full max-h-[460px] object-cover rounded-xl shadow mb-8" controls />
       <!-- Jika tidak ada video, fallback ke gambar -->
-      <img v-else-if="item.imagePath" :src="`${NEWS_IMAGE_BASE}${item.imagePath}`" class="w-full max-h-[460px] object-cover rounded-xl shadow mb-8" />
+      <img v-else-if="item.imagePath" :src="fixImageUrl(`${NEWS_IMAGE_BASE}${item.imagePath}`)" class="w-full max-h-[460px] object-cover rounded-xl shadow mb-8" />
       <div class="article-content text-gray-800 dark:text-gray-200 text-justify space-y-5 leading-8 tracking-normal">
         <p v-for="(p, idx) in (item.content || '').split(/\n+/)" :key="idx">{{ p }}</p>
       </div>

@@ -17,7 +17,7 @@ export default defineConfig({
   },
   define: {
     // Set default API base URL untuk development
-    'import.meta.env.VITE_API_BASE_URL': JSON.stringify('http://localhost:3000/api')
+    'import.meta.env.VITE_API_BASE_URL': JSON.stringify('https://wp.fiberteknologinusantara.com/api')
   },
   server: {
     port: 5173,
