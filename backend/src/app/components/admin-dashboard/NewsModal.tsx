@@ -52,8 +52,8 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
       setPublishedAt(news.publishedAt ? news.publishedAt.slice(0, 16) : '')
       setSourceName(news.sourceName || '')
       setSourceLink(news.sourceLink || '')
-      setPreviewUrl(news.imagePath || '')
-      setVideoPreviewUrl(news.videoPath || '')
+      setPreviewUrl(news.imagePath ? news.imagePath.replace('/uploads/', '/api/uploads/') : '')
+      setVideoPreviewUrl(news.videoPath ? news.videoPath.replace('/uploads/', '/api/uploads/') : '')
       setYoutubeUrl(news.youtubeUrl || '')
       setSelectedFile(null)
       setSelectedVideo(null)
@@ -250,12 +250,18 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Tulis konten berita di sini"
+                placeholder="Tulis konten berita di sini. Gunakan HTML untuk format: <strong>bold</strong>, <em>italic</em>, <br> untuk baris baru"
                 className="w-full min-h-40 border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
-                maxLength={1500}
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">{content.length}/1500 karakter</p>
+              <p className="text-xs text-gray-500 mt-1">{content.length} karakter</p>
+              <div className="text-xs text-gray-400 mt-1">
+                <p><strong>Format HTML yang bisa digunakan:</strong></p>
+                <p>• <code>&lt;strong&gt;teks&lt;/strong&gt;</code> atau <code>&lt;b&gt;teks&lt;/b&gt;</code> untuk <strong>bold</strong></p>
+                <p>• <code>&lt;em&gt;teks&lt;/em&gt;</code> atau <code>&lt;i&gt;teks&lt;/i&gt;</code> untuk <em>italic</em></p>
+                <p>• <code>&lt;br&gt;</code> untuk baris baru</p>
+                <p>• <code>&lt;p&gt;paragraf&lt;/p&gt;</code> untuk paragraf</p>
+              </div>
             </div>
 
             <div>
