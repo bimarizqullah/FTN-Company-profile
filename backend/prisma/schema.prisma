@@ -45,6 +45,7 @@ model User {
   cacheLogs  CacheLog[] @relation("CacheLogClearedBy")
   restoreLogs RestoreLog[] @relation("RestoreLogRestoredBy")
   news       News[]     @relation("NewsCreatedBy")
+  articles   Article[]  @relation("ArticleCreatedBy")
 }
 
 model Slider {
@@ -125,6 +126,25 @@ model News {
   updatedAt   DateTime    @updatedAt
   createdBy   Int
   user        User        @relation("NewsCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+  @@index([status, publishedAt])
+}
+
+model Article {
+  id          Int         @id @default(autoincrement())
+  title       String
+  slug        String      @unique
+  content     String      @db.LongText
+  imagePath   String?
+  videoPath   String?
+  sourceName  String?
+  sourceLink  String?
+  youtubeUrl  String?     @db.VarChar(255)
+  status      status_enum @default(active)
+  publishedAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  createdBy   Int
+  user        User        @relation("ArticleCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
   @@index([status, publishedAt])
 }
 

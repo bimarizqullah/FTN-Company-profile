@@ -210,6 +210,13 @@ export default function Sidebar() {
       group: 'Content Management',
     },
     {
+      id: 'article',
+      label: 'Article',
+      icon: <DocumentTextIcon className="w-5 h-5" />,
+      href: '/dashboard/article',
+      group: 'Content Management',
+    },
+    {
       id: 'projects',
       label: 'Project',
       icon: <DocumentTextIcon className="w-5 h-5" />,
