@@ -78,8 +78,8 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
       SweetAlerts.error.simple('File Tidak Valid', 'File harus berupa gambar')
       return
     }
-    if (file.size > 5 * 1024 * 1024) {
-      SweetAlerts.error.simple('File Terlalu Besar', 'Ukuran file maksimal 5MB')
+    if (file.size > 20 * 1024 * 1024) {
+      SweetAlerts.error.simple('File Terlalu Besar', 'Ukuran file maksimal 20MB')
       return
     }
     setSelectedFile(file)
@@ -224,7 +224,7 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
                 <div className="h-56 flex flex-col items-center justify-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                   <CloudArrowUpIcon className="w-12 h-12 text-gray-400 mb-3" />
                   <p className="text-gray-600 font-medium mb-1">Klik untuk upload atau drag & drop</p>
-                  <p className="text-sm text-gray-500">PNG, JPG, WEBP (Maks. 5MB)</p>
+                  <p className="text-sm text-gray-500">PNG, JPG, WEBP (Maks. 20MB)</p>
                 </div>
               )}
             </div>

@@ -81,8 +81,8 @@ export default function ManagementModal({
       SweetAlerts.warning.validation('File harus berupa gambar (PNG, JPG, WEBP)')
       return
     }
-    if (file.size > 5 * 1024 * 1024) {
-      SweetAlerts.warning.validation('Ukuran file maksimal 5MB')
+    if (file.size > 20 * 1024 * 1024) {
+      SweetAlerts.warning.validation('Ukuran file maksimal 20MB')
       return
     }
     setSelectedFile(file)
@@ -285,7 +285,7 @@ export default function ManagementModal({
                     Klik untuk upload atau drag & drop
                   </p>
                   <p className="text-sm text-gray-500">
-                    PNG, JPG, WEBP (Maks. 5MB)
+                    PNG, JPG, WEBP (Maks. 20MB)
                   </p>
                   <p className="text-xs text-gray-400 mt-2">
                     Rekomendasi: 1080x1080px (1:1)

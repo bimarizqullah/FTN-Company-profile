@@ -132,8 +132,8 @@ export default function ProfilePage() {
     const file = event.target.files?.[0]
     if (!file) return
 
-    if (file.size > 2 * 1024 * 1024) { // 2MB limit
-      toast.error('Ukuran file maksimal 2MB')
+    if (file.size > 20 * 1024 * 1024) { // 20MB limit
+      toast.error('Ukuran file maksimal 20MB')
       return
     }
 

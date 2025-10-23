@@ -85,8 +85,8 @@ export default function SlidersModal({
       SweetAlerts.error.simple('File Tidak Valid', 'File harus berupa gambar')
       return
     }
-    if (file.size > 5 * 1024 * 1024) {
-      SweetAlerts.error.simple('File Terlalu Besar', 'Ukuran file maksimal 5MB')
+    if (file.size > 20 * 1024 * 1024) {
+      SweetAlerts.error.simple('File Terlalu Besar', 'Ukuran file maksimal 20MB')
       return
     }
     setSelectedFile(file)
@@ -239,7 +239,7 @@ export default function SlidersModal({
                     Klik untuk upload atau drag & drop
                   </p>
                   <p className="text-sm text-gray-500">
-                    PNG, JPG, WEBP (Maks. 5MB)
+                    PNG, JPG, WEBP (Maks. 20MB)
                   </p>
                   <p className="text-xs text-gray-400 mt-2">
                     Rekomendasi: 1920x1080px (16:9)
