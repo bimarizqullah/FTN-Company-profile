@@ -9,6 +9,7 @@ import App from './App.vue'
 import router from './router'
 import { useThemeStore } from './stores/theme'
 import { useNewsStore } from './stores/news'
+import { useArticlesStore } from './stores/articles'
 
 // Initialize AOS
 AOS.init({
@@ -33,5 +34,8 @@ themeStore.initializeTheme()
 // Prefetch news globally, so available on all pages
 const newsStore = useNewsStore()
 newsStore.fetchNews().catch(() => {})
+
+const articlesStore = useArticlesStore()
+articlesStore.fetchArticles().catch(() => {})
 
 app.mount('#app')

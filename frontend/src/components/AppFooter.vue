@@ -55,6 +55,16 @@
               </router-link>
             </li>
             <li>
+              <router-link to="/news" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors">
+                Berita
+              </router-link>
+            </li>
+            <li>
+              <router-link to="/article" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors">
+                Artikel
+              </router-link>
+            </li>
+            <li>
               <router-link to="/about" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors">
                 Tentang Kami
               </router-link>

@@ -50,6 +50,16 @@ const router = createRouter({
       path: '/news/:slug',
       name: 'news-detail',
       component: () => import('../views/NewsDetail.vue')
+    },
+        {
+      path: '/article',
+      name: 'article',
+      component: () => import('../views/ArticleList.vue')
+    },
+    {
+      path: '/article/:slug',
+      name: 'article-detail',
+      component: () => import('../views/ArticleDetail.vue')
     }
   ]
 })
