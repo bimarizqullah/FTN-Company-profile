@@ -63,13 +63,24 @@ model Slider {
 
 model Gallery {
   id          Int                  @id @default(autoincrement())
-  imagePath   String
   description String?
+  images      GalleryImage[]       // One-to-many relation with GalleryImage
   status      gallery_status_enum  @default(active)
   createdAt   DateTime             @default(now())
   updatedAt   DateTime             @updatedAt
   createdBy   Int
-  user        User @relation("GalleryCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+  user        User                 @relation("GalleryCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+}
+
+model GalleryImage {
+  id          Int      @id @default(autoincrement())
+  imagePath   String
+  galleryId   Int
+  sortOrder   Int      @default(0)  // For controlling image order
+  gallery     Gallery  @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  
+  @@index([galleryId])
 }
 
 model Service {

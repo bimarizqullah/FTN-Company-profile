@@ -163,6 +163,12 @@ export default function QuickActions() {
       onClick: () => router.push('/dashboard/projects'),
     },
     {
+      title: 'Article',
+      description: 'Manage articles',
+      icon: <DocumentTextIcon className="w-5 h-5" />,
+      onClick: () => router.push('/dashboard/article'),
+    },
+    {
       title: 'Settings',
       description: 'Manage application settings',
       icon: <Cog6ToothIcon className="w-5 h-5" />,

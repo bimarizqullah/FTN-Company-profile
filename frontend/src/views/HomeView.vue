@@ -4,6 +4,7 @@ import companyService, { type Slider, type Service, type Project, type Managemen
 import { UPLOAD_BASE_URL } from '@/services/api'
 import TechAnimations from '@/components/TechAnimations.vue'
 import ScrollToTop from '@/components/ScrollToTop.vue'
+import GalleryModal from '@/components/GalleryModal.vue'
 
 // Data refs
 const sliders = ref<Slider[]>([])
@@ -14,6 +15,7 @@ const gallery = ref<Gallery[]>([])
 const selectedService = ref<Service | null>(null)
 const selectedGallery = ref<Gallery | null>(null)
 const selectedProject = ref<Project | null>(null)
+const currentImageIndex = ref(0) // For gallery image navigation
 
 // Loading states
 const loading = ref(true)
@@ -151,6 +153,7 @@ const showServiceDetail = (service: Service) => {
 
 const showGalleryDetail = (item: Gallery) => {
   selectedGallery.value = item
+  currentImageIndex.value = 0 // Reset to first image when opening modal
 }
 
 const showProjectDetail = (project: Project) => {
@@ -190,6 +193,19 @@ const getProjectStatusAccentClass = (status: string) => {
   return accentClasses[status as keyof typeof accentClasses] || 'bg-gradient-to-r from-gray-500 to-gray-600'
 }
 
+// Handle keyboard navigation in gallery modal
+const handleKeyboardNav = (e: KeyboardEvent) => {
+  if (!selectedGallery.value?.images) return
+  
+  if (e.key === 'ArrowRight' && currentImageIndex.value < selectedGallery.value.images.length - 1) {
+    currentImageIndex.value++
+  } else if (e.key === 'ArrowLeft' && currentImageIndex.value > 0) {
+    currentImageIndex.value--
+  } else if (e.key === 'Escape') {
+    selectedGallery.value = null
+  }
+}
+
 // Initialize data on mount
 onMounted(() => {
   fetchSliders()
@@ -197,11 +213,13 @@ onMounted(() => {
   fetchProjects()
   fetchManagement()
   fetchGallery()
+  window.addEventListener('keydown', handleKeyboardNav)
 })
 
 // Cleanup on unmount
 onUnmounted(() => {
   stopAutoSlide()
+  window.removeEventListener('keydown', handleKeyboardNav)
 })
 </script>
 
@@ -598,24 +616,29 @@ onUnmounted(() => {
             :data-aos-delay="(index + 1) * 50"
             @click="showGalleryDetail(item)"
           >
-            <!-- Artistic Gallery Card -->
-            <div class="relative aspect-square overflow-hidden rounded-3xl bg-gradient-to-br from-gray-100 to-gray-200 hover:shadow-2xl transition-all duration-700 transform hover:-translate-y-2 group-hover:rotate-1">
+            <!-- Fixed Size Artistic Gallery Card -->
+            <div class="relative overflow-hidden rounded-3xl bg-white dark:bg-gray-800 shadow-sm hover:shadow-2xl transition-all duration-700 transform hover:-translate-y-3 group-hover:rotate-1">
               
-              <!-- Image Container -->
-              <div class="relative w-full h-full overflow-hidden">
+              <!-- Fixed Image Container -->
+              <div class="relative overflow-hidden aspect-square">
                 <img 
-                  v-if="item.imagePath"
-                  :src="`${UPLOAD_BASE_URL}${item.imagePath}`" 
+                  v-if="item.images && item.images.length > 0"
+                  :src="`${UPLOAD_BASE_URL}${item.images[0].imagePath}`" 
                   :alt="item.description || 'Gallery Image'"
-                  class="w-full h-full object-cover group-hover:scale-125 transition-transform duration-1000 ease-out"
+                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
                 />
                 <div v-else class="w-full h-full bg-gradient-to-br from-gray-100 via-gray-50 to-blue-100 flex items-center justify-center">
                   <div class="text-center">
-                    <svg class="w-12 h-12 text-gray-400 group-hover:text-blue-600 transition-colors duration-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-16 h-16 text-gray-400 group-hover:text-blue-600 transition-colors duration-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span class="text-gray-500 dark:text-gray-400 text-xs font-medium">Gambar</span>
+                    <span class="text-gray-500 dark:text-gray-400 text-sm font-medium">Gambar</span>
                   </div>
+                </div>
+                
+                <!-- Badge for multiple images -->
+                <div v-if="item.images && item.images.length > 1" class="absolute top-4 right-4 bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                  <span class="text-white text-sm font-medium">+{{ item.images.length - 1 }}</span>
                 </div>
                 
                 <!-- Artistic Overlay -->
@@ -650,6 +673,57 @@ onUnmounted(() => {
         
         <div v-else class="text-center py-12">
           <div class="text-gray-600 dark:text-gray-300">Tidak ada galeri yang tersedia saat ini.</div>
+        </div>
+      </div>
+
+      <!-- Gallery Modal -->
+      <div v-if="selectedGallery" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-50">
+        <div class="relative w-full h-full flex flex-col justify-center">
+          <!-- Close Button -->
+          <button 
+            @click="selectedGallery = null"
+            class="absolute top-6 right-6 z-20 bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 p-3 rounded-full transition-all duration-300 hover:scale-110"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          
+          <!-- Main Image Container -->
+          <div class="relative max-w-6xl mx-auto w-full flex-grow flex items-center justify-center px-16">
+            <img 
+              v-if="selectedGallery.images && selectedGallery.images[0]"
+              :src="`${UPLOAD_BASE_URL}${selectedGallery.images[0].imagePath}`" 
+              :alt="selectedGallery.description || 'Gallery Image'"
+              class="w-full h-auto max-h-[75vh] object-contain rounded-2xl shadow-2xl"
+            />
+            
+            <!-- Description Overlay with Bottom Gradient -->
+            <div v-if="selectedGallery.description" class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent rounded-b-2xl p-6">
+              <div class="text-white">
+                <p class="text-lg leading-relaxed font-medium drop-shadow-lg">
+                  {{ selectedGallery.description }}
+                </p>
+                
+                <!-- Image metadata -->
+                <div class="flex items-center justify-between mt-4 text-sm text-white/80">
+                  <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span>Galeri</span>
+                    </div>
+                  </div>
+                  <span>{{ new Date(selectedGallery.createdAt).toLocaleDateString('id-ID', { 
+                    day: 'numeric', 
+                    month: 'short', 
+                    year: 'numeric' 
+                  }) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -790,8 +864,8 @@ onUnmounted(() => {
               <!-- Image Section -->
               <div class="relative overflow-hidden">
                 <img 
-                  v-if="project.imagePath"
-                  :src="`${UPLOAD_BASE_URL}${project.imagePath}`" 
+                  v-if="project.images && project.images.length > 0"
+                  :src="`${UPLOAD_BASE_URL}${project.images[0].imagePath}`" 
                   :alt="project.name"
                   class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
                 />
@@ -1016,9 +1090,9 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- Simple Gallery Modal with Overlay Description -->
+    <!-- Gallery Modal with Image Carousel -->
     <div v-if="selectedGallery" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-50" data-aos="fade-in">
-      <div class="relative max-w-6xl w-full h-full flex items-center justify-center">
+      <div class="relative w-full h-full flex flex-col justify-center">
         <!-- Close Button -->
         <button 
           @click="selectedGallery = null"
@@ -1029,12 +1103,33 @@ onUnmounted(() => {
           </svg>
         </button>
         
-        <!-- Image Container with Overlay Description -->
-        <div class="relative max-w-5xl w-full">
+        <!-- Navigation Buttons -->
+        <button 
+          v-if="currentImageIndex > 0"
+          @click="currentImageIndex--"
+          class="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 p-3 rounded-full transition-all duration-300 hover:scale-110"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button 
+          v-if="selectedGallery.images && currentImageIndex < selectedGallery.images.length - 1"
+          @click="currentImageIndex++"
+          class="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 p-3 rounded-full transition-all duration-300 hover:scale-110"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+        
+        <!-- Main Image Container -->
+        <div class="relative max-w-6xl mx-auto w-full flex-grow flex items-center justify-center px-16">
           <img 
-            :src="`${UPLOAD_BASE_URL}${selectedGallery.imagePath}`" 
+            v-if="selectedGallery.images && selectedGallery.images[currentImageIndex]"
+            :src="`${UPLOAD_BASE_URL}${selectedGallery.images[currentImageIndex].imagePath}`" 
             :alt="selectedGallery.description || 'Gallery Image'"
-            class="w-full h-auto max-h-[85vh] object-contain rounded-2xl shadow-2xl"
+            class="w-full h-auto max-h-[75vh] object-contain rounded-2xl shadow-2xl"
           />
           
           <!-- Description Overlay with Bottom Gradient -->
@@ -1044,13 +1139,18 @@ onUnmounted(() => {
                 {{ selectedGallery.description }}
               </p>
               
-              <!-- Optional: Small meta info -->
+              <!-- Image counter and metadata -->
               <div class="flex items-center justify-between mt-4 text-sm text-white/80">
-                <div class="flex items-center space-x-2">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span>Galeri</span>
+                <div class="flex items-center space-x-4">
+                  <div class="flex items-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>Galeri</span>
+                  </div>
+                  <div v-if="selectedGallery.images" class="text-white/60">
+                    {{ currentImageIndex + 1 }} / {{ selectedGallery.images.length }}
+                  </div>
                 </div>
                 <span>{{ new Date(selectedGallery.createdAt).toLocaleDateString('id-ID', { 
                   day: 'numeric', 
@@ -1059,6 +1159,25 @@ onUnmounted(() => {
                 }) }}</span>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Thumbnail Navigation -->
+        <div v-if="selectedGallery.images && selectedGallery.images.length > 1" class="relative z-20 max-w-6xl mx-auto w-full mt-4 px-4">
+          <div class="flex space-x-2 overflow-x-auto pb-2 px-2">
+            <button
+              v-for="(image, index) in selectedGallery.images"
+              :key="index"
+              @click="currentImageIndex = index"
+              class="flex-shrink-0 relative rounded-lg overflow-hidden transition-all duration-300 hover:ring-2 hover:ring-offset-2 hover:ring-blue-500 hover:ring-offset-black"
+              :class="{ 'ring-2 ring-blue-500 ring-offset-2 ring-offset-black': currentImageIndex === index }"
+            >
+              <img 
+                :src="`${UPLOAD_BASE_URL}${image.imagePath}`"
+                :alt="`Thumbnail ${index + 1}`"
+                class="w-20 h-20 object-cover"
+              />
+            </button>
           </div>
         </div>
       </div>
@@ -1082,8 +1201,8 @@ onUnmounted(() => {
           <!-- Image Header -->
           <div class="relative">
             <img 
-              v-if="selectedProject.imagePath"
-              :src="`${UPLOAD_BASE_URL}${selectedProject.imagePath}`" 
+              v-if="selectedProject.images && selectedProject.images.length > 0"
+              :src="`${UPLOAD_BASE_URL}${selectedProject.images[0].imagePath}`" 
               :alt="selectedProject.name"
               class="w-full h-64 object-cover"
             />
@@ -1173,6 +1292,7 @@ onUnmounted(() => {
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -1180,6 +1300,7 @@ onUnmounted(() => {
 .line-clamp-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

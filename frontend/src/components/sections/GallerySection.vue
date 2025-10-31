@@ -25,10 +25,11 @@
           @click="$router.push('/gallery')"
         >
           <div class="relative overflow-hidden rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 gsap-card">
-            <template v-if="item.imagePath">
+            <template v-if="item.images && item.images.length > 0">
+              <!-- Always show the first image in the gallery -->
               <video
-                v-if="isVideo(item.imagePath)"
-                :src="`${UPLOAD_BASE_URL}${item.imagePath}`"
+                v-if="isVideo(item.images[0].imagePath)"
+                :src="`${UPLOAD_BASE_URL}${item.images[0].imagePath}`"
                 class="w-full h-64 object-cover"
                 muted
                 loop
@@ -39,10 +40,14 @@
               />
               <img
                 v-else
-                :src="`${UPLOAD_BASE_URL}${item.imagePath}`" 
+                :src="`${UPLOAD_BASE_URL}${item.images[0].imagePath}`" 
                 :alt="item.title || `Galeri ${item.id}`"
                 class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
               />
+              <!-- Badge for multiple images -->
+              <div v-if="item.images.length > 1" class="absolute top-4 right-4 bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                <span class="text-white text-sm font-medium">+{{ item.images.length - 1 }}</span>
+              </div>
             </template>
             <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
               <div class="p-6 text-white">

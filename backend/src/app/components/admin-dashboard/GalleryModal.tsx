@@ -10,8 +10,16 @@ import {
   PhotoIcon, 
   CloudArrowUpIcon,
   CheckCircleIcon,
-  ExclamationCircleIcon
+  ExclamationCircleIcon,
+  PlusIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon
 } from '@heroicons/react/24/outline'
+
+interface GalleryImage {
+  id: number
+  imagePath: string
+}
 
 interface GalleryModalProps {
   isOpen: boolean
@@ -21,6 +29,7 @@ interface GalleryModalProps {
     imagePath: string
     description: string
     status: 'active' | 'inactive'
+    images?: GalleryImage[]
   } | null
   onSuccess: () => void
 }
@@ -34,22 +43,31 @@ export default function GalleryModal({
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<'active' | 'inactive'>('active')
   const [description, setDescription] = useState('')
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [previewUrl, setPreviewUrl] = useState<string>('')
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [previewUrls, setPreviewUrls] = useState<string[]>([])
+  const [currentPreviewIndex, setCurrentPreviewIndex] = useState(0)
   const [dragActive, setDragActive] = useState(false)
+  const [showNavigation, setShowNavigation] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (gallery) {
       setStatus(gallery.status)
       setDescription(gallery.description || '')
-      setPreviewUrl(gallery.imagePath)
+      // Handle both single image and multiple images
+      const images = gallery.images || []
+      const urls = images.length > 0 
+        ? images.map((img: any) => img.imagePath)
+        : [gallery.imagePath]
+      setPreviewUrls(urls.filter(Boolean))
     } else {
       setStatus('active')
       setDescription('')
-      setPreviewUrl('')
-      setSelectedFile(null)
+      setPreviewUrls([])
+      setSelectedFiles([])
     }
+    setCurrentPreviewIndex(0)
+    setShowNavigation(false)
   }, [gallery])
 
   const handleDrag = (e: React.DragEvent) => {
@@ -67,36 +85,57 @@ export default function GalleryModal({
     e.stopPropagation()
     setDragActive(false)
     
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFile(e.dataTransfer.files[0])
-    }
+    const droppedFiles = Array.from(e.dataTransfer.files)
+    handleFiles(droppedFiles)
   }
 
-  const handleFile = (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      toast.error('File harus berupa gambar')
+  const handleFiles = async (files: File[]) => {
+    if (files.length + selectedFiles.length > 20) {
+      toast.error('Maksimal 20 foto dapat diunggah sekaligus')
       return
     }
-    if (file.size > 20 * 1024 * 1024) {
-      toast.error('Ukuran file maksimal 20MB')
-      return
+
+    const validFiles: File[] = []
+    const newPreviewUrls: string[] = []
+
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) {
+        toast.error(`File ${file.name} harus berupa gambar`)
+        continue
+      }
+      if (file.size > 20 * 1024 * 1024) {
+        toast.error(`File ${file.name} melebihi batas ukuran 20MB`)
+        continue
+      }
+
+      validFiles.push(file)
+      const url = await readFileAsDataURL(file)
+      newPreviewUrls.push(url)
     }
-    setSelectedFile(file)
-    const reader = new FileReader()
-    reader.onload = e => setPreviewUrl(e.target?.result as string)
-    reader.readAsDataURL(file)
+
+    setSelectedFiles(prev => [...prev, ...validFiles])
+    setPreviewUrls(prev => [...prev, ...newPreviewUrls])
+  }
+
+  const readFileAsDataURL = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = e => resolve(e.target?.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
   }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) handleFile(file)
+    const files = Array.from(e.target.files || [])
+    if (files.length) handleFiles(files)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!gallery && !selectedFile) {
-      toast.error('Silakan pilih gambar untuk gallery')
+    if (!gallery && selectedFiles.length === 0) {
+      toast.error('Silakan pilih minimal satu gambar untuk gallery')
       return
     }
 
@@ -104,12 +143,17 @@ export default function GalleryModal({
     try {
       const formData = new FormData()
       formData.append('description', description)
-      if (selectedFile) formData.append('file', selectedFile)
-
-      // Log formData for debugging
-      console.log('FormData contents:');
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
+      
+      // Only append files if there are new files selected
+      if (selectedFiles.length > 0) {
+        selectedFiles.forEach(file => {
+          formData.append('files', file)
+        })
+      }
+      
+      // For PUT requests, we need to send the current status
+      if (gallery) {
+        formData.append('status', status)
       }
 
       const url = gallery ? `/api/gallery/${gallery.id}` : `/api/gallery`
@@ -186,23 +230,39 @@ export default function GalleryModal({
               onDragOver={handleDrag}
               onDrop={handleDrop}
             >
-              {previewUrl ? (
-                <div className="relative h-64 rounded-xl overflow-hidden">
-                  <Image 
-                    src={previewUrl} 
-                    alt="Preview" 
-                    fill 
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <button
-                      type="button"
+              {previewUrls.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
+                  {previewUrls.map((url, index) => (
+                    <div key={index} className="relative aspect-video rounded-xl overflow-hidden group">
+                      <Image 
+                        src={url} 
+                        alt={`Preview ${index + 1}`}
+                        fill 
+                        className="object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPreviewUrls(prev => prev.filter((_, i) => i !== index))
+                            setSelectedFiles(prev => prev.filter((_, i) => i !== index))
+                          }}
+                          className="px-4 py-2 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors"
+                        >
+                          Hapus
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  {selectedFiles.length < 20 && (
+                    <div 
+                      className="aspect-video flex flex-col items-center justify-center cursor-pointer border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all"
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-4 py-2 bg-white rounded-xl text-gray-800 font-medium hover:bg-gray-100 transition-colors"
                     >
-                      Ganti Gambar
-                    </button>
-                  </div>
+                      <PlusIcon className="w-8 h-8 text-gray-400" />
+                      <p className="text-sm text-gray-600 mt-2">Tambah Foto</p>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div 
@@ -214,9 +274,12 @@ export default function GalleryModal({
                     Klik untuk upload atau drag & drop
                   </p>
                   <p className="text-sm text-gray-500">
-                    PNG, JPG, WEBP (Maks. 20MB)
+                    PNG, JPG, WEBP (Maks. 20MB per file)
                   </p>
                   <p className="text-xs text-gray-400 mt-2">
+                    Maksimal 20 foto sekaligus
+                  </p>
+                  <p className="text-xs text-gray-400">
                     Rekomendasi: 1920x1080px (16:9)
                   </p>
                 </div>
@@ -227,6 +290,7 @@ export default function GalleryModal({
               ref={fileInputRef}
               type="file"
               accept="image/*"
+              multiple
               className="hidden"
               onChange={handleFileSelect}
             />
@@ -252,15 +316,90 @@ export default function GalleryModal({
           </div>
 
           {/* Preview Section */}
-          {description && previewUrl && (
+          {description && previewUrls.length > 0 && (
             <div className="bg-gray-50 rounded-2xl p-4">
-              <p className="text-sm font-semibold text-gray-700 mb-3">Preview Gallery:</p>
-              <div className="relative h-40 rounded-xl overflow-hidden">
-                <Image src={previewUrl} alt="Preview" fill className="object-cover" />
+              <p className="text-sm font-semibold text-gray-700 mb-3">
+                Preview Gallery:
+                {previewUrls.length > 1 && (
+                  <span className="text-gray-500 ml-2">
+                    {currentPreviewIndex + 1}/{previewUrls.length}
+                  </span>
+                )}
+              </p>
+              <div 
+                className="relative h-48 rounded-xl overflow-hidden group"
+                onMouseEnter={() => setShowNavigation(true)}
+                onMouseLeave={() => setShowNavigation(false)}
+              >
+                <Image 
+                  src={previewUrls[currentPreviewIndex]} 
+                  alt={`Preview ${currentPreviewIndex + 1}`} 
+                  fill 
+                  className="object-cover transition-transform duration-500"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-4">
                   <p className="text-white/90 text-sm line-clamp-1">{description}</p>
                 </div>
+                
+                {/* Navigation Arrows */}
+                {previewUrls.length > 1 && (
+                  <>
+                    {/* Left Arrow */}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setCurrentPreviewIndex(prev => 
+                          prev === 0 ? previewUrls.length - 1 : prev - 1
+                        )
+                      }}
+                      className={`absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white backdrop-blur-sm transition-all duration-300 ${
+                        showNavigation ? 'opacity-100' : 'opacity-0'
+                      } hover:bg-black/70`}
+                    >
+                      <ChevronLeftIcon className="w-6 h-6" />
+                    </button>
+                    
+                    {/* Right Arrow */}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setCurrentPreviewIndex(prev => 
+                          prev === previewUrls.length - 1 ? 0 : prev + 1
+                        )
+                      }}
+                      className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white backdrop-blur-sm transition-all duration-300 ${
+                        showNavigation ? 'opacity-100' : 'opacity-0'
+                      } hover:bg-black/70`}
+                    >
+                      <ChevronRightIcon className="w-6 h-6" />
+                    </button>
+                  </>
+                )}
               </div>
+              
+              {/* Thumbnail Navigation */}
+              {previewUrls.length > 1 && (
+                <div className="flex gap-2 mt-3 overflow-x-auto pb-2">
+                  {previewUrls.map((url, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentPreviewIndex(index)}
+                      className={`relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all ${
+                        currentPreviewIndex === index
+                          ? 'border-blue-500 scale-105'
+                          : 'border-transparent hover:border-blue-300'
+                      }`}
+                    >
+                      <Image
+                        src={url}
+                        alt={`Thumbnail ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </form>
@@ -277,7 +416,7 @@ export default function GalleryModal({
           </button>
           <button
             onClick={handleSubmit}
-            disabled={loading || !description || (!gallery && !selectedFile)}
+            disabled={loading || !description || (!gallery && selectedFiles.length === 0)}
             className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium hover:from-blue-700 hover:to-blue-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {loading ? (

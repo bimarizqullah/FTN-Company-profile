@@ -8,8 +8,15 @@ import * as uuid from "uuid";
 // GET semua gallery
 export async function GET() {
   try {
-    const galleries = await prisma.gallery.findMany({
-      orderBy: { id: "asc" },
+    const galleries = await (prisma as any).gallery.findMany({
+      orderBy: { id: "desc" },
+      include: {
+        images: {
+          orderBy: {
+            sortOrder: 'asc'
+          }
+        }
+      }
     });
     return NextResponse.json(galleries);
   } catch (error) {
@@ -33,32 +40,51 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
-    const file = formData.get("file") as File;
-    const description = formData.get("description")?.toString() || "";
+  const files = formData.getAll("files") as File[];
+  const description = formData.get("description")?.toString() || "";
 
-    if (!file) {
-      return NextResponse.json({ message: "File is required" }, { status: 400 });
+    if (!files.length) {
+      return NextResponse.json({ message: "At least one file is required" }, { status: 400 });
     }
 
-    // Validasi tipe file: izinkan image/* dan video/*
-    const mime = file.type || ''
-    if (!(mime.startsWith('image/') || mime.startsWith('video/'))) {
-      return NextResponse.json({ message: "File harus berupa gambar atau video" }, { status: 400 });
+    if (files.length > 20) {
+      return NextResponse.json({ message: "Maximum 20 files allowed per upload" }, { status: 400 });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const fileName = `${uuid.v4()}-${file.name.replace(/\s+/g, '_')}`;
-    const filePath = path.join(process.cwd(), "public", "uploads", "gallery", fileName);
-    await writeFile(filePath, buffer);
-
-    const gallery = await prisma.gallery.create({
+    // First create the gallery entry
+    // Cast prisma to any here because generated types may still expect the old `imagePath` field.
+    const gallery = await (prisma as any).gallery.create({
       data: {
-        imagePath: `/api/uploads/gallery/${fileName}`,
         description,
         createdBy: Number(decoded.userId),
-      },
+      }
     });
+
+    // Process all files and create GalleryImage entries
+    const imagePromises = files.map(async (file, index) => {
+      // Validasi tipe file: izinkan image/* dan video/*
+      const mime = file.type || '';
+      if (!(mime.startsWith('image/') || mime.startsWith('video/'))) {
+        throw new Error(`File ${file.name} harus berupa gambar atau video`);
+      }
+
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const fileName = `${uuid.v4()}-${file.name.replace(/\s+/g, '_')}`;
+      const filePath = path.join(process.cwd(), "public", "uploads", "gallery", fileName);
+      await writeFile(filePath, buffer);
+
+      return (prisma as any).galleryImage.create({
+        data: {
+          imagePath: `/api/uploads/gallery/${fileName}`,
+          galleryId: gallery.id,
+          sortOrder: index,
+        }
+      });
+    });
+
+    // Create all gallery images
+    const galleryImages = await Promise.all(imagePromises);
 
     return NextResponse.json(gallery, { status: 201 });
   } catch (error) {

@@ -40,8 +40,8 @@
               <!-- Fixed Image Container -->
               <div class="relative overflow-hidden aspect-square">
                 <img 
-                  v-if="item.imagePath"
-                  :src="`${UPLOAD_BASE_URL}${item.imagePath}`" 
+                  v-if="item.images && item.images.length > 0"
+                  :src="`${UPLOAD_BASE_URL}${item.images[0].imagePath}`" 
                   :alt="item.description || 'Gallery Image'"
                   class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
                 />
@@ -52,6 +52,11 @@
                     </svg>
                     <span class="text-gray-500 dark:text-gray-400 text-sm font-medium">Gambar</span>
                   </div>
+                </div>
+                
+                <!-- Badge for multiple images -->
+                <div v-if="item.images && item.images.length > 1" class="absolute top-4 right-4 bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                  <span class="text-white text-sm font-medium">+{{ item.images.length - 1 }}</span>
                 </div>
                 
                 <!-- Gradient Overlay -->
@@ -108,9 +113,9 @@
       </div>
     </section>
 
-    <!-- Simple Image Modal with Overlay Description -->
+    <!-- Gallery Modal with Image Carousel -->
     <div v-if="selectedImage" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-50" data-aos="fade-in">
-      <div class="relative max-w-6xl w-full h-full flex items-center justify-center">
+      <div class="relative w-full h-full flex flex-col justify-center">
         <!-- Close Button -->
         <button 
           @click="selectedImage = null"
@@ -121,12 +126,33 @@
           </svg>
         </button>
         
-        <!-- Image Container with Overlay Description -->
-        <div class="relative max-w-5xl w-full">
+        <!-- Navigation Buttons -->
+        <button 
+          v-if="currentImageIndex > 0"
+          @click="currentImageIndex--"
+          class="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 p-3 rounded-full transition-all duration-300 hover:scale-110"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button 
+          v-if="selectedImage.images && currentImageIndex < selectedImage.images.length - 1"
+          @click="currentImageIndex++"
+          class="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 p-3 rounded-full transition-all duration-300 hover:scale-110"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+        
+        <!-- Main Image Container -->
+        <div class="relative max-w-6xl mx-auto w-full flex-grow flex items-center justify-center px-16">
           <img 
-            :src="`${UPLOAD_BASE_URL}${selectedImage.imagePath}`" 
+            v-if="selectedImage.images && selectedImage.images[currentImageIndex]"
+            :src="`${UPLOAD_BASE_URL}${selectedImage.images[currentImageIndex].imagePath}`" 
             :alt="selectedImage.description || 'Gallery Image'"
-            class="w-full h-auto max-h-[85vh] object-contain rounded-2xl shadow-2xl"
+            class="w-full h-auto max-h-[75vh] object-contain rounded-2xl shadow-2xl"
           />
           
           <!-- Description Overlay with Bottom Gradient -->
@@ -136,13 +162,18 @@
                 {{ selectedImage.description }}
               </p>
               
-              <!-- Optional: Small meta info -->
+              <!-- Image counter and metadata -->
               <div class="flex items-center justify-between mt-4 text-sm text-white/80">
-                <div class="flex items-center space-x-2">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span>Galeri</span>
+                <div class="flex items-center space-x-4">
+                  <div class="flex items-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>Galeri</span>
+                  </div>
+                  <div v-if="selectedImage.images" class="text-white/60">
+                    {{ currentImageIndex + 1 }} / {{ selectedImage.images.length }}
+                  </div>
                 </div>
                 <span>{{ new Date(selectedImage.createdAt).toLocaleDateString('id-ID', { 
                   day: 'numeric', 
@@ -151,6 +182,25 @@
                 }) }}</span>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Thumbnail Navigation -->
+        <div v-if="selectedImage.images && selectedImage.images.length > 1" class="relative z-20 max-w-6xl mx-auto w-full mt-4 px-4">
+          <div class="flex space-x-2 overflow-x-auto pb-2 px-2">
+            <button
+              v-for="(image, index) in selectedImage.images"
+              :key="index"
+              @click="currentImageIndex = index"
+              class="flex-shrink-0 relative rounded-lg overflow-hidden transition-all duration-300 hover:ring-2 hover:ring-offset-2 hover:ring-blue-500 hover:ring-offset-black"
+              :class="{ 'ring-2 ring-blue-500 ring-offset-2 ring-offset-black': currentImageIndex === index }"
+            >
+              <img 
+                :src="`${UPLOAD_BASE_URL}${image.imagePath}`"
+                :alt="`Thumbnail ${index + 1}`"
+                class="w-20 h-20 object-cover"
+              />
+            </button>
           </div>
         </div>
       </div>
@@ -188,7 +238,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import companyService, { type Gallery } from '@/services/companyService'
 import { UPLOAD_BASE_URL } from '@/services/api'
 import TechAnimations from '@/components/TechAnimations.vue'
@@ -196,6 +246,7 @@ import ScrollToTop from '@/components/ScrollToTop.vue'
 
 const gallery = ref<Gallery[]>([])
 const selectedImage = ref<Gallery | null>(null)
+const currentImageIndex = ref(0)
 const loading = ref(true)
 
 const fetchGallery = async () => {
@@ -216,10 +267,29 @@ const activeGallery = computed(() => {
 
 const showImageDetail = (item: Gallery) => {
   selectedImage.value = item
+  currentImageIndex.value = 0  // Reset to first image when opening modal
+}
+
+// Handle keyboard navigation in gallery modal
+const handleKeyboardNav = (e: KeyboardEvent) => {
+  if (!selectedImage.value?.images) return
+  
+  if (e.key === 'ArrowRight' && currentImageIndex.value < selectedImage.value.images.length - 1) {
+    currentImageIndex.value++
+  } else if (e.key === 'ArrowLeft' && currentImageIndex.value > 0) {
+    currentImageIndex.value--
+  } else if (e.key === 'Escape') {
+    selectedImage.value = null
+  }
 }
 
 onMounted(() => {
   fetchGallery()
+  window.addEventListener('keydown', handleKeyboardNav)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyboardNav)
 })
 </script>
 
@@ -227,6 +297,7 @@ onMounted(() => {
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

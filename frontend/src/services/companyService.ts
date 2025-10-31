@@ -40,11 +40,18 @@ export interface Management {
   }
 }
 
+export interface GalleryImage {
+  id: number
+  imagePath: string
+  sortOrder: number
+  createdAt: string
+}
+
 export interface Gallery {
   id: number
   title?: string
   description?: string
-  imagePath: string
+  images: GalleryImage[]  // Changed from imagePath to images array
   category?: string
   status: string
   createdAt: string
@@ -57,7 +64,7 @@ export interface Project {
   name: string
   location: string
   description: string
-  imagePath: string
+  images: GalleryImage[]  // Updated to use images array like Gallery
   startDate?: string
   endDate?: string
   status: string

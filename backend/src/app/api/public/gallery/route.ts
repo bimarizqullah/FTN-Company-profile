@@ -3,17 +3,14 @@ import prisma from "@/lib/db";
 
 export async function GET(req: NextRequest) {
   try {
-    // Get only active gallery for public frontend
-    const gallery = await prisma.gallery.findMany({
+    // Get only active gallery for public frontend (include images array)
+    const gallery = await (prisma as any).gallery.findMany({
       where: { status: 'active' },
-      orderBy: { id: "asc" },
-      select: {
-        id: true,
-        imagePath: true,
-        description: true,
-        status: true,
-        createdAt: true,
-        updatedAt: true
+      orderBy: { id: "desc" },
+      include: {
+        images: {
+          orderBy: { sortOrder: 'asc' }
+        }
       }
     });
 
