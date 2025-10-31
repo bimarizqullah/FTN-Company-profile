@@ -101,14 +101,28 @@
         <div>
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Berita Terbaru</h3>
           <ul class="space-y-3 text-sm">
-            <li v-for="n in items.slice(0,3)" :key="n.id" class="flex gap-3 items-start">
+            <li v-for="n in newsItems.slice(0,3)" :key="n.id" class="flex gap-3 items-start">
               <img v-if="n.imagePath" :src="fixImageUrl(`${NEWS_IMAGE_BASE}${n.imagePath}`)" class="w-12 h-12 object-cover rounded" />
               <div>
                 <router-link :to="`/news/${n.slug}`" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 line-clamp-2">{{ n.title }}</router-link>
                 <div class="text-xs text-gray-500">{{ n.publishedAt ? new Date(n.publishedAt).toLocaleDateString() : '-' }}</div>
               </div>
             </li>
-            <li v-if="items.length === 0" class="text-gray-500">Belum ada berita.</li>
+            <li v-if="newsItems.length === 0" class="text-gray-500">Belum ada berita.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Artikel Terbaru</h3>
+          <ul class="space-y-3 text-sm">
+            <li v-for="n in articleItems.slice(0,3)" :key="n.id" class="flex gap-3 items-start">
+              <img v-if="n.imagePath" :src="fixImageUrl(`${ARTICLE_IMAGE_BASE}${n.imagePath}`)" class="w-12 h-12 object-cover rounded" />
+              <div>
+                <router-link :to="`/article/${n.slug}`" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 line-clamp-2">{{ n.title }}</router-link>
+                <div class="text-xs text-gray-500">{{ n.publishedAt ? new Date(n.publishedAt).toLocaleDateString() : '-' }}</div>
+              </div>
+            </li>
+            <li v-if="articleItems.length === 0" class="text-gray-500">Belum ada artikel.</li>
           </ul>
         </div>
 
@@ -140,7 +154,9 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useNewsStore } from '@/stores/news'
+import { useArticleStore } from '@/stores/article'
 import { NEWS_IMAGE_BASE } from '@/services/newsService'
+import { ARTICLE_IMAGE_BASE } from '@/services/articleService'
 import ContactInfo from '@/components/ContactInfo.vue'
 
 const handleImageError = (event: Event) => {
@@ -153,5 +169,8 @@ function fixImageUrl(url: string): string {
 }
 
 const newsStore = useNewsStore()
-const { items } = storeToRefs(newsStore)
+const { items: newsItems } = storeToRefs(newsStore)
+
+const articleStore = useArticleStore()
+const { items: articleItems } = storeToRefs(articleStore)
 </script>
