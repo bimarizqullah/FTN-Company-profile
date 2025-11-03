@@ -3,32 +3,35 @@ import { authMiddleware } from '@/middlewares/authMiddleware'
 import prisma from '@/lib/db'
 import { writeFile, mkdir, unlink } from 'fs/promises'
 import path from 'path'
-import { verifyToken } from '@/lib/auth'
+import { status_enum } from '@prisma/client'
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await authMiddleware(req)
   if (auth) return auth
 
   // Untuk sementara, izinkan semua user terautentikasi membaca detail
 
   try {
-    const id = Number(params.id)
+    const { id: idStr } = await params
+    const id = Number(idStr)
     const item = await prisma.article.findUnique({ where: { id } })
     if (!item) return NextResponse.json({ message: 'Article not found' }, { status: 404 })
     return NextResponse.json(item)
-  } catch (error: any) {
-    return NextResponse.json({ message: 'Gagal mengambil artikel', error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ message: 'Gagal mengambil artikel', error: message }, { status: 500 })
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await authMiddleware(req)
   if (auth) return auth
 
   // Untuk sementara, izinkan semua user terautentikasi update
 
   try {
-    const id = Number(params.id)
+    const { id: idStr } = await params
+    const id = Number(idStr)
     const existing = await prisma.article.findUnique({ where: { id } })
     if (!existing) return NextResponse.json({ message: 'Article not found' }, { status: 404 })
 
@@ -90,25 +93,27 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         youtubeUrl: youtubeUrl ?? existing.youtubeUrl,
         sourceName: sourceName ?? existing.sourceName,
         sourceLink: sourceLink ?? existing.sourceLink,
-        status: (status ?? existing.status) as any,
+        status: (status ?? existing.status) as status_enum,
         publishedAt: publishedAt ?? existing.publishedAt
       }
     })
 
     return NextResponse.json({ message: 'Article updated', data: updated })
-  } catch (error: any) {
-    return NextResponse.json({ message: 'Gagal memperbarui artikel', error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ message: 'Gagal memperbarui artikel', error: message }, { status: 500 })
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await authMiddleware(req)
   if (auth) return auth
 
   // Untuk sementara, izinkan semua user terautentikasi delete
 
   try {
-    const id = Number(params.id)
+    const { id: idStr } = await params
+    const id = Number(idStr)
     const existing = await prisma.article.findUnique({ where: { id } })
     if (!existing) return NextResponse.json({ message: 'Article not found' }, { status: 404 })
 
@@ -117,8 +122,9 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       try { await unlink(path.join(process.cwd(), 'public', existing.imagePath)) } catch {}
     }
     return NextResponse.json({ message: 'Article deleted' })
-  } catch (error: any) {
-    return NextResponse.json({ message: 'Gagal menghapus artikel', error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ message: 'Gagal menghapus artikel', error: message }, { status: 500 })
   }
 }
 

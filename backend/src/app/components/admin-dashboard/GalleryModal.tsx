@@ -7,10 +7,7 @@ import Image from 'next/image'
 import { toast } from 'react-hot-toast'
 import { 
   XMarkIcon, 
-  PhotoIcon, 
   CloudArrowUpIcon,
-  CheckCircleIcon,
-  ExclamationCircleIcon,
   PlusIcon,
   ChevronLeftIcon,
   ChevronRightIcon
@@ -45,6 +42,9 @@ export default function GalleryModal({
   const [description, setDescription] = useState('')
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
+  const [urlToFileMap, setUrlToFileMap] = useState<Map<string, File>>(new Map()) // Map preview URL to File object
+  const [existingImages, setExistingImages] = useState<GalleryImage[]>([]) // Track existing images with IDs
+  const [deletedImageIds, setDeletedImageIds] = useState<number[]>([]) // Track IDs of deleted images
   const [currentPreviewIndex, setCurrentPreviewIndex] = useState(0)
   const [dragActive, setDragActive] = useState(false)
   const [showNavigation, setShowNavigation] = useState(false)
@@ -57,14 +57,19 @@ export default function GalleryModal({
       // Handle both single image and multiple images
       const images = gallery.images || []
       const urls = images.length > 0 
-        ? images.map((img: any) => img.imagePath)
+        ? images.map((img: GalleryImage) => img.imagePath)
         : [gallery.imagePath]
       setPreviewUrls(urls.filter(Boolean))
+      setExistingImages(images.length > 0 ? images : [])
+      setDeletedImageIds([]) // Reset deleted IDs when gallery changes
     } else {
       setStatus('active')
       setDescription('')
       setPreviewUrls([])
       setSelectedFiles([])
+      setUrlToFileMap(new Map())
+      setExistingImages([])
+      setDeletedImageIds([])
     }
     setCurrentPreviewIndex(0)
     setShowNavigation(false)
@@ -113,8 +118,15 @@ export default function GalleryModal({
       newPreviewUrls.push(url)
     }
 
+    // Create URL to file mapping
+    const newMap = new Map(urlToFileMap)
+    validFiles.forEach((file, index) => {
+      newMap.set(newPreviewUrls[index], file)
+    })
+
     setSelectedFiles(prev => [...prev, ...validFiles])
     setPreviewUrls(prev => [...prev, ...newPreviewUrls])
+    setUrlToFileMap(newMap)
   }
 
   const readFileAsDataURL = (file: File): Promise<string> => {
@@ -131,10 +143,14 @@ export default function GalleryModal({
     if (files.length) handleFiles(files)
   }
 
+  // Compute if there are any remaining images
+  const remainingExistingImages = existingImages.filter(img => !deletedImageIds.includes(img.id))
+  const hasImages = remainingExistingImages.length > 0 || selectedFiles.length > 0
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!gallery && selectedFiles.length === 0) {
+    if (!hasImages) {
       toast.error('Silakan pilih minimal satu gambar untuk gallery')
       return
     }
@@ -149,6 +165,11 @@ export default function GalleryModal({
         selectedFiles.forEach(file => {
           formData.append('files', file)
         })
+      }
+      
+      // Send deleted image IDs
+      if (deletedImageIds.length > 0) {
+        formData.append('deletedImageIds', JSON.stringify(deletedImageIds))
       }
       
       // For PUT requests, we need to send the current status
@@ -232,28 +253,50 @@ export default function GalleryModal({
             >
               {previewUrls.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
-                  {previewUrls.map((url, index) => (
-                    <div key={index} className="relative aspect-video rounded-xl overflow-hidden group">
-                      <Image 
-                        src={url} 
-                        alt={`Preview ${index + 1}`}
-                        fill 
-                        className="object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setPreviewUrls(prev => prev.filter((_, i) => i !== index))
-                            setSelectedFiles(prev => prev.filter((_, i) => i !== index))
-                          }}
-                          className="px-4 py-2 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors"
-                        >
-                          Hapus
-                        </button>
+                  {previewUrls.map((url, index) => {
+                    // Check if this is an existing image (has ID) or new file
+                    const existingImage = existingImages.find(img => img.imagePath === url)
+                    const isExistingImage = !!existingImage
+                    
+                    return (
+                      <div key={`${url}-${index}`} className="relative aspect-video rounded-xl overflow-hidden group">
+                        <Image 
+                          src={url} 
+                          alt={`Preview ${index + 1}`}
+                          fill 
+                          className="object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              // If it's an existing image, add to deleted IDs
+                              if (isExistingImage && existingImage) {
+                                setDeletedImageIds(prev => [...prev, existingImage.id])
+                                setExistingImages(prev => prev.filter(img => img.id !== existingImage.id))
+                                setPreviewUrls(prev => prev.filter((u) => u !== url))
+                              } else {
+                                // If it's a new file, remove from selectedFiles using URL-to-file map
+                                const fileToRemove = urlToFileMap.get(url)
+                                setPreviewUrls(prev => prev.filter((u) => u !== url))
+                                setUrlToFileMap(prev => {
+                                  const newMap = new Map(prev)
+                                  newMap.delete(url)
+                                  return newMap
+                                })
+                                if (fileToRemove) {
+                                  setSelectedFiles(prev => prev.filter(f => f !== fileToRemove))
+                                }
+                              }
+                            }}
+                            className="px-4 py-2 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors"
+                          >
+                            Hapus
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                   {selectedFiles.length < 20 && (
                     <div 
                       className="aspect-video flex flex-col items-center justify-center cursor-pointer border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all"
@@ -416,7 +459,7 @@ export default function GalleryModal({
           </button>
           <button
             onClick={handleSubmit}
-            disabled={loading || !description || (!gallery && selectedFiles.length === 0)}
+            disabled={loading || !description || !hasImages}
             className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium hover:from-blue-700 hover:to-blue-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {loading ? (

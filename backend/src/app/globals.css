@@ -36,3 +36,15 @@ html {
   width: 100%;
   min-height: 100vh;
 }
+
+.prose li p,
+.prose li ul,
+.prose li ol {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.prose li {
+  margin-top: 0;
+  margin-bottom: 0.25rem; /* Beri sedikit spasi antar item list */
+}

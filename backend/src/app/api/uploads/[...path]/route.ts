@@ -5,10 +5,11 @@ import { existsSync } from 'fs'
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
-    const filePath = params.path.join('/')
+    const { path: pathArray } = await params
+    const filePath = pathArray.join('/')
     const fullPath = path.join(process.cwd(), 'public', 'uploads', filePath)
     
     // Security check - ensure the path is within uploads directory
@@ -51,7 +52,10 @@ export async function GET(
         break
     }
     
-    return new NextResponse(fileBuffer, {
+    // Convert Buffer to Uint8Array which is acceptable by NextResponse
+    const uint8Array = new Uint8Array(fileBuffer)
+    
+    return new NextResponse(uint8Array, {
       headers: {
         'Content-Type': contentType,
         'Cache-Control': 'public, max-age=31536000, immutable',

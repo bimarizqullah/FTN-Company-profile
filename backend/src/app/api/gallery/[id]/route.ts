@@ -7,10 +7,11 @@ import { writeFile, unlink, mkdir } from "fs/promises";
 import crypto from "crypto";
 
 // GET detail gallery by ID (include images)
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const gallery = await (prisma as any).gallery.findUnique({
-      where: { id: Number(params.id) },
+    const { id } = await params
+    const gallery = await prisma.gallery.findUnique({
+      where: { id: Number(id) },
       include: {
         images: {
           orderBy: { sortOrder: 'asc' }
@@ -26,8 +27,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 // PUT update gallery (description / add files)
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params
     const authHeader = req.headers.get("authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -40,7 +42,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
 
     const contentType = req.headers.get("content-type") || "";
-    let updateData: any = {};
+    let updateData: { description?: string } = {};
 
     if (contentType.includes("application/json")) {
       const body = await req.json();
@@ -49,7 +51,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       };
 
       // Update description only
-      const updated = await (prisma as any).gallery.update({ where: { id: Number(params.id) }, data: updateData, include: { images: { orderBy: { sortOrder: 'asc' } } } });
+      const updated = await prisma.gallery.update({ where: { id: Number(id) }, data: updateData, include: { images: { orderBy: { sortOrder: 'asc' } } } });
       return NextResponse.json(updated);
     }
 
@@ -57,16 +59,57 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       const formData = await req.formData();
       const files = formData.getAll("files") as File[];
       updateData.description = formData.get("description")?.toString() || undefined;
+      const deletedImageIdsStr = formData.get("deletedImageIds")?.toString();
+
+      // Handle deleted images first
+      if (deletedImageIdsStr) {
+        try {
+          const deletedImageIds: number[] = JSON.parse(deletedImageIdsStr);
+          
+          if (deletedImageIds.length > 0) {
+            // Get image paths before deleting for file cleanup
+            const imagesToDelete = await prisma.galleryImage.findMany({
+              where: {
+                id: { in: deletedImageIds },
+                galleryId: Number(id)
+              }
+            });
+
+            // Delete images from database
+            await prisma.galleryImage.deleteMany({
+              where: {
+                id: { in: deletedImageIds },
+                galleryId: Number(id)
+              }
+            });
+
+            // Delete physical files
+            for (const img of imagesToDelete) {
+              if (img.imagePath) {
+                const physicalPath = img.imagePath.replace('/api/uploads', '/uploads');
+                const fullPath = path.join(process.cwd(), "public", physicalPath);
+                try {
+                  await unlink(fullPath);
+                } catch (err) {
+                  console.warn("Failed to delete image file:", err);
+                }
+              }
+            }
+          }
+        } catch (err) {
+          console.warn("Failed to parse deletedImageIds:", err);
+        }
+      }
 
       // Update description if provided
       if (updateData.description) {
-        await (prisma as any).gallery.update({ where: { id: Number(params.id) }, data: { description: updateData.description } });
+        await prisma.gallery.update({ where: { id: Number(id) }, data: { description: updateData.description } });
       }
 
       // Handle uploaded files (add as GalleryImage entries)
       if (files && files.length) {
   // Count existing images to set sortOrder continuation
-  const existingCount = await (prisma as any).galleryImage.count({ where: { galleryId: Number(params.id) } });
+  const existingCount = await prisma.galleryImage.count({ where: { galleryId: Number(id) } });
 
         const imagePromises = files.map(async (file, index) => {
           const mime = file.type || '';
@@ -81,9 +124,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
           await mkdir(path.dirname(filePath), { recursive: true });
           await writeFile(filePath, buffer);
 
-          return (prisma as any).galleryImage.create({ data: {
+          return prisma.galleryImage.create({ data: {
             imagePath: `/api/uploads/gallery/${fileName}`,
-            galleryId: Number(params.id),
+            galleryId: Number(id),
             sortOrder: existingCount + index,
           } });
         });
@@ -91,7 +134,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         await Promise.all(imagePromises);
       }
 
-      const result = await (prisma as any).gallery.findUnique({ where: { id: Number(params.id) }, include: { images: { orderBy: { sortOrder: 'asc' } } } });
+      const result = await prisma.gallery.findUnique({ where: { id: Number(id) }, include: { images: { orderBy: { sortOrder: 'asc' } } } });
       return NextResponse.json(result);
     }
 
@@ -103,16 +146,17 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 // DELETE gallery (and remove associated image files)
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const gallery = await (prisma as any).gallery.findUnique({
-      where: { id: Number(params.id) },
+    const { id } = await params
+    const gallery = await prisma.gallery.findUnique({
+      where: { id: Number(id) },
       include: { images: true }
     });
     if (!gallery) return NextResponse.json({ message: "Not found" }, { status: 404 });
 
     // Delete gallery (GalleryImage rows will be removed by FK ON DELETE CASCADE)
-    await (prisma as any).gallery.delete({ where: { id: Number(params.id) } });
+    await prisma.gallery.delete({ where: { id: Number(id) } });
 
     // Remove physical files for all images
     if (gallery.images && gallery.images.length) {
