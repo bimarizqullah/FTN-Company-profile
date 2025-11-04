@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
       await mkdir(uploadsDir, { recursive: true })
       const filePath = path.join(uploadsDir, fileName)
       await writeFile(filePath, buffer)
-      imagePath = `/uploads/article/${fileName}`
+      imagePath = `/api/uploads/article/${fileName}`
     }
 
     if (video && video.size > 0) {
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
       await mkdir(uploadsDir, { recursive: true })
       const filePath = path.join(uploadsDir, fileName)
       await writeFile(filePath, buffer)
-      videoPath = `/uploads/article/${fileName}`
+      videoPath = `/api/uploads/article/${fileName}`
     }
 
     // Ambil userId dari token
@@ -117,5 +117,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: 'Gagal membuat artikel', error: error.message }, { status: 500 })
   }
 }
-
-

@@ -19,9 +19,6 @@ function goDetail(slug: string) {
   router.push({ name: 'article-detail', params: { slug } })
 }
 
-function fixImageUrl(url: string): string {
-  return url.replace('//uploads', '/api/uploads')
-}
 </script>
 
 <template>
@@ -38,7 +35,7 @@ function fixImageUrl(url: string): string {
       >
         <img
           v-if="n.imagePath"
-          :src="fixImageUrl(`${ARTICLE_IMAGE_BASE}${n.imagePath}`)"
+          :src="`${ARTICLE_IMAGE_BASE}${n.imagePath}`"
           class="w-full h-44 object-cover"
         />
         <div class="p-4">

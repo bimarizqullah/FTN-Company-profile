@@ -62,7 +62,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       if (existing.imagePath) {
         try { await unlink(path.join(process.cwd(), 'public', existing.imagePath)) } catch {}
       }
-      imagePath = `/uploads/article/${fileName}`
+      imagePath = `/api/uploads/article/${fileName}`
     }
 
     if (video && video.size > 0) {
@@ -79,7 +79,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       if (existing.videoPath) {
         try { await unlink(path.join(process.cwd(), 'public', existing.videoPath)) } catch {}
       }
-      videoPath = `/uploads/article/${fileName}`
+      videoPath = `/api/uploads/article/${fileName}`
     }
 
     const updated = await prisma.article.update({

@@ -2,7 +2,7 @@
   <footer class="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-600">
     <!-- Main Footer -->
     <div class="max-w-6xl mx-auto px-6 py-12">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
         <!-- Company Info -->
         <div class="lg:col-span-2">
           <div class="flex items-center mb-4">
@@ -102,11 +102,11 @@
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Berita Terbaru</h3>
           <ul class="space-y-3 text-sm">
             <li v-for="n in newsItems.slice(0,3)" :key="n.id" class="flex gap-3 items-start">
-              <img v-if="n.imagePath" :src="fixImageUrl(`${NEWS_IMAGE_BASE}${n.imagePath}`)" class="w-12 h-12 object-cover rounded" />
-              <div>
-                <router-link :to="`/news/${n.slug}`" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 line-clamp-2">{{ n.title }}</router-link>
+              <img v-if="n.imagePath" :src="`${NEWS_IMAGE_BASE}${n.imagePath}`" class="w-12 h-12 object-cover rounded" />
+                <div class="min-w-0">
+                  <router-link :to="`/news/${n.slug}`" class="block text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 line-clamp-2">{{ n.title }}</router-link>
                 <div class="text-xs text-gray-500">{{ n.publishedAt ? new Date(n.publishedAt).toLocaleDateString() : '-' }}</div>
-              </div>
+                </div>
             </li>
             <li v-if="newsItems.length === 0" class="text-gray-500">Belum ada berita.</li>
           </ul>
@@ -116,9 +116,9 @@
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Artikel Terbaru</h3>
           <ul class="space-y-3 text-sm">
             <li v-for="n in articleItems.slice(0,3)" :key="n.id" class="flex gap-3 items-start">
-              <img v-if="n.imagePath" :src="fixImageUrl(`${ARTICLE_IMAGE_BASE}${n.imagePath}`)" class="w-12 h-12 object-cover rounded" />
-              <div>
-                <router-link :to="`/article/${n.slug}`" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 line-clamp-2">{{ n.title }}</router-link>
+              <img v-if="n.imagePath" :src="`${ARTICLE_IMAGE_BASE}${n.imagePath}`" class="w-12 h-12 object-cover rounded" />
+              <div class="min-w-0">
+                <router-link :to="`/article/${n.slug}`" class="block text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 line-clamp-2">{{ n.title }}</router-link>
                 <div class="text-xs text-gray-500">{{ n.publishedAt ? new Date(n.publishedAt).toLocaleDateString() : '-' }}</div>
               </div>
             </li>
@@ -127,7 +127,7 @@
         </div>
 
         <!-- Contact Info (from API) -->
-        <div class="lg:col-span-8">
+        <div class="lg:col-span-5">
           <ContactInfo />
         </div>
       </div>
@@ -163,11 +163,6 @@ const handleImageError = (event: Event) => {
   const target = event.target as HTMLImageElement
   target.style.display = 'none'
 }
-
-function fixImageUrl(url: string): string {
-  return url.replace('//uploads', '/api/uploads')
-}
-
 const newsStore = useNewsStore()
 const { items: newsItems } = storeToRefs(newsStore)
 

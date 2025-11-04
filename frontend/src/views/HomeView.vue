@@ -864,8 +864,8 @@ onUnmounted(() => {
               <!-- Image Section -->
               <div class="relative overflow-hidden">
                 <img 
-                  v-if="project.images && project.images.length > 0"
-                  :src="`${UPLOAD_BASE_URL}${project.images[0].imagePath}`" 
+                  v-if="project.imagePath && project.imagePath.length > 0"
+                  :src="`${UPLOAD_BASE_URL}${project.imagePath}`" 
                   :alt="project.name"
                   class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
                 />
@@ -1201,8 +1201,8 @@ onUnmounted(() => {
           <!-- Image Header -->
           <div class="relative">
             <img 
-              v-if="selectedProject.images && selectedProject.images.length > 0"
-              :src="`${UPLOAD_BASE_URL}${selectedProject.images[0].imagePath}`" 
+              v-if="selectedProject.imagePath && selectedProject.imagePath.length > 0"
+              :src="`${UPLOAD_BASE_URL}${selectedProject.imagePath}`" 
               :alt="selectedProject.name"
               class="w-full h-64 object-cover"
             />

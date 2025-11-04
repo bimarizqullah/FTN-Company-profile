@@ -35,11 +35,6 @@ function embedUrl(url: string): string {
   const id = extractYoutubeId(url)
   return id ? `https://www.youtube.com/embed/${id}` : ''
 }
-
-function fixImageUrl(url: string): string {
-  return url.replace('//uploads', '/api/uploads')
-}
-
 // Process HTML content to fix image URLs and sanitize
 function processHtmlContent(html: string | undefined): string {
   if (!html) return ''
@@ -50,36 +45,6 @@ function processHtmlContent(html: string | undefined): string {
   // Create a temporary div to parse HTML
   const tempDiv = document.createElement('div')
   tempDiv.innerHTML = html
-
-  // Find all img tags and fix their src URLs
-  const images = tempDiv.querySelectorAll('img')
-  images.forEach((img) => {
-    const src = img.getAttribute('src')
-    if (src) {
-      let fixedSrc = src
-      // Normalize to use ARTICLE_IMAGE_BASE (UPLOAD_BASE_URL)
-      if (fixedSrc.startsWith('/api/uploads')) {
-        // Convert /api/uploads/... -> ARTICLE_IMAGE_BASE + remainder after /api/uploads
-        const remainder = fixedSrc.replace(/^\/api\/uploads\/?/, '')
-        fixedSrc = `${ARTICLE_IMAGE_BASE}${remainder.startsWith('/') ? '' : '/'}${remainder}`
-      } else if (fixedSrc.startsWith('/uploads')) {
-        fixedSrc = `${ARTICLE_IMAGE_BASE}${fixedSrc}`.replace(/\/api\/uploads\/\/uploads/, '/api/uploads/uploads')
-      } else if (fixedSrc.startsWith('uploads')) {
-        fixedSrc = `${ARTICLE_IMAGE_BASE}/${fixedSrc}`
-      } else if (fixedSrc.includes('//uploads')) {
-        // e.g. http(s)://host//uploads/foo or //uploads/foo
-        fixedSrc = fixedSrc.replace(/\/?\/\/uploads/, ARTICLE_IMAGE_BASE)
-      } else if (fixedSrc.startsWith('../') || fixedSrc.startsWith('./')) {
-        // Handle relative paths
-        const stripped = fixedSrc.replace(/^(\.\.\/|\.\/)+/, '')
-        fixedSrc = `${ARTICLE_IMAGE_BASE}/${stripped}`
-      } else if (!fixedSrc.startsWith('http') && !fixedSrc.startsWith('data:')) {
-        // If it's a relative path without leading slash
-        fixedSrc = `${ARTICLE_IMAGE_BASE}${fixedSrc.startsWith('/') ? '' : '/'}${fixedSrc}`
-      }
-      img.setAttribute('src', fixedSrc)
-    }
-  })
 
   // Sanitize the HTML content with DOMPurify
   const sanitized = DOMPurify.sanitize(tempDiv.innerHTML, {
@@ -139,9 +104,9 @@ const hasYoutube = computed(() => {
         ></iframe>
       </div>
       <!-- Jika tidak ada YouTube, tampilkan video upload jika ada -->
-      <video v-else-if="item.videoPath" :src="fixImageUrl(`${ARTICLE_IMAGE_BASE}${item.videoPath}`)" class="w-full max-h-[460px] object-cover rounded-xl shadow mb-8" controls />
+      <video v-else-if="item.videoPath" :src="`${ARTICLE_IMAGE_BASE}${item.videoPath}`" class="w-full max-h-[460px] object-cover rounded-xl shadow mb-8" controls />
       <!-- Jika tidak ada video, fallback ke gambar -->
-      <img v-else-if="item.imagePath" :src="fixImageUrl(`${ARTICLE_IMAGE_BASE}${item.imagePath}`)" class="w-full max-h-[460px] object-cover rounded-xl shadow mb-8" />
+      <img v-else-if="item.imagePath" :src="`${ARTICLE_IMAGE_BASE}${item.imagePath}`" class="w-full max-h-[460px] object-cover rounded-xl shadow mb-8" />
       <div
         class="article-content prose prose-lg dark:prose-invert max-w-none text-gray-800 dark:text-gray-200 leading-relaxed"
         v-html="processedContent"

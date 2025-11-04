@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
       await mkdir(uploadsDir, { recursive: true })
       const filePath = path.join(uploadsDir, fileName)
       await writeFile(filePath, buffer)
-      imagePath = `/uploads/news/${fileName}`
+      imagePath = `/api/uploads/news/${fileName}`
     }
 
     if (video && video.size > 0) {
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
       await mkdir(uploadsDir, { recursive: true })
       const filePath = path.join(uploadsDir, fileName)
       await writeFile(filePath, buffer)
-      videoPath = `/uploads/news/${fileName}`
+      videoPath = `/api/uploads/news/${fileName}`
     }
 
     // Ambil userId dari token

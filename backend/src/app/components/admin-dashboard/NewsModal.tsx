@@ -4,6 +4,20 @@ import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { SweetAlerts, closeSweetAlert } from '@/lib/sweetAlert'
 import { CheckCircleIcon, CloudArrowUpIcon, ExclamationCircleIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { useEditor, type Editor } from '@tiptap/react'
+import dynamic from 'next/dynamic'
+import StarterKit from '@tiptap/starter-kit'
+import Link from '@tiptap/extension-link'
+import TextAlign from '@tiptap/extension-text-align'
+import Underline from '@tiptap/extension-underline'
+
+const EditorContent = dynamic(
+  () => import('@tiptap/react').then((mod) => mod.EditorContent),
+  { 
+    ssr: false,
+    loading: () => <div className="border rounded-xl p-4 min-h-[200px]">Loading editor...</div>
+  }
+)
 
 interface NewsItem {
   id: number
@@ -26,6 +40,110 @@ interface NewsModalProps {
   onSuccess: () => void
 }
 
+const MenuBar = ({ editor }: { editor: Editor | null }) => {
+  if (!editor) {
+    return null
+  }
+
+  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>, callback: () => void) => {
+    e.preventDefault()
+    e.stopPropagation()
+    callback()
+  }
+
+  return (
+    <div className="border-b border-gray-300 bg-gray-50 p-2 flex flex-wrap gap-1">
+      <button
+        type="button"
+        onClick={(e) => handleButtonClick(e, () => editor.chain().focus().toggleHeading({ level: 2 }).run())}
+        className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${editor.isActive('heading', { level: 2 }) ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}
+      >
+        H2
+      </button>
+      <button
+        type="button"
+        onClick={(e) => handleButtonClick(e, () => editor.chain().focus().toggleHeading({ level: 3 }).run())}
+        className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${editor.isActive('heading', { level: 3 }) ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}
+      >
+        H3
+      </button>
+      <button
+        type="button"
+        onClick={(e) => handleButtonClick(e, () => editor.chain().focus().setParagraph().run())}
+        className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${editor.isActive('paragraph') ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}
+      >
+        P
+      </button>
+      <span className="w-px h-6 bg-gray-300 mx-1 self-center" />
+      <button
+        type="button"
+        onClick={(e) => handleButtonClick(e, () => editor.chain().focus().toggleBold().run())}
+        className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${editor.isActive('bold') ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}
+      >
+        <strong>B</strong>
+      </button>
+      <button
+        type="button"
+        onClick={(e) => handleButtonClick(e, () => editor.chain().focus().toggleItalic().run())}
+        className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${editor.isActive('italic') ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}
+      >
+        <em>I</em>
+      </button>
+      <button
+        type="button"
+        onClick={(e) => handleButtonClick(e, () => editor.chain().focus().toggleUnderline().run())}
+        className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${editor.isActive('underline') ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}
+      >
+        <u>U</u>
+      </button>
+      <span className="w-px h-6 bg-gray-300 mx-1 self-center" />
+      <button
+        type="button"
+        onClick={(e) => handleButtonClick(e, () => editor.chain().focus().setTextAlign('left').run())}
+        className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${editor.isActive({ textAlign: 'left' }) ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}
+      >
+        ←
+      </button>
+      <button
+        type="button"
+        onClick={(e) => handleButtonClick(e, () => editor.chain().focus().setTextAlign('center').run())}
+        className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${editor.isActive({ textAlign: 'center' }) ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}
+      >
+        ↔
+      </button>
+      <button
+        type="button"
+        onClick={(e) => handleButtonClick(e, () => editor.chain().focus().setTextAlign('right').run())}
+        className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${editor.isActive({ textAlign: 'right' }) ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}
+      >
+        →
+      </button>
+      <button
+        type="button"
+        onClick={(e) => handleButtonClick(e, () => editor.chain().focus().setTextAlign('justify').run())}
+        className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${editor.isActive({ textAlign: 'justify' }) ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}
+      >
+        ↔↔
+      </button>
+      <span className="w-px h-6 bg-gray-300 mx-1 self-center" />
+      <button
+        type="button"
+        onClick={(e) => handleButtonClick(e, () => editor.chain().focus().toggleBulletList().run())}
+        className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${editor.isActive('bulletList') ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}
+      >
+        • List
+      </button>
+      <button
+        type="button"
+        onClick={(e) => handleButtonClick(e, () => editor.chain().focus().toggleOrderedList().run())}
+        className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${editor.isActive('orderedList') ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}
+      >
+        1. List
+      </button>
+    </div>
+  )
+}
+
 export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModalProps) {
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<'active' | 'inactive'>('active')
@@ -43,6 +161,27 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
   const [dragActive, setDragActive] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+    const editor = useEditor({
+      extensions: [
+        StarterKit,
+        Link,
+        TextAlign.configure({
+          types: ['heading', 'paragraph'],
+        }),
+        Underline,
+      ],
+      content,
+      onUpdate: ({ editor }) => {
+        setContent(editor.getHTML())
+      },
+      editorProps: {
+        attributes: {
+          class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none min-h-[300px] p-4 bg-white text-gray-900',
+        },
+      },
+      immediatelyRender: false // Mencegah hydration mismatch
+    })
+
   useEffect(() => {
     if (news) {
       setStatus(news.status)
@@ -52,8 +191,8 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
       setPublishedAt(news.publishedAt ? news.publishedAt.slice(0, 16) : '')
       setSourceName(news.sourceName || '')
       setSourceLink(news.sourceLink || '')
-      setPreviewUrl(news.imagePath ? news.imagePath.replace('/uploads/', '/api/uploads/') : '')
-      setVideoPreviewUrl(news.videoPath ? news.videoPath.replace('/uploads/', '/api/uploads/') : '')
+      setPreviewUrl(news.imagePath || '')
+      setVideoPreviewUrl(news.videoPath || '')
       setYoutubeUrl(news.youtubeUrl || '')
       setSelectedFile(null)
       setSelectedVideo(null)
@@ -247,21 +386,89 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Konten <span className="text-red-500">*</span></label>
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Tulis konten berita di sini. Gunakan HTML untuk format: <strong>bold</strong>, <em>italic</em>, <br> untuk baris baru"
-                className="w-full min-h-40 border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
-                required
-              />
-              <p className="text-xs text-gray-500 mt-1">{content.length} karakter</p>
-              <div className="text-xs text-gray-400 mt-1">
-                <p><strong>Format HTML yang bisa digunakan:</strong></p>
-                <p>• <code>&lt;strong&gt;teks&lt;/strong&gt;</code> atau <code>&lt;b&gt;teks&lt;/b&gt;</code> untuk <strong>bold</strong></p>
-                <p>• <code>&lt;em&gt;teks&lt;/em&gt;</code> atau <code>&lt;i&gt;teks&lt;/i&gt;</code> untuk <em>italic</em></p>
-                <p>• <code>&lt;br&gt;</code> untuk baris baru</p>
-                <p>• <code>&lt;p&gt;paragraf&lt;/p&gt;</code> untuk paragraf</p>
+              <div className="border-2 border-gray-300 rounded-xl overflow-hidden bg-white shadow-sm">
+                {typeof window !== 'undefined' && (
+                <>
+                  {editor && <MenuBar editor={editor} />}
+                    {/* BENAR: Hanya gunakan style manual Anda */ }
+                    <div className="max-w-none"> {/* Hapus 'prose' dan 'prose-sm' */}
+                      <EditorContent editor={editor} />
+                      <style jsx global>{`
+                        .ProseMirror {
+                          min-height: 300px;
+                          padding: 1rem;
+                          color: #111827;
+                          background: white;
+                        }
+                        .ProseMirror:focus {
+                          outline: none;
+                        }
+                        .ProseMirror p {
+                          color: #111827;
+                          margin-top: 0;
+                          margin-bottom: 0.75rem;
+                        }
+                        .ProseMirror h2 {
+                          color: #1f2937;
+                          font-weight: 700;
+                          margin-top: 1.5rem;
+                          margin-bottom: 0.75rem;
+                        }
+                        .ProseMirror h3 {
+                          color: #374151;
+                          font-weight: 600;
+                          margin-top: 1.25rem;
+                          margin-bottom: 0.75rem;
+                        }
+                        /* === PERBAIKAN LIST === */
+                        .ProseMirror ul, .ProseMirror ol {
+                          color: #111827;
+                          padding-left: 1.5rem; /* Tambah padding untuk ruang bullet */
+                          margin: 0.5rem 0;
+                          list-style-position: outside; /* UBAH KE OUTSIDE */
+                        }
+                        .ProseMirror ul { list-style-type: disc; }
+                        .ProseMirror ol { list-style-type: decimal; }
+                                            
+                        .ProseMirror li {
+                          color: #111827;
+                          margin: 0 0 0.25rem 0;
+                          padding-left: 0.25rem; /* Tambah sedikit padding untuk jarak */
+                        }
+                        .ProseMirror li::marker { 
+                          color: #374151; 
+                        }
+                        /* Paksa paragraf DI DALAM list untuk tidak punya margin */
+                        .ProseMirror li p { 
+                          margin-top: 0; 
+                          margin-bottom: 0;
+                          display: inline; /* TAMBAHKAN INI agar p tetap sebaris */
+                        }
+                        /* === SELESAI PERBAIKAN === */
+                      
+                        .ProseMirror strong {
+                          color: #111827;
+                          font-weight: 700;
+                        }
+                        .ProseMirror em {
+                          color: #111827;
+                        }
+                        .ProseMirror u {
+                          color: #111827;
+                        }
+                        .ProseMirror a {
+                          color: #2563eb;
+                          text-decoration: underline;
+                        }
+                        .ProseMirror::placeholder {
+                          color: #9ca3af;
+                        }
+                      `}</style>
+                    </div>
+                </>
+              )}
               </div>
+              <p className="text-xs text-gray-500 mt-1">Gunakan tombol format di atas untuk mengatur tampilan teks</p>
             </div>
 
             <div>

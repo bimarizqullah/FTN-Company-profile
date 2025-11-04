@@ -64,7 +64,7 @@ export interface Project {
   name: string
   location: string
   description: string
-  images: GalleryImage[]  // Updated to use images array like Gallery
+  imagePath?: string
   startDate?: string
   endDate?: string
   status: string
