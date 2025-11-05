@@ -19,6 +19,10 @@ interface ArticleItem {
   publishedAt?: string
   createdAt: string
   updatedAt: string
+  categoryId?: number
+  subCategoryId?: number
+  category?: { id: number; name: string; slug: string }
+  subCategory?: { id: number; name: string; slug: string }
 }
 
 export default function ArticlePage() {
@@ -122,6 +126,8 @@ export default function ArticlePage() {
                   <tr className="bg-gray-50 text-sm text-gray-600">
                     <th className="p-4">Judul</th>
                     <th className="p-4">Slug</th>
+                    <th className="p-4">Kategori</th>
+                    <th className="p-4">Sub-Kategori</th>
                     <th className="p-4">Status</th>
                     <th className="p-4">Terbit</th>
                     <th className="p-4 w-48">Aksi</th>
@@ -132,6 +138,8 @@ export default function ArticlePage() {
                     <tr key={item.id} className="border-t text-sm">
                       <td className="p-4 font-medium text-gray-900">{item.title}</td>
                       <td className="p-4 text-gray-600">{item.slug}</td>
+                      <td className="p-4 text-gray-600">{item.category?.name || '-'}</td>
+                      <td className="p-4 text-gray-600">{item.subCategory?.name || '-'}</td>
                       <td className="p-4">
                         <span className={`px-2 py-1 rounded-full text-xs ${item.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'}`}>
                           {item.status}
@@ -152,7 +160,7 @@ export default function ArticlePage() {
                   ))}
                   {items.length === 0 && !loading && (
                     <tr>
-                      <td colSpan={5} className="p-6 text-center text-gray-500">Belum ada artikel</td>
+                      <td colSpan={7} className="p-6 text-center text-gray-500">Belum ada artikel</td>
                     </tr>
                   )}
                 </tbody>

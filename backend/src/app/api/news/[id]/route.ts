@@ -5,15 +5,34 @@ import { writeFile, mkdir, unlink } from 'fs/promises'
 import path from 'path'
 import { verifyToken } from '@/lib/auth'
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await authMiddleware(req)
   if (auth) return auth
 
   // Untuk sementara, izinkan semua user terautentikasi membaca detail
 
   try {
-    const id = Number(params.id)
-    const item = await prisma.news.findUnique({ where: { id } })
+    const { id: idStr } = await params
+    const id = Number(idStr)
+    const item = await prisma.news.findUnique({
+      where: { id },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true
+          }
+        },
+        subCategory: {
+          select: {
+            id: true,
+            name: true,
+            slug: true
+          }
+        }
+      }
+    })
     if (!item) return NextResponse.json({ message: 'News not found' }, { status: 404 })
     return NextResponse.json(item)
   } catch (error: any) {
@@ -21,14 +40,15 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await authMiddleware(req)
   if (auth) return auth
 
   // Untuk sementara, izinkan semua user terautentikasi update
 
   try {
-    const id = Number(params.id)
+    const { id: idStr } = await params
+    const id = Number(idStr)
     const existing = await prisma.news.findUnique({ where: { id } })
     if (!existing) return NextResponse.json({ message: 'News not found' }, { status: 404 })
 
@@ -41,6 +61,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     const status = formData.get('status')?.toString() as 'active' | 'inactive' | undefined
     const publishedAtStr = formData.get('publishedAt')?.toString()
     const publishedAt = publishedAtStr ? new Date(publishedAtStr) : undefined
+    const categoryIdStr = formData.get('categoryId')?.toString()
+    const categoryId = categoryIdStr !== null ? (categoryIdStr ? Number(categoryIdStr) : null) : undefined
+    const subCategoryIdStr = formData.get('subCategoryId')?.toString()
+    const subCategoryId = subCategoryIdStr !== null ? (subCategoryIdStr ? Number(subCategoryIdStr) : null) : undefined
     const file = formData.get('image') as File | null
     const video = formData.get('video') as File | null
     const youtubeUrl = formData.get('youtubeUrl')?.toString()
@@ -79,6 +103,28 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       videoPath = `/api/uploads/news/${fileName}`
     }
 
+    // Validasi category dan subCategory jika diberikan
+    const finalCategoryId = categoryId !== undefined ? categoryId : existing.categoryId
+    const finalSubCategoryId = subCategoryId !== undefined ? subCategoryId : existing.subCategoryId
+
+    if (finalCategoryId) {
+      const category = await prisma.category.findUnique({ where: { id: finalCategoryId } })
+      if (!category) {
+        return NextResponse.json({ message: 'Kategori tidak ditemukan' }, { status: 404 })
+      }
+    }
+
+    if (finalSubCategoryId) {
+      const subCategory = await prisma.subCategory.findUnique({ where: { id: finalSubCategoryId } })
+      if (!subCategory) {
+        return NextResponse.json({ message: 'Sub-kategori tidak ditemukan' }, { status: 404 })
+      }
+      // Validasi bahwa subCategory termasuk dalam category yang dipilih
+      if (finalCategoryId && subCategory.categoryId !== finalCategoryId) {
+        return NextResponse.json({ message: 'Sub-kategori tidak termasuk dalam kategori yang dipilih' }, { status: 400 })
+      }
+    }
+
     const updated = await prisma.news.update({
       where: { id },
       data: {
@@ -91,7 +137,25 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         sourceName: sourceName ?? existing.sourceName,
         sourceLink: sourceLink ?? existing.sourceLink,
         status: (status ?? existing.status) as any,
-        publishedAt: publishedAt ?? existing.publishedAt
+        publishedAt: publishedAt ?? existing.publishedAt,
+        categoryId: finalCategoryId,
+        subCategoryId: finalSubCategoryId
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true
+          }
+        },
+        subCategory: {
+          select: {
+            id: true,
+            name: true,
+            slug: true
+          }
+        }
       }
     })
 
@@ -101,14 +165,15 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await authMiddleware(req)
   if (auth) return auth
 
   // Untuk sementara, izinkan semua user terautentikasi delete
 
   try {
-    const id = Number(params.id)
+    const { id: idStr } = await params
+    const id = Number(idStr)
     const existing = await prisma.news.findUnique({ where: { id } })
     if (!existing) return NextResponse.json({ message: 'News not found' }, { status: 404 })
 

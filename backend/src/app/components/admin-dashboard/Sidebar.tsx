@@ -26,7 +26,9 @@ import {
   ExclamationTriangleIcon,
   ArrowLeftOnRectangleIcon,
   ChevronLeftIcon,
-  ChatBubbleLeftRightIcon
+  ChatBubbleLeftRightIcon,
+  TagIcon,
+  RectangleStackIcon
 } from '@heroicons/react/24/outline'
 
 interface User {
@@ -173,6 +175,20 @@ export default function Sidebar() {
       icon: <ShieldExclamationIcon className="w-5 h-5" />,
       href: '/dashboard/role-permission',
       group: 'User Management',
+    },
+    {
+      id: 'category',
+      label: 'Category',
+      icon: <TagIcon className="w-5 h-5" />,
+      href: '/dashboard/category',
+      group: 'Category Management',
+    },
+    {
+      id: 'sub-category',
+      label: 'Sub-Category',
+      icon: <RectangleStackIcon className="w-5 h-5" />,
+      href: '/dashboard/sub-category',
+      group: 'Category Management',
     },
     {
       id: 'managements',

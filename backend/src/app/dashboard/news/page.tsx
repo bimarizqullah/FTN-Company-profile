@@ -19,6 +19,10 @@ interface NewsItem {
   publishedAt?: string
   createdAt: string
   updatedAt: string
+  categoryId?: number
+  subCategoryId?: number
+  category?: { id: number; name: string; slug: string }
+  subCategory?: { id: number; name: string; slug: string }
 }
 
 export default function NewsPage() {
@@ -94,34 +98,41 @@ export default function NewsPage() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 ml-0 lg:ml-64">
           <div className="mb-8">
             <StatsGrid />
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-                  <NewspaperIcon className="w-8 h-8 text-blue-600" />
-                  News
-                </h1>
-                <p className="text-gray-600 mt-2">Kelola berita yang akan ditampilkan di website</p>
-                <div className="flex items-center gap-4 mt-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm text-gray-600">{activeCount} berita aktif</span>
-                  </div>
-                  <div className="text-sm text-gray-500">Total {items.length} berita</div>
-                </div>
-              </div>
-              <button onClick={handleOpenCreate} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
-                <PlusIcon className="w-5 h-5" /> Tambah Berita
-              </button>
-            </div>
           </div>
 
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            {/* Header Section */}
+            <div className="p-6 sm:p-8 border-b border-gray-100">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+                    <NewspaperIcon className="w-8 h-8 text-blue-600" />
+                    News
+                  </h1>
+                  <p className="text-gray-600 mt-2">Kelola berita yang akan ditampilkan di website</p>
+                  <div className="flex items-center gap-4 mt-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                      <span className="text-sm text-gray-600">{activeCount} berita aktif</span>
+                    </div>
+                    <div className="text-sm text-gray-500">Total {items.length} berita</div>
+                  </div>
+                </div>
+                <button onClick={handleOpenCreate} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+                  <PlusIcon className="w-5 h-5" /> Tambah Berita
+                </button>
+              </div>
+            </div>
+
+            {/* Table Section */}
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
                   <tr className="bg-gray-50 text-sm text-gray-600">
                     <th className="p-4">Judul</th>
                     <th className="p-4">Slug</th>
+                    <th className="p-4">Kategori</th>
+                    <th className="p-4">Sub-Kategori</th>
                     <th className="p-4">Status</th>
                     <th className="p-4">Terbit</th>
                     <th className="p-4 w-48">Aksi</th>
@@ -132,6 +143,8 @@ export default function NewsPage() {
                     <tr key={item.id} className="border-t text-sm">
                       <td className="p-4 font-medium text-gray-900">{item.title}</td>
                       <td className="p-4 text-gray-600">{item.slug}</td>
+                      <td className="p-4 text-gray-600">{item.category?.name || '-'}</td>
+                      <td className="p-4 text-gray-600">{item.subCategory?.name || '-'}</td>
                       <td className="p-4">
                         <span className={`px-2 py-1 rounded-full text-xs ${item.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'}`}>
                           {item.status}
@@ -152,7 +165,7 @@ export default function NewsPage() {
                   ))}
                   {items.length === 0 && !loading && (
                     <tr>
-                      <td colSpan={5} className="p-6 text-center text-gray-500">Belum ada berita</td>
+                      <td colSpan={7} className="p-6 text-center text-gray-500">Belum ada berita</td>
                     </tr>
                   )}
                 </tbody>

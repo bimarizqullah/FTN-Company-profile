@@ -46,6 +46,8 @@ model User {
   restoreLogs RestoreLog[] @relation("RestoreLogRestoredBy")
   news       News[]     @relation("NewsCreatedBy")
   articles   Article[]  @relation("ArticleCreatedBy")
+  categories Category[] @relation("CategoryCreatedBy")
+  subCategories SubCategory[] @relation("SubCategoryCreatedBy")
 }
 
 model Slider {
@@ -122,41 +124,53 @@ model Management {
 }
 
 model News {
-  id          Int         @id @default(autoincrement())
-  title       String
-  slug        String      @unique
-  content     String      @db.LongText
-  imagePath   String?
-  videoPath   String?
-  sourceName  String?
-  sourceLink  String?
-  youtubeUrl  String?     @db.VarChar(255)
-  status      status_enum @default(active)
-  publishedAt DateTime?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  createdBy   Int
-  user        User        @relation("NewsCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+  id           Int         @id @default(autoincrement())
+  title        String
+  slug         String      @unique
+  content      String      @db.LongText
+  imagePath    String?
+  videoPath    String?
+  sourceName   String?
+  sourceLink   String?
+  youtubeUrl   String?     @db.VarChar(255)
+  status       status_enum @default(active)
+  publishedAt  DateTime?
+  categoryId   Int?
+  subCategoryId Int?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  createdBy    Int
+  user         User        @relation("NewsCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+  category     Category?   @relation("NewsCategory", fields: [categoryId], references: [id], onDelete: SetNull)
+  subCategory  SubCategory? @relation("NewsSubCategory", fields: [subCategoryId], references: [id], onDelete: SetNull)
   @@index([status, publishedAt])
+  @@index([categoryId])
+  @@index([subCategoryId])
 }
 
 model Article {
-  id          Int         @id @default(autoincrement())
-  title       String
-  slug        String      @unique
-  content     String      @db.LongText
-  imagePath   String?
-  videoPath   String?
-  sourceName  String?
-  sourceLink  String?
-  youtubeUrl  String?     @db.VarChar(255)
-  status      status_enum @default(active)
-  publishedAt DateTime?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  createdBy   Int
-  user        User        @relation("ArticleCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+  id           Int         @id @default(autoincrement())
+  title        String
+  slug         String      @unique
+  content      String      @db.LongText
+  imagePath    String?
+  videoPath    String?
+  sourceName   String?
+  sourceLink   String?
+  youtubeUrl   String?     @db.VarChar(255)
+  status       status_enum @default(active)
+  publishedAt  DateTime?
+  categoryId   Int?
+  subCategoryId Int?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  createdBy    Int
+  user         User        @relation("ArticleCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+  category     Category?   @relation("ArticleCategory", fields: [categoryId], references: [id], onDelete: SetNull)
+  subCategory  SubCategory? @relation("ArticleSubCategory", fields: [subCategoryId], references: [id], onDelete: SetNull)
   @@index([status, publishedAt])
+  @@index([categoryId])
+  @@index([subCategoryId])
 }
 
 model Language {
@@ -287,4 +301,52 @@ model RestoreLog {
   restoredBy    Int
   user          User      @relation("RestoreLogRestoredBy", fields: [restoredBy], references: [id], onDelete: Cascade)
   backup        Backup    @relation(fields: [backupId], references: [id], onDelete: Cascade)
+}
+// Tambahkan enum baru
+enum content_type_enum {
+  news
+  article
+  both
+}
+
+// Update Model Category
+model Category {
+  id           Int          @id @default(autoincrement())
+  name         String
+  slug         String        @unique
+  description  String?
+  type         content_type_enum @default(both)  // ✅ TAMBAHKAN INI
+  status       status_enum  @default(active)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  createdBy    Int
+  user         User         @relation("CategoryCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+  subCategories SubCategory[]
+  news         News[]       @relation("NewsCategory")
+  articles     Article[]    @relation("ArticleCategory")
+  @@index([status])
+  @@index([slug])
+  @@index([type])  // ✅ TAMBAHKAN INDEX
+}
+
+// Update Model SubCategory
+model SubCategory {
+  id           Int          @id @default(autoincrement())
+  name         String
+  slug         String        @unique
+  description  String?
+  categoryId   Int
+  type         content_type_enum @default(both)  // ✅ TAMBAHKAN INI
+  status       status_enum  @default(active)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  createdBy    Int
+  user         User         @relation("SubCategoryCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+  category     Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  news         News[]       @relation("NewsSubCategory")
+  articles     Article[]    @relation("ArticleSubCategory")
+  @@index([categoryId])
+  @@index([status])
+  @@index([slug])
+  @@index([type])  // ✅ TAMBAHKAN INDEX
 }

@@ -14,6 +14,10 @@ export interface Article {
   publishedAt?: string
   createdAt: string
   updatedAt: string
+  categoryId?: number
+  subCategoryId?: number
+  category?: { id: number; name: string; slug: string }
+  subCategory?: { id: number; name: string; slug: string }
   user?: { id: number; name: string; email: string }
 }
 
@@ -21,12 +25,12 @@ export const ARTICLE_IMAGE_BASE = UPLOAD_BASE_URL
 
 class ArticleService {
   async getArticle(): Promise<Article[]> {
-    const res = await api.get('/public/article')
+    const res = await api.get('/article')
     return res.data
   }
 
   async getArticleBySlug(slug: string): Promise<Article> {
-    const res = await api.get(`/public/article/${slug}`)
+    const res = await api.get(`/article/${slug}`)
     return res.data
   }
 }

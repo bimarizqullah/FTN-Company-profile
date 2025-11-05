@@ -40,7 +40,7 @@ function processHtmlContent(html: string | undefined): string {
   if (!html) return ''
 
   // Check if we're in browser environment
-  if (typeof document === 'undefined') return html
+  if (typeof window === 'undefined' || typeof document === 'undefined') return html
 
   // Create a temporary div to parse HTML
   const tempDiv = document.createElement('div')
@@ -86,6 +86,27 @@ const hasYoutube = computed(() => {
       <h1 class="text-3xl md:text-4xl font-bold mb-3 text-gray-900 dark:text-white leading-tight">
         {{ item.title }}
       </h1>
+      <!-- Category & Sub-Category Tags -->
+      <div v-if="item.category || item.subCategory" class="flex flex-wrap gap-2 mb-4">
+        <span
+          v-if="item.category"
+          class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-sm"
+        >
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+          </svg>
+          {{ item.category.name }}
+        </span>
+        <span
+          v-if="item.subCategory"
+          class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-200 dark:border-purple-800 shadow-sm"
+        >
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          {{ item.subCategory.name }}
+        </span>
+      </div>
       <div class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mb-6 border-y border-gray-200 dark:border-gray-700 py-3 flex flex-wrap gap-x-4 gap-y-2">
         {{ item.publishedAt ? new Date(item.publishedAt).toLocaleString() : '-' }}
         <span v-if="item.sourceName" class="ml-2">• Sumber:

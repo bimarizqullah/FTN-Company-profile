@@ -31,6 +31,10 @@ interface NewsItem {
   publishedAt?: string
   sourceName?: string
   sourceLink?: string
+  categoryId?: number
+  subCategoryId?: number
+  category?: { id: number; name: string; slug: string }
+  subCategory?: { id: number; name: string; slug: string }
 }
 
 interface NewsModalProps {
@@ -159,6 +163,10 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string>('')
   const [youtubeUrl, setYoutubeUrl] = useState<string>('')
   const [dragActive, setDragActive] = useState(false)
+  const [categories, setCategories] = useState<Array<{ id: number; name: string; slug: string }>>([])
+  const [subCategories, setSubCategories] = useState<Array<{ id: number; name: string; slug: string; categoryId: number }>>([])
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('')
+  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<string>('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
     const editor = useEditor({
@@ -182,6 +190,31 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
       immediatelyRender: false // Mencegah hydration mismatch
     })
 
+  // Fetch categories
+  useEffect(() => {
+    if (isOpen) {
+      const token = localStorage.getItem('token') || ''
+      fetch('/api/category', { headers: { Authorization: `Bearer ${token}` } })
+        .then(res => res.json())
+        .then(data => setCategories(data))
+        .catch(() => {})
+    }
+  }, [isOpen])
+
+  // Fetch subCategories when category is selected
+  useEffect(() => {
+    if (selectedCategoryId) {
+      const token = localStorage.getItem('token') || ''
+      fetch(`/api/sub-category?categoryId=${selectedCategoryId}`, { headers: { Authorization: `Bearer ${token}` } })
+        .then(res => res.json())
+        .then(data => setSubCategories(data))
+        .catch(() => {})
+    } else {
+      setSubCategories([])
+      setSelectedSubCategoryId('')
+    }
+  }, [selectedCategoryId])
+
   useEffect(() => {
     if (news) {
       setStatus(news.status)
@@ -194,8 +227,18 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
       setPreviewUrl(news.imagePath || '')
       setVideoPreviewUrl(news.videoPath || '')
       setYoutubeUrl(news.youtubeUrl || '')
+      setSelectedCategoryId(news.categoryId?.toString() || '')
+      setSelectedSubCategoryId(news.subCategoryId?.toString() || '')
       setSelectedFile(null)
       setSelectedVideo(null)
+      // Fetch subCategories if category exists
+      if (news.categoryId) {
+        const token = localStorage.getItem('token') || ''
+        fetch(`/api/sub-category?categoryId=${news.categoryId}`, { headers: { Authorization: `Bearer ${token}` } })
+          .then(res => res.json())
+          .then(data => setSubCategories(data))
+          .catch(() => {})
+      }
     } else {
       setStatus('active')
       setTitle('')
@@ -207,8 +250,11 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
       setPreviewUrl('')
       setVideoPreviewUrl('')
       setYoutubeUrl('')
+      setSelectedCategoryId('')
+      setSelectedSubCategoryId('')
       setSelectedFile(null)
       setSelectedVideo(null)
+      setSubCategories([])
     }
   }, [news])
 
@@ -293,6 +339,8 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
       if (selectedFile) formData.append('image', selectedFile)
       if (selectedVideo) formData.append('video', selectedVideo)
       if (youtubeUrl) formData.append('youtubeUrl', youtubeUrl)
+      if (selectedCategoryId) formData.append('categoryId', selectedCategoryId)
+      if (selectedSubCategoryId) formData.append('subCategoryId', selectedSubCategoryId)
 
       const url = news ? `/api/news/${news.id}` : `/api/news`
       const method = news ? 'PUT' : 'POST'
@@ -483,6 +531,40 @@ export default function NewsModal({ isOpen, onClose, news, onSuccess }: NewsModa
               </div>
             </div>
 
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Kategori</label>
+              <select
+                value={selectedCategoryId}
+                onChange={(e) => {
+                  setSelectedCategoryId(e.target.value)
+                  setSelectedSubCategoryId('') // Reset subCategory when category changes
+                }}
+                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
+              >
+                <option value="">Pilih Kategori (Opsional)</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Sub-Kategori</label>
+              <select
+                value={selectedSubCategoryId}
+                onChange={(e) => setSelectedSubCategoryId(e.target.value)}
+                disabled={!selectedCategoryId}
+                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black disabled:bg-gray-100 disabled:cursor-not-allowed"
+              >
+                <option value="">Pilih Sub-Kategori (Opsional)</option>
+                {subCategories.map(sub => (
+                  <option key={sub.id} value={sub.id}>{sub.name}</option>
+                ))}
+              </select>
+              {!selectedCategoryId && (
+                <p className="text-xs text-gray-500 mt-1">Pilih kategori terlebih dahulu</p>
+              )}
+            </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Tanggal Terbit</label>
               <input type="datetime-local" value={publishedAt} onChange={(e) => setPublishedAt(e.target.value)} className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black" />

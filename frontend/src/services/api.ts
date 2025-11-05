@@ -12,6 +12,7 @@ export { API_BASE_URL }
 // Membuat instance axios dengan konfigurasi default
 const api = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },

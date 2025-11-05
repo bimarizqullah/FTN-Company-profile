@@ -22,9 +22,25 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
         sourceLink: true,
         status: true,
         publishedAt: true,
+        categoryId: true,
+        subCategoryId: true,
         createdAt: true,
         updatedAt: true,
-        user: { select: { id: true, name: true, email: true } }
+        user: { select: { id: true, name: true, email: true } },
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true
+          }
+        },
+        subCategory: {
+          select: {
+            id: true,
+            name: true,
+            slug: true
+          }
+        }
       }
     })
 

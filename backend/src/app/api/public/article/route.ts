@@ -20,9 +20,25 @@ export async function GET(req: NextRequest) {
         sourceName: true,
         sourceLink: true,
         publishedAt: true,
+        categoryId: true,
+        subCategoryId: true,
         createdAt: true,
         updatedAt: true,
-        status: true
+        status: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true
+          }
+        },
+        subCategory: {
+          select: {
+            id: true,
+            name: true,
+            slug: true
+          }
+        }
       }
     })
     return NextResponse.json(articles)

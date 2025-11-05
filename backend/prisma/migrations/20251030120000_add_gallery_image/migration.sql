@@ -24,7 +24,7 @@ WHERE `imagePath` IS NOT NULL AND `imagePath` <> '';
 
 /* 3) Remove old column from Gallery now that images live in GalleryImage.
 	It's safe to drop because we migrated existing values above. */
-ALTER TABLE `Gallery` DROP COLUMN IF EXISTS `imagePath`;
+ALTER TABLE `Gallery` DROP COLUMN `imagePath`;
 
 -- End of migration
 

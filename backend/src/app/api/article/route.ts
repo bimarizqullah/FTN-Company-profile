@@ -5,32 +5,27 @@ import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
 import { verifyToken } from '@/lib/auth'
 
-export async function GET(req: NextRequest) {
-  // Jadikan endpoint list article publik agar mudah dipakai di Dashboard maupun frontend
-
-  try {
-    const articles = await prisma.article.findMany({
-      orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        content: true,
-        imagePath: true,
-        videoPath: true,
-        youtubeUrl: true,
-        sourceName: true,
-        sourceLink: true,
-        status: true,
-        publishedAt: true,
-        createdAt: true,
-        updatedAt: true,
-      }
-    })
-    return NextResponse.json(articles)
-  } catch (error: any) {
-    return NextResponse.json({ message: 'Gagal mengambil data artikel', error: error.message }, { status: 500 })
-  }
+export async function GET() {
+  const articles = await prisma.article.findMany({
+    where: {
+      status: 'active',
+      OR: [
+        { category: { type: { in: ['article', 'both'] } } },
+        { subCategory: { type: { in: ['article', 'both'] } } },
+        { category: null, subCategory: null }
+      ]
+    },
+    orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
+    select: {
+      id: true, title: true, slug: true, content: true, imagePath: true,
+      videoPath: true, youtubeUrl: true, sourceName: true, sourceLink: true,
+      status: true, publishedAt: true, createdAt: true, updatedAt: true,
+      categoryId: true, subCategoryId: true,
+      category: { select: { id: true, name: true, slug: true } },
+      subCategory: { select: { id: true, name: true, slug: true } }
+    }
+  })
+  return NextResponse.json(articles)
 }
 
 export async function POST(req: NextRequest) {
@@ -50,6 +45,10 @@ export async function POST(req: NextRequest) {
     const status = (formData.get('status')?.toString() || 'active') as 'active' | 'inactive'
     const publishedAtStr = formData.get('publishedAt')?.toString()
     const publishedAt = publishedAtStr ? new Date(publishedAtStr) : null
+    const categoryIdStr = formData.get('categoryId')?.toString()
+    const categoryId = categoryIdStr ? Number(categoryIdStr) : undefined
+    const subCategoryIdStr = formData.get('subCategoryId')?.toString()
+    const subCategoryId = subCategoryIdStr ? Number(subCategoryIdStr) : undefined
     const file = formData.get('image') as File | null
     const video = formData.get('video') as File | null
 
@@ -96,6 +95,25 @@ export async function POST(req: NextRequest) {
     }
     const userId = Number((decoded as any).userId)
 
+    // Validasi category dan subCategory jika diberikan
+    if (categoryId) {
+      const category = await prisma.category.findUnique({ where: { id: categoryId } })
+      if (!category) {
+        return NextResponse.json({ message: 'Kategori tidak ditemukan' }, { status: 404 })
+      }
+    }
+
+    if (subCategoryId) {
+      const subCategory = await prisma.subCategory.findUnique({ where: { id: subCategoryId } })
+      if (!subCategory) {
+        return NextResponse.json({ message: 'Sub-kategori tidak ditemukan' }, { status: 404 })
+      }
+      // Validasi bahwa subCategory termasuk dalam category yang dipilih
+      if (categoryId && subCategory.categoryId !== categoryId) {
+        return NextResponse.json({ message: 'Sub-kategori tidak termasuk dalam kategori yang dipilih' }, { status: 400 })
+      }
+    }
+
     const created = await prisma.article.create({
       data: {
         title,
@@ -108,7 +126,25 @@ export async function POST(req: NextRequest) {
         sourceName,
         sourceLink,
         publishedAt: publishedAt || undefined,
+        categoryId: categoryId || null,
+        subCategoryId: subCategoryId || null,
         createdBy: userId
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true
+          }
+        },
+        subCategory: {
+          select: {
+            id: true,
+            name: true,
+            slug: true
+          }
+        }
       }
     })
 
