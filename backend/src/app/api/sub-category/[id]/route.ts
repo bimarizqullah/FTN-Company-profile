@@ -54,7 +54,6 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         slug: body.slug ?? existing.slug,
         description: body.description !== undefined ? body.description : existing.description,
         categoryId: body.categoryId ?? existing.categoryId,
-        type: body.type ?? existing.type,
         status: body.status ?? existing.status
       }
     } else {
@@ -64,17 +63,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         slug: formData.get('slug')?.toString() ?? existing.slug,
         description: formData.get('description')?.toString() ?? existing.description,
         categoryId: formData.get('categoryId') ? Number(formData.get('categoryId')) : existing.categoryId,
-        type: formData.get('type')?.toString() ?? existing.type,
         status: (formData.get('status')?.toString() ?? existing.status) as 'active' | 'inactive'
       }
     }
 
-    // Validasi type
-    if (updateData.type && !['news', 'article', 'both'].includes(updateData.type)) {
-      return NextResponse.json({ message: 'Type harus news, article, atau both' }, { status: 400 })
-    }
-
-    // Cek apakah kategori ada
+    // === OTOMATIS SESUAIKAN TYPE DARI KATEGORI ===
     if (updateData.categoryId && updateData.categoryId !== existing.categoryId) {
       const category = await prisma.category.findUnique({
         where: { id: updateData.categoryId }
@@ -82,9 +75,15 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       if (!category) {
         return NextResponse.json({ message: 'Kategori tidak ditemukan' }, { status: 404 })
       }
+      if (category.type === 'news' || category.type === 'article') {
+        updateData.type = category.type
+      }
+    } else {
+      updateData.type = existing.type
     }
+    // ============================================
 
-    // Cek apakah slug sudah digunakan oleh sub-kategori lain
+    // Cek slug duplikat
     if (updateData.slug && updateData.slug !== existing.slug) {
       const slugExists = await prisma.subCategory.findUnique({
         where: { slug: updateData.slug }
@@ -127,7 +126,6 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json({ message: 'Gagal memperbarui sub-kategori', error: error.message }, { status: 500 })
   }
 }
-
 // DELETE sub-kategori
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await authMiddleware(req)

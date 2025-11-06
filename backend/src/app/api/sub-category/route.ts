@@ -106,6 +106,7 @@ export async function POST(req: NextRequest) {
     if (!['news', 'article', 'both'].includes(data.type)) {
       return NextResponse.json({ message: 'Type harus news, article, atau both' }, { status: 400 })
     }
+    
 
     // Cek apakah kategori ada
     const category = await prisma.category.findUnique({
